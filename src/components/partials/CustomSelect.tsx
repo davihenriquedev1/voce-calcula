@@ -11,12 +11,17 @@ import {
 import { UseFormReturn } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 
+export type Option = {
+  value: any;
+  label: any;
+};
+
 type Props = {
     form: UseFormReturn<any>,
     name:string,
     label?:string,
     placeholder?:string
-    options:string[];
+    options: Option[];
 }
 
 export function CustomSelect({form, name, label, placeholder, options}:Props) {
@@ -36,9 +41,9 @@ export function CustomSelect({form, name, label, placeholder, options}:Props) {
                             <SelectTrigger >
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
-                            <SelectContent  >   
+                            <SelectContent>   
                                 <SelectGroup>
-                                    {options?.map((item, key) => <SelectItem value={item.toLowerCase()} key={key}>{item}</SelectItem>)}
+                                    {options?.map((item, key) => <SelectItem value={item.value.toLowerCase()} key={key}>{item.label}</SelectItem>)}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

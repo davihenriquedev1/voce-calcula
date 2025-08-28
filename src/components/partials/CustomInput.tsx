@@ -18,13 +18,21 @@ type Props = {
     description?:string,
     type:string,
     mask?:(...args:any)=>string
+    maxLength?: number
 }
 
-export const CustomInput = ({form, name, label, placeholder, description, type, mask}:Props) => {
+export const CustomInput = ({maxLength, form, name, label, placeholder, description, type, mask}:Props) => {
 
     const { control, setValue } = form;
 
     const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value;
+
+        if (!rawValue || rawValue === '0') {
+            setValue(name, '');
+            return;
+        }
+
         if(mask) {
             const value = e.target.value;
             const maskedValue = mask(value);
@@ -48,6 +56,7 @@ export const CustomInput = ({form, name, label, placeholder, description, type, 
                         placeholder={placeholder}
                         onChange={handleChange}
                         className="w-full"
+                        maxLength={maxLength}
                     />
                 </FormControl>
                 <FormDescription>

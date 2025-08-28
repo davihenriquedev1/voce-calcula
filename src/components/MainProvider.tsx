@@ -14,7 +14,7 @@ type Props = {
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            gcTime: 1000 * 60 * 60 * 12, // 12 hours
+            gcTime: 1000 * 60 * 60 * 3, // 12 hours
         },
     },
 });
