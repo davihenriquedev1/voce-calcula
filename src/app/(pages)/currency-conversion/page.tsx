@@ -33,7 +33,7 @@ const Page = async () => {
             <HydrationBoundary state={dehydratedState}>
                 <CurrencyConversion />
             </HydrationBoundary>
-        </Suspense> 
+        </Suspense>
     )
 
 }

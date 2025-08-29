@@ -1,5 +1,4 @@
 import { NumberFormat } from "@/types/NumberFormat";
-import { formatNumber } from "../formatters/formatNumber";
 import { Unit } from "@/types/Unit";
 
 export const maskNumberInput = (maxIntDgts?: number, format?: NumberFormat, currency?: string, unit?: Unit) => {
@@ -24,7 +23,7 @@ export const maskNumberInput = (maxIntDgts?: number, format?: NumberFormat, curr
                 let [intPart, decPart] = cleaned.split(',');
                 cleaned = cleanParts(intPart, decPart);
             }
-        }   
+        }
         return cleaned;
     }
 }

@@ -11,9 +11,7 @@ import { CustomSelect } from "@/components/partials/CustomSelect";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import currencies from 'currency-codes';
-import { extraCurrencies } from "@/data/extraCurrencies";
-import { DehydratedState } from "@tanstack/react-query";
-import { LoadingBounce } from "../partials/Loading";
+import { extraCurrencies } from "@/data/extraCurrencies";   
 import { calculateExchangeRate } from "@/utils/calculators/calculateExchangeRate";
 import { ExchangeRates } from "@/types/ExchangeRates";
 import { formatNumber } from "@/utils/formatters/formatNumber";
@@ -23,7 +21,11 @@ type Props = {
 };
 
 const formSchema = z.object({
-    value: z.string().min(1, 'preencha o valor').transform((value) => parseFloat(value).toFixed(2)),
+    value: z.string().min(1, 'preencha o valor').transform((value) => {
+        let cleaned = value.replace(/[^0-9,]/g, "");
+        let stringFloat = cleaned.replace(',', '.');
+        return parseFloat(stringFloat).toFixed(2);
+    }),
     originCurrency: z.string({ required_error: 'selecione a moeda' }),
     destinyCurrency: z.string({ required_error: 'selecione a moeda' })
 });
@@ -82,9 +84,9 @@ const CurrencyConversion = ({ initialData }: Props) => {
                         <form onSubmit={handleSubmit(onSubmit)} className=  "gap-6 flex flex-col w-full  justify-center xs:grid xs:grid-cols-2">
                             <CustomSelect form={form} name="originCurrency" options={options} placeholder="selecione" label="Moeda de Origem" />
                             <CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino" />
-                            <CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput(undefined, "currency", watch('originCurrency'), undefined)} />
+                            <CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput(undefined, "currency", watch('originCurrency'), undefined)} formatParams={{format:"currency", currency: watch('originCurrency'), unit: undefined}} linkedField="originCurrency"/>
                             <div className="flex flex-col">
-                                <span className="bg-gray-200 h-10 p-3 mt-2 text-color-palette1 font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('originCurrency'), undefined)}</span>
+                                <span className="bg-gray-200 h-10 p-3 mt-2 text-color-palette1 font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}</span>
                             </div>
                             <Button type="submit" className="w-full">Converter</Button>
                             <Button type="reset" className="w-full bg-color-palette5 hover:bg-color-palette5 hover:brightness-150" onClick={handleReset}>Resetar</Button>
