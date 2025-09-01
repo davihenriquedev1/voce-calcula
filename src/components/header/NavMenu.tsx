@@ -15,7 +15,7 @@ const NavMenu = () => {
     return (
         <NavigationMenu>
             <NavigationMenuList>
-                <NavigationMenuItem>
+                <NavigationMenuItem >
                     <Link href="/" legacyBehavior passHref>
                         <NavigationMenuLink
                             className={navigationMenuLinkStyle({

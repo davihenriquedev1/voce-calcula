@@ -11,8 +11,8 @@ const Header = () => {
     const screen = useScreen();
 
     return (
-        <header className="">
-            <div className="flex justify-between items-center p-2 bg-color-palette1/50 ">
+        <header className="bg-transparent">
+            <div className="flex justify-between items-center p-2 ">
                 <div className="flex items-center">
                     <SideBar/>
                     <Logo/>

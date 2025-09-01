@@ -4,18 +4,19 @@ const Home = () => {
 	return (
 		<main className="flex flex-col w-full items-center justify-center">
 
-			<section className="flex flex-col w-full py-10 justify-between bg-gray-500/5 md:flex-row gap-1  md:py-14">
-				<div className="flex justify-start h-full p-4 md:flex-1 ">
-					<div className="text-5xl text-color-palette2 font-bold text-shadow-bottom-left shadow-black/50 sm:text-8xl md:p-5">
-						<p>Calcule,</p>
-						<p>Simule,</p>
-						<p>Resolva.</p>
+			<section className="flex flex-col w-full py-10 justify-between md:flex-row gap-1 md:py-14">
+				<div className="flex justify-start h-full p-4 md:flex-1">
+					<div className="text-5xl font-bold sm:text-8xl md:p-5 text-secondary ">
+					<p>Calcule,</p>
+					<p className="text-primary">Simule,</p>
+					<p>Resolva.</p>
 					</div>
 				</div>
-				<div className="h-full flex justify-end items-end md:flex-1 ">
-					<img src="/images/doll-and-calculator.png" alt="" className="w-[70%] md:w-[90%]"/>
+				<div className="h-full flex justify-end items-end md:flex-1">
+					
 				</div>
 			</section>
+
 
 			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 bg-gradient-to-t from-color-palette1/5 to-gray-500/5">
 				
