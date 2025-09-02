@@ -4,12 +4,12 @@ const Home = () => {
 	return (
 		<main className="flex flex-col w-full items-center justify-center">
 
-			<section className="flex flex-col w-full py-10 justify-between md:flex-row gap-1 md:py-14">
+			<section className="flex flex-col w-full py-10 justify-between md:flex-row gap-1 md:py-14 bg-bgcalcgreen bg-cover bg-right ">
 				<div className="flex justify-start h-full p-4 md:flex-1">
 					<div className="text-5xl font-bold sm:text-8xl md:p-5 text-secondary ">
 					<p>Calcule,</p>
 					<p className="text-primary">Simule,</p>
-					<p>Resolva.</p>
+					<p className="text-foreground">Resolva.</p>
 					</div>
 				</div>
 				<div className="h-full flex justify-end items-end md:flex-1">
@@ -18,7 +18,7 @@ const Home = () => {
 			</section>
 
 
-			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 bg-gradient-to-t from-color-palette1/5 to-gray-500/5">
+			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 ">
 				
 				<div className="flex w-full justify-center items-center ">
 					<h2 className="font-extrabold tracking-wide text-center text-4xl md:text-6xl text-color-palette2 text-shadow-bottom-left shadow-black/50">Múltiplas Calculadoras</h2>

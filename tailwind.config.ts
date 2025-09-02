@@ -51,18 +51,10 @@ const config: Config = {
 					'4': 'var(--chart-4)',
 					'5': 'var(--chart-5)',
 				},
-				'background-palette': '#02284F', 
-				'details-palette': '#89FF2B',
-				'secondary-palette': '#025951',
-				'secondary-palette2': '#02735E',
-				'section-cards-palette': '#038C3E',
-				'primary-text-palette': '#30343B',
-				'secondary-text-palette': '#80848A',
-				'primary-text-dark-palette': '#F7FCFC',
-				'secondary-text-dark-palette': '#EDEFE0',
-				'success-palette': '#0CF25D', 
-				'error-palette': '#EF4444',
-				'alert-palette': '#FFE13C'	
+				section: 'var(--section)',
+			},
+			backgroundImage: {
+				bgcalcgreen: 'var(--bgcalcgreen)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

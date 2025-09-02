@@ -27,7 +27,7 @@ const NavMenuDrop = () => {
                     <Link href="/" legacyBehavior passHref>Home</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className={dropDownMenuLinkStyle({active: pathname === "/about",})}>
-                    <Link href="/about" passHref>About us</Link>
+                    <Link href="/about" passHref>Sobre nós</Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

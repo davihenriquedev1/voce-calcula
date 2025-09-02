@@ -33,6 +33,9 @@ body {
     --chart-3:#02735E;
     --chart-4:#89FF2B;
     --chart-5:#0CF25D;
+    --sectio1:#156172;
+    --section2:#0b343d;
+    --bgcalcgreen: url('/images/bg-calc-green.png');
   }
   .dark {
     --background:#000820;
@@ -59,9 +62,11 @@ body {
     --chart-3:#02735E;
     --chart-4:#038C3E;
     --chart-5:#0CF25D;
+    --section1:#00110d;
+    --section2: #001d0e;
+    --bgcalcgreen: url('/images/bg-calc-green-dark.jpg');
   }
 }
-
 
 @keyframes bounce {
   0%, 20%, 100% {

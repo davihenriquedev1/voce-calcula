@@ -33,7 +33,7 @@ const NavMenu = () => {
                             active: pathname === "/about",
                             })}
                         >                        
-                            About us
+                            Sobre nós
                         </NavigationMenuLink>
                     </Link>
                 </NavigationMenuItem>
