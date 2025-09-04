@@ -1,6 +1,10 @@
+"use client";
+
 import { Frame } from "@/components/partials/Frame";
+import { useTheme } from "next-themes";
 
 const Home = () => {
+	const {theme} = useTheme();
 	return (
 		<main className="flex flex-col w-full items-center justify-center">
 
@@ -21,15 +25,15 @@ const Home = () => {
 			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 ">
 				
 				<div className="flex w-full justify-center items-center ">
-					<h2 className="font-extrabold tracking-wide text-center text-4xl md:text-6xl text-color-palette2 text-shadow-bottom-left shadow-black/50">Múltiplas Calculadoras</h2>
+					<h2 className="font-extrabold tracking-wide text-center text-2xl sm:text-4xl md:text-6xl bg-greenScribbleTextBg  bg-cover bg-center">Múltiplas Calculadoras</h2>
 				</div>
 				<div className="grid grid-cols-2 h-full gap-3 md:grid-cols-3 md:gap-8">
-					<Frame route="/bmi" title="Calculadora de IMC" desc="Calcule seu Índice de Massa Corporal."/>
-					<Frame route="/scientific" title="Calculadora Cíentífica" desc="Use nossa calculadora avançada."/>
-					<Frame route="/investments" title="Calculadora de Investimentos" desc="Calcule seus rendimentos."/>
-					<Frame route="/loans" title="Calculadora de Empréstimos" desc="Calcule o quanto você vai pagar."/>
-					<Frame route="/currency-conversion" title="Calculadora de Conversão de Moedas" desc="Veja a conversão de Real pra Dólar e muito mais."/>
-					<Frame route="/personal-finance" title="Calculadora de Finanças Pessoais" desc="Planeje suas finanças pessoais."/>
+					<Frame route="/bmi" title="Calculadora de IMC" desc="Calcule seu Índice de Massa Corporal." bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/bmi-card.png" bgColor="bg-softgray"/>
+					<Frame route="/scientific" title="Calculadora Cíentífica" desc="Use nossa calculadora avançada." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/calc-card.png"/>
+					<Frame route="/investments" title="Calculadora de Investimentos" desc="Calcule seus rendimentos." bgColorTitle="bg-chart-5"  colorTitle="text-section2" bgColor="bg-softgray" cardIcon="/images/cards/investments-card.png"/>
+					<Frame route="/loans" title="Calculadora de Empréstimos" desc="Calcule o quanto você vai pagar." bgColorTitle="bg-popover"  colorTitle="text-section2" bgColor="bg-card-foreground" descColor="text-card" linkColor="text-card" cardIcon="/images/cards/emprestimo-card.png"/>
+					<Frame route="/currency-conversion" title="Calculadora de Conversão de Moedas" desc="Veja a conversão de Real pra Dólar e muito mais." bgColor="bg-softgray" bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/exchange-card.png"/>
+					<Frame route="/personal-finance" title="Calculadora de Finanças Pessoais" desc="Planeje suas finanças pessoais." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/personal-finance-card.png" />
 				</div>
 
 			</section >

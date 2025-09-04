@@ -51,10 +51,13 @@ const config: Config = {
 					'4': 'var(--chart-4)',
 					'5': 'var(--chart-5)',
 				},
-				section: 'var(--section)',
+				section1: 'var(--section1)',
+				section2: 'var(--section2)',
+				softgray: 'var(--softgray)',
 			},
 			backgroundImage: {
-				bgcalcgreen: 'var(--bgcalcgreen)'
+				bgcalcgreen: 'var(--bgcalcgreen)',
+				greenScribbleTextBg: 'var(--green-scribble-text-bg)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -33,9 +33,11 @@ body {
     --chart-3:#02735E;
     --chart-4:#89FF2B;
     --chart-5:#0CF25D;
-    --sectio1:#156172;
+    --section1:#156172;
     --section2:#0b343d;
+    --softgray: #f5f5f5;
     --bgcalcgreen: url('/images/bg-calc-green.png');
+    --green-scribble-text-bg: url('/images/green-scribble-text-bg-light.png');
   }
   .dark {
     --background:#000820;
@@ -61,10 +63,12 @@ body {
     --chart-2:#025951;
     --chart-3:#02735E;
     --chart-4:#038C3E;
-    --chart-5:#0CF25D;
+    --chart-5:#00c946;
     --section1:#00110d;
     --section2: #001d0e;
+    --softgray: #7a8078;
     --bgcalcgreen: url('/images/bg-calc-green-dark.jpg');
+    --green-scribble-text-bg: url('/images/green-scribble-text-bg-dark.png');
   }
 }
 
