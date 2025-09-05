@@ -56,20 +56,21 @@ const Page = () => {
     const handleReset = () => {
         setResult(0);
         setCategory(undefined);
+        form.reset({ height: 0, weight: 0 });
     }
 
     return (
         <div className="p-8">
-            <h3 className="text-3xl font-bold text-color-palette6/70 dark:text-color-palette3 mb-8">Calculadora de IMC</h3>
-            <div className="flex flex-col md:flex-row gap-12 justify-center mt-10">
+            <h3 className="text-3xl font-bold text-foreground 3 mb-8">Calculadora de IMC</h3>
+            <section className="flex flex-col md:flex-row gap-12 justify-center mt-10">
 
                 <div className="flex justify-center flex-1 md:max-w-[200px]">
                     <Form {...form}>
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 flex flex-col items-center justify-center max-w-[200px]" >
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex flex-col items-center justify-center max-w-[200px]" >
                             <CustomInput form={form} type="text" name="height" label="Altura" description="Digite sua altura (ex: 1,80)" mask={maskNumberInput(1, "unit", "", "meter")} maxLength={4}/>
                             <CustomInput form={form} type="text" name="weight" label="Peso" description="Digite seu peso em Kg (78,3)" mask={maskNumberInput(3, "unit", "", "kilogram")}  maxLength={6}/>
-                            <Button type="submit" className="w-full">Calcular</Button>
-                            <Button type="reset" className="w-full bg-color-palette5 hover:bg-color-palette5 hover:brightness-150" onClick={() => handleReset()}>Resetar</Button>
+                            <Button type="submit" className="w-full font-semibold">Calcular</Button>
+                            <Button type="reset" className="w-full font-semibold bg-secondary text-secondary-foreground hover:brightness-150" onClick={() => handleReset()}>Resetar</Button>
                         </form>
                     </Form>
                 </div>
@@ -95,7 +96,22 @@ const Page = () => {
                     }
                 </div>
 
-            </div>
+            </section>
+            <section className="flex flex-col md:flex-row gap-12 justify-center mt-20">
+                <div className="tracking-wider">
+                    <h4 className="text-2xl font-bold text-foreground 3 mb-8">Mas calma, isso não quer dizer que você está <strong className="text-primary">"gordo(a)"</strong> ou <strong className="text-primary">"magro(a)"</strong></h4>
+                    <p className="text-sm md:text-base mb-4">
+                        O <strong className="text-primary">IMC (Índice de Massa Corporal)</strong> é uma fórmula simples que relaciona peso e altura: IMC = peso ÷ altura². Ele foi criado como uma forma rápida de avaliar se o peso de uma pessoa está dentro de um intervalo considerado “saudável”. Apesar de ser útil para estudos populacionais, não é um parâmetro confiável para saber se alguém está “gordo” ou em boa forma física, porque <strong className="text-primary">não diferencia massa muscular, gordura ou água corporal</strong>.
+                    </p>
+                    <p className="text-sm md:text-base">
+                        Por exemplo, atletas muito musculosos podem ter um IMC alto e ainda assim serem extremamente saudáveis, enquanto pessoas com pouca musculatura e mais gordura podem ter um IMC considerado normal e ainda assim apresentar riscos à saúde. Além disso, o IMC não leva em conta <strong className="text-primary">distribuição de gordura, idade ou sexo</strong>, fatores que influenciam diretamente a saúde. Ou seja, ele serve apenas como uma referência geral, não substituindo avaliações mais precisas como percentual de gordura, circunferência abdominal ou exames médicos.
+                    </p>
+                </div>
+                <div>
+
+                </div>
+
+            </section>
         </div>
     )
 }

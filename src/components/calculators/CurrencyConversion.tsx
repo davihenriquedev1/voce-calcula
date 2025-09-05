@@ -69,27 +69,27 @@ const CurrencyConversion = ({ initialData }: Props) => {
     }
     
     const handleReset = () => {
-        form.reset({ value: '', originCurrency: '', destinyCurrency: '' });
+        form.reset({ value: '' });
         setResult(0);
     };
 
     return (
        
         <div className="p-8">
-            <h3 className="text-3xl font-bold text-color-palette6/70 dark:text-color-palette3 mb-8">Conversor de Moedas</h3>
+            <h3 className="text-3xl font-bold text-foreground mb-8">Conversor de Moedas</h3>
             <div className="flex flex-col md:flex-row gap-12 justify-center mt-10">
                 <div className="flex flex-col items-center justify-center flex-1 md:max-w-[400px]">
-                    {errorMessage && <div className="text-sm to-color-palette5 ">{errorMessage} :(</div>}
+                    {errorMessage && <div className="text-sm text-destructive ">{errorMessage} :(</div>}
                     <Form {...form}>
                         <form onSubmit={handleSubmit(onSubmit)} className=  "gap-6 flex flex-col w-full  justify-center xs:grid xs:grid-cols-2">
                             <CustomSelect form={form} name="originCurrency" options={options} placeholder="selecione" label="Moeda de Origem" />
                             <CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino" />
                             <CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput(undefined, "currency", watch('originCurrency'), undefined)} formatParams={{format:"currency", currency: watch('originCurrency'), unit: undefined}} linkedField="originCurrency"/>
                             <div className="flex flex-col">
-                                <span className="bg-gray-200 h-10 p-3 mt-2 text-color-palette1 font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}</span>
+                                <span className="bg-softgray h-10 p-3 mt-2 text-foreground font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}</span>
                             </div>
-                            <Button type="submit" className="w-full">Converter</Button>
-                            <Button type="reset" className="w-full bg-color-palette5 hover:bg-color-palette5 hover:brightness-150" onClick={handleReset}>Resetar</Button>
+                            <Button type="submit" className="w-full font-semibold">Converter</Button>
+                            <Button type="reset" className="w-full font-semibold bg-secondary text-secondary-foreground hover:brightness-150" onClick={handleReset}>Resetar</Button>
                         </form>
                     </Form>
                 </div>

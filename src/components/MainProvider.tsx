@@ -6,6 +6,7 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "./theme-provider";
 import { ReactNode } from "react";
+import { SidebarProvider } from "./ui/sidebar";
 
 type Props = {
     children:ReactNode
@@ -26,14 +27,15 @@ const persister = createSyncStoragePersister({
 export const MainProvider = ({children}:Props) => {
     return (
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
-            <ThemeProvider  
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-            >
-                {children}
-            </ThemeProvider>
+           
+                <ThemeProvider  
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    {children}
+                </ThemeProvider>
             <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" position="bottom"
             />
         </PersistQueryClientProvider>

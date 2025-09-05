@@ -2,8 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap');
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif; /* texto padrão */
+}
+
+/* Opcional: título padrão com Lexend */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lexend', sans-serif;
 }
 
 @layer base {
@@ -39,6 +46,15 @@ body {
     --bgcalcgreen: url('/images/bg-calc-green.png');
     --bg-green-simbols: url('/images/bg-green-simbols-light.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-light.png');
+    --sidebar-background:#ffffff;
+    --sidebar-foreground:#000820;
+    --sidebar-primary:#000820;
+    --sidebar-primary-foreground:#89FF2B;
+    --sidebar-accent:#038C3E;
+    --sidebar-accent-foreground:#000000;
+    --sidebar-border: #89FF2B;
+    --sidebar-ring: #0CF25D;
+    --dark-icon: invert(0);
   }
   .dark {
     --background:#000820;
@@ -71,6 +87,15 @@ body {
     --bgcalcgreen: url('/images/bg-calc-green-dark.jpg');
     --bg-green-simbols: url('/images/bg-green-simbols-dark.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-dark.png');
+    --sidebar-background: #01071b;
+    --sidebar-foreground: #F7FCFC;
+    --sidebar-primary: #89FF2B;
+    --sidebar-primary-foreground: #000820;
+    --sidebar-accent: #025951;
+    --sidebar-accent-foreground: #F7FCFC;
+    --sidebar-border:#89FF2B;
+    --sidebar-ring: #0CF25D;
+    --dark-icon: invert(1);
   }
 }
 
@@ -98,4 +123,15 @@ body {
 
 .bounce-delay-3 {
   animation-delay: 0.6s; /* 600ms delay */
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
