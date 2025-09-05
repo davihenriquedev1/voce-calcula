@@ -57,6 +57,7 @@ const config: Config = {
 			},
 			backgroundImage: {
 				bgcalcgreen: 'var(--bgcalcgreen)',
+				bgGreenSimbols: 'var(--bg-green-simbols)',
 				greenScribbleTextBg: 'var(--green-scribble-text-bg)'
 			},
 			borderRadius: {
