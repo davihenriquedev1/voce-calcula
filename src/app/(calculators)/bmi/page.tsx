@@ -40,7 +40,6 @@ const Page = () => {
     const { handleSubmit } = form;
 
     function onSubmit(values: FormValues) {
-        console.log(values)
         const height = values.height;
         const weight = values.weight;
         const bmi = calculateBmi(height, weight);

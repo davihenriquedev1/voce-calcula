@@ -9,9 +9,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "../ui/button";
 
 // Menu items.
 const items = [
@@ -25,9 +27,11 @@ const items = [
 
 export function AppSidebar() {
 	const route = usePathname();
+    const { openMobile, setOpenMobile } = useSidebar();
 
     return (
-        <Sidebar className="">
+        <Sidebar className="relative">
+            <Button className="font-bold absolute left-full rounded-none rounded-br-sm" onClick={() => setOpenMobile(false)}>x</Button>
             <SidebarContent >
                 <SidebarGroup>
                     <SidebarGroupLabel className="text-base md:text-2xl text-secondary rounded-none font-bold tracking-wide ">Calculadoras</SidebarGroupLabel>
@@ -37,7 +41,7 @@ export function AppSidebar() {
                         {items.map((item) => (
                            <SidebarMenuItem key={item.title} className="p-1 ">
 								<SidebarMenuButton asChild data-active={route === item.url}>
-									<Link href={item.url} className="flex items-center gap-2">
+									<Link href={item.url} className="flex items-center gap-2" onClick={() => setOpenMobile(false)}>
 										<div className="p-1 rounded-full bg-sidebar-ring ">
 											<img src={item.icon} alt={item.title} className="w-6" />
 										</div>

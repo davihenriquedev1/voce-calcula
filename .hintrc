@@ -6,6 +6,16 @@
     "typescript-config/consistent-casing": "off",
     "no-inline-styles": "off",
     "detect-css-reflows/composite": "off",
-    "detect-css-reflows/paint": "off"
+    "detect-css-reflows/paint": "off",
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "scrollbar-width",
+          "scrollbar-width: thin",
+          "scrollbar-color"
+        ]
+      }
+    ]
   }
 }

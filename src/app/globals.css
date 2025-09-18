@@ -55,6 +55,9 @@ h1, h2, h3, h4, h5, h6 {
     --sidebar-border: #89FF2B;
     --sidebar-ring: #0CF25D;
     --dark-icon: invert(0);
+    --scrollbar-track: #6366704d;  
+    --scrollbar-thumb: #646a8357; 
+    --scrollbar-thumb-hover: #2d2f35; /* cor ao passar mouse */
   }
   .dark {
     --background:#000820;
@@ -96,6 +99,9 @@ h1, h2, h3, h4, h5, h6 {
     --sidebar-border:#89FF2B;
     --sidebar-ring: #0CF25D;
     --dark-icon: invert(1);
+    --scrollbar-track: #080e22;  /* cor do fundo do track, igual bg-sidebar */
+    --scrollbar-thumb: #1e2230;;       /* cor do “dedo”, parecido com sidebar-border */
+    --scrollbar-thumb-hover: #424550; /* cor ao passar mouse */
   }
 }
 
@@ -128,10 +134,56 @@ h1, h2, h3, h4, h5, h6 {
 
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar  {
+  width: 6px;   /* mais fina */
+  height: 6px;  /* mais fina */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 6px;
+  border: 1px solid var(--scrollbar-track) !important; /* deixa o thumb mais estreito */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin; /* já deixa fino */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+
+@layer utilities {
+  /* Força sidebar desktop a ficar overlay */
+	.overlay-desktop-sidebar {
+		position: fixed !important; /* igual mobile */
+		z-index: 50;
+		left: 0 !important;
+		top: 0;
+		height: 100vh !important;
+		width: var(--sidebar-width) !important;
+		transition: none !important; /* opcional, pra evitar animação estranha */
+	}
+
+	/* Esconde qualquer gap que empurre conteúdo */
+	main {
+		margin-left: 0 !important; /* ou margin-right */
+	}
 }

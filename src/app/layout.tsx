@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<body className="antialiased bg-background text-foreground">
 			<MainProvider>
 			{/* Aqui o Provider envolve o layout inteiro */}
-				<SidebarProvider>
+				<SidebarProvider >
 					<div className="flex min-h-screen w-full">
 					{/* Sidebar */}
 					<AppSidebar />

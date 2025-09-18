@@ -15,12 +15,12 @@ import { UseFormReturn } from "react-hook-form";
 
 type Props = {
     form: UseFormReturn<any>,
-    name:string,
-    label?:string,
-    placeholder?:string,
-    description?:string,
-    type:string,
-    mask?:(...args:any)=>string,
+    name: string,
+    label?: string,
+    placeholder?: string,
+    description?: string,
+    type: string,
+    mask?:(...args:any)=> string,
     formatParams?: {
         format: NumberFormat,
         currency?: string,
