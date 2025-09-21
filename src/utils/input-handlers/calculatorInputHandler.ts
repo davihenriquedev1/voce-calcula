@@ -1,4 +1,3 @@
-// utils/input-handlers/calculatorInputHandler.ts
 import { InputToken } from "@/app/(calculators)/scientific/page";
 import { NotationMode } from "@/app/(calculators)/scientific/page";
 
@@ -9,76 +8,124 @@ export function calculatorInputHandler(
   cursorCharIndex: number
 ): { tokens: InputToken[]; inserted: number } {
 
-    const mathFunctions = ["mod","cos","sin","tan","cosh","sinh","tanh","arg","log","ln","re","im","conj","abs"];
+    // Conjunto de funções matemáticas reconhecidas (precisam de tratamento especial)
+    const mathFunctions = new Set(["mod","cos","sin","tan","cosh","sinh","tanh","arg","log","ln","re","im","conj","abs", "factor"]);
 
-    // make tokens from a single value string (keeps it as one token)
+    // Função auxiliar para transformar o valor digitado em tokens
     const makeTokensForValue = (val: string): InputToken[] => {
-      if (mathFunctions.includes(val.toLowerCase())) {
-        // keep surrounding spaces as you wanted
-        const tokenVal = (inputTokens.length === 0) ? `${val} ` : ` ${val} `;
-        return [{ type: "normal", value: tokenVal }];
-      }
+        // Se o valor digitado for uma função matemática
+		if (mathFunctions.has(val.toLowerCase())) {
+			const tokens: InputToken[] = [];
 
-      if ((mode === "sup" || mode === "sub") && /^[0-9]+$/.test(val)) {
-        return [{ type: mode, value: val }];
-      }
+            // Se já existir algo antes, adiciona um espaço separado
+			if (inputTokens.length > 0) {
+				tokens.push({ type: "normal", value: " " });
+			}
 
-      return [{ type: "normal", value: val }];
-    };
+            // Caso especial para "mod" → é uma função binária, não usa parênteses
+			if (val.toLowerCase() === "mod") {
+				tokens.push({ type: "normal", value: val });
+				tokens.push({ type: "normal", value: " " }); // espaço depois de "mod"
+				return tokens;
+			}
 
-    const insertedTokens = makeTokensForValue(newValue);
-    const insertedChars = insertedTokens.reduce((s, t) => s + (t.value?.length || 0), 0);
+            // Para outras funções matemáticas → adiciona parênteses automaticamente
+			tokens.push({ type: "normal", value: val });
+			tokens.push({ type: "normal", value: "(" });
+			tokens.push({ type: "normal", value: ")" });
+			tokens.push({ type: "normal", value: " " }); 
+			return tokens;
+		}
 
-    // clamp cursorCharIndex
+        // Caso seja sobrescrito ou subscrito → cria token especial
+		if (mode === "sup" || mode === "sub") {
+			return [{ type: mode, value: val }];
+		}
+
+		// Se o usuário digitar apenas espaço, mantém como token independente
+		if (val === " ") {
+			return [{ type: "normal", value: " " }];
+		}
+
+        // Qualquer outro caractere vira token normal
+		return [{ type: "normal", value: val }];
+	};
+
+    // Transforma o valor digitado em lista de tokens
+	const insertedTokens = makeTokensForValue(newValue);
+	
+    // Conta quantos caracteres foram realmente inseridos
+    let insertedChars = insertedTokens.reduce((s, t) => s + (t.value?.length || 0), 0);
+
+    // Se for uma função matemática, ajusta a contagem de caracteres
+	if (mathFunctions.has(newValue.toLowerCase())) {
+		// Verifica se há espaço antes da função
+		const spaceBefore = insertedTokens[0].value === " " ? 1 : 0;
+		// Conta até o parêntese de abertura (ignora o fechamento)
+		insertedChars = insertedTokens.slice(0, spaceBefore + 2).reduce((s, t) => s + t.value.length, 0);
+	}
+
+    // -----------------------------
+    // Localizar a posição do cursor
+    // -----------------------------
+
+    // Calcula total de caracteres já existentes
     const totalChars = inputTokens.reduce((s, t) => s + (t.value?.length || 0), 0);
+
+    // Garante que o cursor não passe do limite
     const charIndex = Math.max(0, Math.min(cursorCharIndex, totalChars));
 
-    // find token index and inner offset
-    let acc = 0;
-    let tokenIndex = inputTokens.length; // default: append
+    // Encontra em qual token e qual posição dentro do token está o cursor
+    let offsetAcc = 0;
+    let tokenIndex = inputTokens.length; // por padrão, adiciona no final
     let innerOffset = 0;
 
     for (let i = 0; i < inputTokens.length; i++) {
-      const len = inputTokens[i].value.length;
-      if (acc + len >= charIndex) {
-        tokenIndex = i;
-        innerOffset = charIndex - acc; // position inside this token
-        break;
-      }
-      acc += len;
+		const len = inputTokens[i].value.length;
+		if (offsetAcc + len >= charIndex) {
+			tokenIndex = i;
+			innerOffset = charIndex - offsetAcc; // posição dentro do token atual
+			break;
+		}
+		offsetAcc += len;
     }
 
-    // build new token array
+    // -----------------------------
+    // Construção do novo array final
+    // -----------------------------
+
     const out: InputToken[] = [];
 
-    // tokens before tokenIndex
+    // Copia todos os tokens até o ponto onde vai inserir
     out.push(...inputTokens.slice(0, tokenIndex));
 
+    // Caso o cursor esteja no final → apenas anexa
     if (tokenIndex === inputTokens.length) {
-      // append at end
-      out.push(...insertedTokens);
-      out.push(...inputTokens.slice(tokenIndex));
-      return { tokens: out, inserted: insertedChars };
+		out.push(...insertedTokens);
+		out.push(...inputTokens.slice(tokenIndex));
+		return { tokens: out, inserted: insertedChars };
     }
 
     const target = inputTokens[tokenIndex];
+
+    // Caso o cursor esteja no início do token → insere antes dele
     if (innerOffset === 0) {
-      // insert before entire token
-      out.push(...insertedTokens);
-      out.push(target, ...inputTokens.slice(tokenIndex + 1));
-      return { tokens: out, inserted: insertedChars };
+		out.push(...insertedTokens);
+		out.push(target, ...inputTokens.slice(tokenIndex + 1));
+		return { tokens: out, inserted: insertedChars };
     }
 
-    // split existing token into left + right
+    // Caso o cursor esteja no meio do token → divide em duas partes
     const leftVal = target.value.slice(0, innerOffset);
     const rightVal = target.value.slice(innerOffset);
+    
+    if (leftVal.length) out.push({ ...target, value: leftVal }); // Parte da esquerda (se existir)
+   
+    out.push(...insertedTokens);  // Inserção
+   
+    if (rightVal.length) out.push({ ...target, value: rightVal });  // Parte da direita (se existir)
+    
+    out.push(...inputTokens.slice(tokenIndex + 1)); // Adiciona o resto dos tokens
 
-    if (leftVal.length) out.push({ ...target, value: leftVal });
-    out.push(...insertedTokens);
-    if (rightVal.length) out.push({ ...target, value: rightVal });
-
-    // append remainder
-    out.push(...inputTokens.slice(tokenIndex + 1));
-
-    return { tokens: out, inserted: insertedChars };
+    return { tokens: out, inserted: insertedChars }; // Retorna os tokens finais e a quantidade de caracteres inseridos
 }
