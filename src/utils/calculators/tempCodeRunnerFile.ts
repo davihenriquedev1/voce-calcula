@@ -1,0 +1,1 @@
+console.log(shuntingYard(tokenize("log(10,2)")));

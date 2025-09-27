@@ -10,7 +10,7 @@ import { CustomInput } from "@/components/partials/CustomInput";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
 import { bmiCategories } from "@/data/bmiData";
 import { useEffect, useState } from "react";
-import { calculateBmi } from "@/utils/calculators/calculateBmi";
+import { calculateBmi } from "@/utils/calculators/bmi";
 import { BmiCategory } from "@/types/BmiCategory";
 
 const formSchema = z.object({

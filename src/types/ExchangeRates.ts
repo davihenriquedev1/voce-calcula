@@ -1,3 +1,3 @@
 export type ExchangeRates = {
-  [key: string]: number;
+    [key: string]: number;
 };

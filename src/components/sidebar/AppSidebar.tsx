@@ -17,12 +17,12 @@ import { Button } from "../ui/button";
 
 // Menu items.
 const items = [
-  { title: "Conversor de Moedas", url: "/currency-conversion", icon: "/images/icons/exchange-rate-button-icon.png" },
-  { title: "Índice de Massa Corpórea", url: "/bmi", icon: "/images/icons/bmi-button-icon.png" },
-  { title: "Calculadora Científica", url: "/scientific", icon: "/images/icons/calc-button-icon.png" },
-  { title: "Investimentos", url: "/investments", icon: "/images/icons/investments-button-icon.png" },
-  { title: "Empréstimo/Financiamento", url: "/loans", icon: "/images/icons/emprestimo-button-icon.png" },
-  { title: "Finanças pessoais", url: "/personal-finance", icon: "/images/icons/personal-finances-button-icon.png" },
+    { title: "Calculadora Científica", url: "/scientific", icon: "/images/icons/calc-button-icon.png" },
+    { title: "Conversor de Moedas", url: "/currency-conversion", icon: "/images/icons/exchange-rate-button-icon.png" },
+    { title: "Empréstimo/Financiamento", url: "/loans", icon: "/images/icons/emprestimo-button-icon.png" },
+    { title: "Finanças pessoais", url: "/personal-finance", icon: "/images/icons/personal-finances-button-icon.png" },
+    { title: "Índice de Massa Corpórea", url: "/bmi", icon: "/images/icons/bmi-button-icon.png" },
+    { title: "Investimentos", url: "/investments", icon: "/images/icons/investments-button-icon.png" }
 ]
 
 export function AppSidebar() {
@@ -31,7 +31,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar className="relative">
-            <Button className="font-bold absolute left-full rounded-none rounded-br-sm" onClick={() => setOpenMobile(false)}>x</Button>
+            <Button className="font-bold bg-sidebar text-primary absolute left-full rounded-none rounded-br-sm border-r border-b" onClick={() => setOpenMobile(false)}>x</Button>
             <SidebarContent >
                 <SidebarGroup>
                     <SidebarGroupLabel className="text-base md:text-2xl text-secondary rounded-none font-bold tracking-wide ">Calculadoras</SidebarGroupLabel>

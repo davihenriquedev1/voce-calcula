@@ -55,7 +55,7 @@ const config: Config = {
     			section2: 'var(--section2)',
     			softgray: 'var(--softgray)',
     			sidebar: {
-    				DEFAULT: 'var(--sidebar-background',
+    				DEFAULT: 'var(--sidebar)',
     				foreground: 'var(--sidebar-foreground)',
     				primary: 'var(--sidebar-primary)',
     				'primary-foreground': 'var(--sidebar-primary-foreground)',

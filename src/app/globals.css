@@ -46,7 +46,7 @@ h1, h2, h3, h4, h5, h6 {
     --bgcalcgreen: url('/images/bg-calc-green.png');
     --bg-green-simbols: url('/images/bg-green-simbols-light.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-light.png');
-    --sidebar-background:#ffffff;
+    --sidebar: #ffffff;
     --sidebar-foreground:#000820;
     --sidebar-primary:#000820;
     --sidebar-primary-foreground:#89FF2B;
@@ -90,7 +90,7 @@ h1, h2, h3, h4, h5, h6 {
     --bgcalcgreen: url('/images/bg-calc-green-dark.jpg');
     --bg-green-simbols: url('/images/bg-green-simbols-dark.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-dark.png');
-    --sidebar-background: #01071b;
+    --sidebar: #01071b;
     --sidebar-foreground: #F7FCFC;
     --sidebar-primary: #89FF2B;
     --sidebar-primary-foreground: #000820;

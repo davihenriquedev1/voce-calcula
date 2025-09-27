@@ -9,12 +9,12 @@ export function calculatorInputHandler(
 ): { tokens: InputToken[]; inserted: number } {
 
     // Conjunto de funções matemáticas reconhecidas (precisam de tratamento especial)
-    const mathFunctions = new Set(["mod","cos","sin","tan","cosh","sinh","tanh","arg","log","ln","re","im","conj","abs", "factor"]);
+    const mathFunctionsAndMod = new Set (["mod","cos","sin","tan","cosh","sinh","tanh","arg","log","ln","re","im","conj","abs", "factor"]);
 
     // Função auxiliar para transformar o valor digitado em tokens
     const makeTokensForValue = (val: string): InputToken[] => {
         // Se o valor digitado for uma função matemática
-		if (mathFunctions.has(val.toLowerCase())) {
+		if (mathFunctionsAndMod.has(val.toLowerCase())) {
 			const tokens: InputToken[] = [];
 
             // Se já existir algo antes, adiciona um espaço separado
@@ -33,7 +33,8 @@ export function calculatorInputHandler(
 			tokens.push({ type: "normal", value: val });
 			tokens.push({ type: "normal", value: "(" });
 			tokens.push({ type: "normal", value: ")" });
-			tokens.push({ type: "normal", value: " " }); 
+			tokens.push({ type: "normal", value: " " });
+
 			return tokens;
 		}
 
@@ -58,7 +59,7 @@ export function calculatorInputHandler(
     let insertedChars = insertedTokens.reduce((s, t) => s + (t.value?.length || 0), 0);
 
     // Se for uma função matemática, ajusta a contagem de caracteres
-	if (mathFunctions.has(newValue.toLowerCase())) {
+	if (mathFunctionsAndMod.has(newValue.toLowerCase())) {
 		// Verifica se há espaço antes da função
 		const spaceBefore = insertedTokens[0].value === " " ? 1 : 0;
 		// Conta até o parêntese de abertura (ignora o fechamento)
