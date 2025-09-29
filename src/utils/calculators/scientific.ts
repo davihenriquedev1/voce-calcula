@@ -4,18 +4,12 @@ type ExpToken =
         | { type: "unary"; value: "neg" | "pos"} // operadores unários
         | { type: "percent" ; value: "%" } 
         | { type: "comma" ; value: "," } 
-        | { type: "function"; value: "cos" | "sin" | "tan" | "cosh" | "sinh" | "tanh" | "abs" | "factor" | "log" | "ln" | "sqrt"}                   // funções: sin, cos, tan, sinh, cosh, tanh, log, ln, abs, factor
+        | { type: "function"; value: "cos" | "sin" | "tan" | "cosh" | "sinh" | "tanh" | "abs" | "factor" | "log" | "ln" | "sqrt"}                   // funções
         | { type: "constant"; value: "pi" | "e" | "i" }          // constantes matemáticas
         | { type: "complex"; value: "re" | "im" | "arg" | "conj" } // funções de número complexo
         | { type: "paren"; value: "(" | ")" };                 // parênteses
 
 type Complex = { re: number; im: number };
-
-const toComplex = (x: number | Complex): Complex =>
-    typeof x === "number" ? { re: x, im: 0 } : x;
-
-const isComplex = (x: number | Complex): x is Complex => 
-    typeof x !== "number";
 
 export const evaluateSafe = (expression:string): { ok: true; result: string } | { ok: false; error: string } => {
     const formatResult = (value: number | { re: number; im: number } | string): string => {
@@ -25,16 +19,24 @@ export const evaluateSafe = (expression:string): { ok: true; result: string } | 
         if (typeof value === "number") {
             if (Object.is(value, -0)) return "0";
             if (Math.abs(value) < 1e-12) return "0";
-            return Number.isInteger(value) ? value.toString() : parseFloat(value.toFixed(12)).toString();
+            // usa formatBigNumber para inteiros grandes / floats
+            if (Number.isInteger(value)) return formatBigNumber(value);
+            return parseFloat(value.toFixed(12)).toString();
         }
+
         // Complex
-        const re = parseFloat(value.re.toFixed(12));
-        const im = parseFloat(value.im.toFixed(12));
-        if (Math.abs(re) < 1e-12 && Math.abs(im) < 1e-12) return "0";
-        if (Math.abs(im) < 1e-12) return `${re}`;
-        if (Math.abs(re) < 1e-12) return `${im}i`;
-        const sign = im >= 0 ? "+" : "-";
-        return `${re}${sign}${Math.abs(im)}i`;
+        const reIsInt = Number.isInteger(value.re);
+        const imIsInt = Number.isInteger(value.im);
+
+        const reStr = reIsInt ? formatBigNumber(value.re) : parseFloat(value.re.toFixed(12)).toString();
+        const imStr = imIsInt ? formatBigNumber(value.im) : parseFloat(value.im.toFixed(12)).toString();
+
+        if (Math.abs(value.re) < 1e-12 && Math.abs(value.im) < 1e-12) return "0";
+        if (Math.abs(value.im) < 1e-12) return reStr;
+        if (Math.abs(value.re) < 1e-12) return `${imStr}i`;
+        const sign = value.im >= 0 ? "+" : "-";
+        return `${reStr}${sign}${Math.abs(Number(imStr))}i`;
+
     }
 
     try {
@@ -51,7 +53,7 @@ function calculateExpression (expression: string) : number | Complex | string  {
     const tokens = tokenize(expression);
     // Shunting Yard: garante que a precedência e associatividade sejam respeitadas
     const rpn = shuntingYard(tokens);
-     // Avaliar em RPN: empilha e desempilha valores.
+    // Retorna a avaliação em RPN (que empilha e desempilha valores)
     return evalRPN(rpn);
 }
 
@@ -64,7 +66,7 @@ function tokenize(expression: string) {
     // helper para inserir token respeitando multiplicação implícita
     const pushToken = (tk: ExpToken) => {
         const prev = tokens[tokens.length - 1];
-        // se existe prev e for um tipo que pode formar multiplicação implícita
+
         const prevAllowsImplicit = !!prev && prev.type !== "comma" && (
             prev.type === "number" ||
             prev.type === "constant" ||
@@ -154,8 +156,28 @@ function tokenize(expression: string) {
         }
                 
         // parenteses
-        if (char === "(" || char === ")") {
-            pushToken({ type: "paren", value: char as any });
+        if (char === "(") {
+            let j = i + 1;
+            while (j < expression.length && expression[j] === " ") j++; // pula espaços
+            const nextChar = expression[j];
+            if (nextChar === undefined) throw new Error("Parêntese vazio '()' não permitido");
+            if (["*", "/", "^", "×", "÷", "!", ","].includes(nextChar)) {
+                throw new Error(`Caractere '${nextChar}' inválido no início de parêntese`);
+            }
+            pushToken({ type: "paren", value: "(" });
+            i++;
+            continue;
+        }
+        if (char === ")") {
+            // antes de empurrar ')', garante que exista algo útil entre parênteses:
+            const prev = tokens[tokens.length - 1];
+            if (!prev) throw new Error("Parêntese fechado sem conteúdo");
+            // se o token anterior for operador/unário/virgula ou um '(' aberto -> parêntese vazio ou inválido
+            if (prev.type === "operator" || prev.type === "unary" || prev.type === "comma" || (prev.type === "paren" && prev.value === "(")) {
+                throw new Error("Parêntese fechado sem conteúdo válido ou com operador solto");
+            }
+
+            pushToken({ type: "paren", value: ")" });
             i++;
             continue;
         }
@@ -235,7 +257,7 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
     const output: ExpToken[] = [];
     const stack: ExpToken[] = [];
 
-    for (const token of tokens) {
+    for (const token of tokens) {   
         switch (token.type) {
             case "number":
             case "constant":
@@ -283,8 +305,9 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
                     stack.push(token);
                 } else {
                     // desempilha até achar "("
+                    if (stack.length === 0) throw new Error("Parêntese fechado sem ser aberto");
                     while (stack.length > 0 && (stack[stack.length -1 ] as any).value !== "(") {
-                        output.push(stack.pop()!);
+                        output.push(stack.pop()!);  
                     }
                     if (stack.length === 0) throw new Error("Parêntese não balanceado");
                     stack.pop(); // remove o "("
@@ -336,10 +359,12 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                 if (token.value === "!") {
                     const a = stack.pop();
                     if (a === undefined) throw new Error("Argumento insuficiente para !");
-                    stack.push(factorial(a));
+                    const res = factorial(a);
+                    // Se factorial retornar string (resultado formatado/pesado), interrompe a avaliação e retorna string
+                    if (typeof res === "string") return res;
+                    stack.push(res as Complex);
                     break;
                 }
-
                 const b = stack.pop();
                 const a = stack.pop();
                 if (a === undefined || b === undefined)
@@ -352,14 +377,8 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                     case "/": stack.push(divide(a, b)); break;
                     case "mod": stack.push(mod(a, b)); break;
                     case "^": {
-                        // Empilha o expoente como expressão, se for fração
-                        const exponent = stack.pop();
-                        const base = stack.pop();
-                        if (base === undefined || exponent === undefined)
-                            throw new Error("Argumentos insuficientes para ^");
-
-                        // Se o expoente for resultado de divisão (fraction), já vai estar como number
-                        stack.push(raise(base, exponent));
+                        // usa os valores já extraídos: a = base, b = exponent
+                        stack.push(raise(a, b));
                         break;
                     }
                     default: throw new Error("Operador não suportado: " + token.value);
@@ -499,22 +518,44 @@ export function mod(a: number | Complex, b: number | Complex): Complex {
 export function raise(base: number | Complex, exp: number | Complex): Complex {
     const b = toComplex(base), e = toComplex(exp);
     if (e.im === 0 && Number.isInteger(e.re) && e.re >= 0) {
-        let res: Complex = { re: 1, im: 0 };
-        for (let i = 0; i < e.re; i++) res = multiply(res, b);
-        return res;
+        const maxExp = 1e6;
+        if (e.re > maxExp) throw new Error("Expoente muito grande para computar");
+
+        let expInt = Math.floor(e.re);
+        let result: Complex = {re:1, im:0};
+        let baseC: Complex = b;
+        while (expInt > 0) {
+            if(expInt % 2 === 1) result = multiply(result, baseC);
+            baseC = multiply(baseC, baseC);
+            expInt = Math.floor(expInt / 2);
+        }
+        return result 
     }
     // fórmula geral: b^e = exp(e * ln(b))
     const lnB = naturalLog(b);
     return expComplex(multiply(e, lnB));
 }
 
-export function factorial(x: number | Complex): Complex {
+export function factorial(x: number | Complex): Complex | string {
     const c = toComplex(x);
     if (c.im !== 0) throw new Error("Fatorial só definido para reais");
     if (c.re < 0 || !Number.isInteger(c.re)) throw new Error("Fatorial inválido");
-    let res = 1;
-    for (let i = 2; i <= c.re; i++) res *= i;
-    return { re: res, im: 0 };
+
+    const n = Math.floor(c.re);
+
+    // Para valores pequenos mantemos Number (até 170! evita Infinity)
+    if (n <= 170) {
+        let res = 1;
+        for (let i = 2; i <= n; i++) res *= i;
+        return { re: res, im: 0 };
+    }
+
+    // Para valores grandes, usar BigInt e formatar a saída como string
+    let res = BigInt(1);
+    const limit = BigInt(n);
+    for (let i = BigInt(2); i <= limit; i++) res *= i;
+
+    return formatBigNumber(res); // string formatada (ex: "6.3507e+3175")
 }
 
 export function squareRoot(x: number | Complex): Complex {
@@ -534,20 +575,36 @@ export function logBase(x: number | Complex, base: number | Complex): Complex {
     return divide(naturalLog(x), naturalLog(base));
 }
 
-function factorizeInteger(n: number): string {
-    if (n < 2) return n.toString();
-    const factors: number[] = [];
-    let num = n;
-    for (let p = 2; p * p <= num; p++) {
-        while (num % p === 0) {
-            factors.push(p);
-            num /= p;
-        }
+function factorizeInteger(nInput: number | bigint): string {
+    let n = typeof nInput === "bigint" ? nInput : BigInt(Math.floor(nInput));
+    
+    const LIMIT =  BigInt(10) ** BigInt(14); // se maior que isso, apenas retorna notação
+    if (n > LIMIT) return formatBigNumber(n);
+
+    const factors: bigint[] = [];
+    while (n % BigInt(2) === BigInt(0)) { 
+        factors.push(BigInt(2)); 
+        n /= BigInt(2); 
     }
-    if (num > 1) factors.push(num);
-    return factors.join(" × ");
+
+    let p = BigInt(3);
+    while (p * p <= n) {
+        while (n % p === BigInt(0)) {
+            factors.push(p);
+            n /= p;
+        }
+        p += BigInt(2);
+    }
+    if (n > BigInt(1)) factors.push(n);
+
+    return factors.map(f => formatBigNumber(f)).join(" × ");
 }
 
+const toComplex = (x: number | Complex): Complex =>
+    typeof x === "number" ? { re: x, im: 0 } : x;
+
+const isComplex = (x: number | Complex): x is Complex => 
+    typeof x !== "number";
 
 export function arg(x: number | Complex): Complex {
     const c = toComplex(x);
@@ -609,3 +666,25 @@ export function tangentHiperb(x: number | Complex): Complex {
     return divide(sineHiperb(x), cosineHiperb(x));
 }
 
+export function formatBigNumber(n: number | bigint, sigDigits = 4): string {
+  // bigint
+    if (typeof n === "bigint") {
+        const s = n.toString();
+        if (s.length <= 12) return s;
+        const exp = s.length - 1;
+        const mant = `${s[0]}.${s.slice(1, 1 + sigDigits)}`;
+        return `${mant}e+${exp}`;
+    }
+
+    // number
+    if (!Number.isFinite(n)) return String(n);
+    const abs = Math.abs(n);
+    if (Number.isInteger(n)) {
+        if (abs >= 1e12) return n.toExponential(6);
+        return n.toString();
+    } else {
+        if (abs >= 1e12) return n.toExponential(6);
+        if (Math.abs(n) < 1e-12) return "0";
+        return parseFloat(n.toFixed(12)).toString();
+    }
+}

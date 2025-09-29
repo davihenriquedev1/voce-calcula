@@ -37,7 +37,6 @@ export type InputToken = { type: NotationMode; value: string }
 
 type HistoryEntry = { tokens: InputToken[]; cursor: number };
 
-
 const Page = ()=> {
     const [notationMode, setNotationMode] = useState<NotationMode>("normal");
     const [inputValue, setInputValue] = useState<InputToken[]>([]);
@@ -58,11 +57,23 @@ const Page = ()=> {
 
     function onSubmit(value: FormValue) {
         const expressionTokens = value.expression;
-        const expressionStr = expressionTokens
-            .map(t => t.type === 'sup'? `^(${t.value})`
-                : t.type === 'sub' ? `_(${t.value})`
-                : t.value )
-            .join("") as string;
+        let expressionStr = "";
+        for (let i = 0; i < expressionTokens.length; i++) {
+            const t = expressionTokens[i];
+            if(t.type === "sup" || t.type === "sub") {
+                let combined = t.value;
+                let j = i + 1;
+                while (j < expressionTokens.length && expressionTokens[j].type === t.type) {
+                    combined += expressionTokens[j].value;
+                    j++;
+                }
+                expressionStr += (t.type === "sup") ? `^(${combined})`:  `_(${combined})`;
+                i = j - 1; // pular os que já juntei
+            } else {
+                expressionStr += t.value;
+            }
+        }
+
         const res = evaluateSafe(expressionStr);
         if (!res)  {
             setCalcError("Ocorreu algum erro");
@@ -310,7 +321,7 @@ const Page = ()=> {
                         </div>  
                         <div className="flex flex-col md:flex-row gap-2">
                             <div className="grid gap-2 w-full grid-cols-1 sm:grid-cols-2">
-                                <div className="grid grid-cols-5 md:grid-cols-3 w-full gap-2">
+                                <div className="grid grid-cols-5  md:grid-cols-3 w-full gap-2">
                                     <Button
                                         type="button"
                                         title="Subscrito"

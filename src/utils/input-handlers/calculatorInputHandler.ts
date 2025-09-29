@@ -128,5 +128,17 @@ export function calculatorInputHandler(
     
     out.push(...inputTokens.slice(tokenIndex + 1)); // Adiciona o resto dos tokens
 
-    return { tokens: out, inserted: insertedChars }; // Retorna os tokens finais e a quantidade de caracteres inseridos
+    const merged: InputToken[] = [];
+    for (const t of out) {
+        // Mescla tokens adjacentes do mesmo tipo (ex.: sup + sup -> sup com value concatenado)
+        const last = merged[merged.length - 1];
+        if (last && last.type === t.type) {
+            // concatena preservando a imutabilidade do objeto anterior
+            last.value = last.value + t.value;
+        } else {
+            merged.push({ ...t });
+        }
+    }
+
+    return { tokens: merged, inserted: insertedChars };
 }
