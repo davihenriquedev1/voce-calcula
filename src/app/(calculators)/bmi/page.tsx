@@ -59,17 +59,17 @@ const Page = () => {
     }
 
     return (
-        <div className="p-8">
+        <div className="p-2 md:p-4">
             <h3 className="text-3xl font-bold text-foreground 3 mb-8">Calculadora de IMC</h3>
             <section className="flex flex-col md:flex-row gap-12 justify-center mt-10">
 
                 <div className="flex justify-center flex-1 md:max-w-[200px]">
                     <Form {...form}>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex flex-col items-center justify-center max-w-[200px]" >
-                            <CustomInput form={form} type="text" name="height" label="Altura" description="Digite sua altura (ex: 1,80)" mask={maskNumberInput(1, "unit", "", "meter")} maxLength={4}/>
-                            <CustomInput form={form} type="text" name="weight" label="Peso" description="Digite seu peso em Kg (78,3)" mask={maskNumberInput(3, "unit", "", "kilogram")}  maxLength={6}/>
+                            <CustomInput form={form} type="text" name="height" label="Altura" description="Digite sua altura (ex: 1,80)" mask={maskNumberInput(1)} formatParams={{format: "unit", unit:"meter"}} maxLength={4}/>
+                            <CustomInput form={form} type="text" name="weight" label="Peso" description="Digite seu peso em Kg (78,3)" mask={maskNumberInput(3)}  maxLength={6} formatParams={{format: "unit", unit: "kilogram"}}/>
                             <Button type="submit" className="w-full font-semibold">Calcular</Button>
-                            <Button type="reset" className="w-full font-semibold bg-secondary text-secondary-foreground hover:brightness-150" onClick={() => handleReset()}>Resetar</Button>
+                            <Button type="reset" className="w-full font-semibold bg-secondary text-white hover:brightness-150" onClick={() => handleReset()}>Resetar</Button>
                         </form>
                     </Form>
                 </div>

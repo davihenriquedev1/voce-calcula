@@ -1,7 +1,4 @@
-import { NumberFormat } from "@/types/NumberFormat";
-import { Unit } from "@/types/Unit";
-
-export const maskNumberInput = (maxIntDgts?: number, format?: NumberFormat, currency?: string, unit?: Unit) => {
+export const maskNumberInput = (maxIntDgts?: number) => {
     
     return (value:string) => { 
         if (!value) return "";

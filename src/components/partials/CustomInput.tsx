@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { NumberFormat } from "@/types/NumberFormat";
 import { Unit } from "@/types/Unit";
 import { formatNumber } from "@/utils/formatters/formatNumber";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 type Props = {
@@ -55,14 +55,33 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
             setValue(name, "");
             return;
         }
+
+        // se for formato percent, tratamos de forma especial:
+        if (formatParams?.format === "percent") {
+            // limpa tudo que não seja dígito, vírgula ou hífen
+            const cleaned = String(value).replace(/[^\d,-]/g, "").replace(/\./g, "").replace(",", ".");
+            const num = parseFloat(cleaned);
+            if (Number.isNaN(num)) {
+                setValue(name, "");
+                return;
+            }
+            // formatNumber espera fração (0.12) para 'percent', mas queremos exibir 12 -> "12,00 %"
+            // então passamos num/100 para o formatter de percent, mantendo o valor do campo como string formatada.
+            const formatted = formatNumber(num / 100, "percent");
+            setValue(name, formatted);
+            return;
+        }
+
+        // comportamento padrão (currency / decimal / unit)
         if (formatParams) {
             const { format, currency, unit } = formatParams;
-            const formattedValue = formatNumber(value, format, currency, unit);
+            const formattedValue = formatNumber(value as any, format, currency, unit);
             setValue(name, formattedValue);
         } else {
             setValue(name, value);
         }
     };
+
 
 
     // se tem o campo vinculado, então executa a função que formata

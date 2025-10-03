@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 const Home = () => {
 	const {theme} = useTheme();
 	return (
-		<main className="flex flex-col w-full items-center justify-center">
+		<div className="flex flex-col w-full items-center justify-center">
 
 			<section className="flex flex-col w-full py-10 justify-between md:flex-row gap-1 md:py-14 bg-bgcalcgreen bg-cover bg-right ">
 				<div className="flex justify-start h-full p-4 md:flex-1">
@@ -61,7 +61,7 @@ const Home = () => {
 				</div>
 			</section>
 
-		</main>
+		</div>
 	);
 }
 

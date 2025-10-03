@@ -291,7 +291,7 @@ const Page = ()=> {
     };
 
     return (
-        <main className="flex min-h-screen">
+        <div className="flex min-h-screen p-2 md:p-4">
             <div className="flex flex-col w-full p-2 gap-2">
                <div className="flex flex-col bg-softgray bg-opacity-50 border border-gray-400 min-h-10">
                 {results.map((item, key) => (
@@ -405,7 +405,7 @@ const Page = ()=> {
                     </form>
                 </Form>
             </div>
-        </main>
+        </div>
     )
 }
 

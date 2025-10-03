@@ -2,7 +2,7 @@
 
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { object, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { CustomInput } from "@/components/partials/CustomInput";
@@ -75,7 +75,7 @@ const CurrencyConversion = ({ initialData }: Props) => {
 
     return (
        
-        <div className="p-8">
+        <div className="p-2 md:p-4">
             <h3 className="text-3xl font-bold text-foreground mb-8">Conversor de Moedas</h3>
             <div className="flex flex-col md:flex-row gap-12 justify-center mt-10">
                 <div className="flex flex-col items-center justify-center flex-1 md:max-w-[400px]">
@@ -83,13 +83,13 @@ const CurrencyConversion = ({ initialData }: Props) => {
                     <Form {...form}>
                         <form onSubmit={handleSubmit(onSubmit)} className=  "gap-6 flex flex-col w-full  justify-center xs:grid xs:grid-cols-2">
                             <CustomSelect form={form} name="originCurrency" options={options} placeholder="selecione" label="Moeda de Origem" />
-                            <CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino" />
-                            <CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput(undefined, "currency", watch('originCurrency'), undefined)} formatParams={{format:"currency", currency: watch('originCurrency'), unit: undefined}} linkedField="originCurrency"/>
+                            <CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino"/>
+                            <CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput()} formatParams={{format:"currency", currency: watch('originCurrency'), unit: undefined}} linkedField="originCurrency"/>
                             <div className="flex flex-col">
                                 <span className="bg-softgray h-10 p-3 mt-2 text-foreground font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}</span>
                             </div>
                             <Button type="submit" className="w-full font-semibold">Converter</Button>
-                            <Button type="reset" className="w-full font-semibold bg-secondary text-secondary-foreground hover:brightness-150" onClick={handleReset}>Resetar</Button>
+                            <Button type="reset" className="w-full font-semibold bg-secondary text-white hover:brightness-150" onClick={handleReset}>Resetar</Button>
                         </form>
                     </Form>
                 </div>
