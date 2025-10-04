@@ -25,6 +25,11 @@ type Props = {
         format: NumberFormat,
         currency?: string,
         unit?: Unit, 
+        options?: {
+            inputIsPercent: boolean;
+            maxFracDgts?: number;
+            minFracDgts?: number;
+        }
     },
     maxLength?: number,
     linkedField?: string
@@ -59,15 +64,19 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
         // se for formato percent, tratamos de forma especial:
         if (formatParams?.format === "percent") {
             // limpa tudo que não seja dígito, vírgula ou hífen
-            const cleaned = String(value).replace(/[^\d,-]/g, "").replace(/\./g, "").replace(",", ".");
+            const cleaned = cleanNumberString(String(value)); // "12,00" -> "12.00"
             const num = parseFloat(cleaned);
             if (Number.isNaN(num)) {
                 setValue(name, "");
                 return;
             }
             // formatNumber espera fração (0.12) para 'percent', mas queremos exibir 12 -> "12,00 %"
-            // então passamos num/100 para o formatter de percent, mantendo o valor do campo como string formatada.
-            const formatted = formatNumber(num / 100, "percent");
+            const formatted = formatNumber(num, "percent", undefined, undefined, {
+                inputIsPercent: true,
+                // opcional: se campo for taxa diária você pode querer minFractionDigitsPercent:4
+                minFractionDigitsPercent: formatParams.options?.minFracDgts,
+                maxFractionDigitsPercent: formatParams.options?.maxFracDgts
+            })
             setValue(name, formatted);
             return;
         }
@@ -109,7 +118,11 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
                         placeholder={placeholder}
                         onChange={handleMask}
                         onBlur={(e)=> applyFormat(e.target.value)}
-                        onFocus={(e)=> applyFormat(e.target.value)}
+                        onFocus={(e) => {
+                            // show raw unformatted value for editing
+                            const raw = unformatForEdit(e.target.value);
+                            setValue(name, raw);
+                        }}
                         className="w-full"
                         maxLength={maxLength}
                     />
@@ -123,3 +136,25 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
         />
     )
 }
+export const cleanNumberString = (s?: string) => {
+    if (!s) return ""; 
+    let v = String(s).replace(/[^\d,.\-]/g, ""); // remove tudo exceto dígitos, vírgula, ponto e hífen
+    if (v.includes(",")) { // se tem vírgula, tratar como BR: remove pontos (milhar) e transforma vírgula em ponto
+        v = v.replace(/\./g, "").replace(",", ".");
+    } else { // sem vírgula, assume ponto decimal (en-US style) — remove vírgulas residuais
+        v = v.replace(/,/g, "");
+    }
+    return v;
+};
+
+const unformatForEdit = (value?: string) => {
+    if (!value) return ""; // Retorna string sem símbolo pra edição. Ex: "R$ 1.234,56" -> "1234,56"
+    const cleaned = String(value).replace(/[^\d,.-]/g, ""); // tenta preservar vírgula como separador (pt-BR) para UX consistente
+    // se tem ponto e vírgula, converte pra vírgula thousands -> preferir vírgula
+    // aqui só retornamos uma versão legível; mascara vai tratar depois
+    if (cleaned.includes(",")) {
+        // manter vírgula
+        return cleaned.replace(/\./g, "");
+    }
+    return cleaned;
+};
