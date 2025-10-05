@@ -1,4 +1,4 @@
-import { ExchangeRates } from "@/types/ExchangeRates";
+import { ExchangeRates } from "@/types/exchange-rates";
 import axios from 'axios';
 
 const req = axios.create({

@@ -1,4 +1,4 @@
-import { ExchangeRates } from "@/types/ExchangeRates";
+import { ExchangeRates } from "@/types/exchange-rates";
 
 export const calculateExchangeRate = (
   originCurrency: string,

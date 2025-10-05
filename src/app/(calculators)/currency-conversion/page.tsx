@@ -1,5 +1,5 @@
 import { dehydrate, QueryClient,HydrationBoundary } from '@tanstack/react-query';
-import CurrencyConversion from '@/components/calculators/CurrencyConversion';
+import CurrencyConversion from '@/components/calculators/currency-conversion/CurrencyConversion';
 import { Suspense } from 'react';
 import { LoadingBounce } from '@/components/partials/Loading';
 import { getExchangeRates } from '@/lib/exchangeRates';

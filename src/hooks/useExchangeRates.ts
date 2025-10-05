@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'; // Hook principal do React Query para buscar e gerenciar dados assíncronos
 import { getExchangeRates } from '@/lib/exchangeRates'; // Função que vai fazer a requisição à API de câmbio
-import { ExchangeRates } from '@/types/ExchangeRates'; // Tipagem TypeScript para os dados que a API retorna
+import { ExchangeRates } from '@/types/exchange-rates'; // Tipagem TypeScript para os dados que a API retorna
 
 export const useExchangeRates = () => {
 	return useQuery<ExchangeRates>({  // Cria uma query usando o React Query, tipada com ExchangeRates

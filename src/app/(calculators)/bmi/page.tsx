@@ -11,7 +11,7 @@ import { maskNumberInput } from "@/utils/masks/maskNumberInput";
 import { bmiCategories } from "@/data/bmiData";
 import { useEffect, useState } from "react";
 import { calculateBmi } from "@/utils/calculators/bmi";
-import { BmiCategory } from "@/types/BmiCategory";
+import { BmiCategory } from "@/types/bmi";
 
 const formSchema = z.object({
     height: z.string().min(1, 'preencha a altura').transform((value) => {
