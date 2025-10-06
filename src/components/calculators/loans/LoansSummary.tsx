@@ -28,7 +28,11 @@ const LoansSummary = ({summary, creditOptions, amortizationTypeOptions}: Props)=
 				</div>
 				<div>
 					<div className="text-sm">Parcela inicial (estimada)</div>
-					<div className="font-bold text-2xl">{formatNumber(summary.monthly, "currency", "brl")}</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.firstInstallment, "currency", "brl")}</div>
+				</div>
+				<div>
+					<div className="text-sm">Média das parcelas</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.avgInstallments, "currency", "brl")}</div>
 				</div>
 				<div>
 					<div className="text-sm">Amortização Extra</div>
@@ -51,15 +55,19 @@ const LoansSummary = ({summary, creditOptions, amortizationTypeOptions}: Props)=
 					<div className="font-bold text-2xl">{formatNumber(summary.monthlyRate, "percent",  undefined, "percent")}</div>
 				</div>
 				<div>
-					<div className="text-sm">Juros / Taxas</div>
+					<div className="text-sm">Juros / Taxas aplicadas</div>
 					<div className="font-bold text-2xl">{formatNumber(summary.totalInterest, "currency", "brl")}</div>
+				</div>
+				<div>   
+					<div className="text-sm">Total a pagar sem IOF</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.totalPaidNoIof, "currency", "brl")}</div>
 				</div>
 				<div>
 					<div className="text-sm">Alíquota fixa IOF (%)</div>
 					<div className="font-bold text-2xl">{formatNumber(summary.fixedIofPct, "percent", undefined, "percent", {inputIsPercent: true} )}</div>
 				</div>
 				<div>
-					<div className="text-sm">Alíquota fixa IOF (valor)</div>
+					<div className="text-sm">Alíquota fixa IOF (valor bruto)</div>
 					<div className="font-bold text-2xl">{formatNumber(summary.fixedIof, "currency", "brl")}</div>
 				</div>
 				<div>
@@ -67,16 +75,20 @@ const LoansSummary = ({summary, creditOptions, amortizationTypeOptions}: Props)=
 					<div className="font-bold text-2xl">{formatNumber(summary.dailyIofPct, "percent",  undefined, "percent", {inputIsPercent: true})}</div>
 				</div>
 				<div>
-					<div className="text-sm">Alíquota diária IOF (valor)</div>
+					<div className="text-sm">Alíquota diária IOF (valor bruto)</div>
 					<div className="font-bold text-2xl">{formatNumber(summary.dailyIof, "currency", "brl")}</div>
 				</div>
-				<div>   
-					<div className="text-sm">Total a pagar sem IOF</div>
-					<div className="font-bold text-2xl">{formatNumber(summary.totalPaidNoIof, "currency", "brl")}</div>
+				<div>
+					<div className="text-sm">Total pago IOF (aplicado teto de 3%)</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.totalIof, "currency", "brl")}</div>
+				</div>
+				<div>
+					<div className="text-sm">Juros / Taxas aplicadas + IOF</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.totalInterestWithIof, "currency", "brl")}</div>
 				</div>
 				<div>   
-					<div className="text-sm">Total a pagar com IOF</div>
-					<div className="font-bold text-2xl">{formatNumber(summary.totalPaidWithIof, "currency", "brl")}</div>
+					<div className="text-base">Total a pagar com IOF</div>
+					<div className="font-bold text-3xl">{formatNumber(summary.totalPaidWithIof, "currency", "brl")}</div>
 				</div>
 			</div>
 		</>

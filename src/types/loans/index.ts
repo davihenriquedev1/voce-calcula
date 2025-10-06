@@ -6,13 +6,14 @@ export type LoansFormValues = z.input<typeof loansSchema>;
 
 export type LoansSummary = { 
     type: string; 
-    method: string; 
+    method:  MethodType; 
     amount: number; 
     downPayment: number; 
     extraAmortization: number,
-    extraAmortizationType?: string,
+    extraAmortizationType?: ExtraAmortizationType,
     extraAmortizationMonth?: string
-    monthly: number; 
+    avgInstallments: number; 
+    firstInstallment: number;
     annualRate: number; 
     monthlyRate: number; 
     fixedIofPct: number,
@@ -20,7 +21,12 @@ export type LoansSummary = {
     fixedIof: number,
     dailyIof: number,
     totalIof: number,
+    iofWasCapped: boolean;
     totalPaidNoIof: number; 
     totalPaidWithIof: number;
     totalInterest: number;
+    totalInterestWithIof: number
 };
+
+export type ExtraAmortizationType = "reduzir_prazo" | "reduzir_parcela"
+export type MethodType = "price" | "sac";

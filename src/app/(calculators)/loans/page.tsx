@@ -12,11 +12,12 @@ import LoansSummary from "@/components/calculators/loans/LoansSummary";
 import { Option } from "@/types/Option";
 import { LoansFormValues, LoansSummary as LoansSummaryType } from "@/types/loans";
 import { loansSchema } from "@/schemas/loans";
-import { generateConsorcioSchedule, generatePriceSchedule, generateSacSchedule, toMonthlyRate, } from "@/utils/calculators/loans";
+import { applyExtraAmortization, generateConsorcioSchedule, generatePriceSchedule, generateSacSchedule, toMonthlyRate, } from "@/utils/calculators/loans";
 import { normalizeSchedule } from "@/utils/helpers/loans/normalizeSchedule";
 import { round2 } from "@/utils/helpers/math";
 import { parseMonthIndex } from "@/utils/helpers/date";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
+import { exportPdf } from "@/utils/helpers/files/pdf";
 
 // Constantes estáticas
 const creditOptions: Option[] = [
@@ -33,17 +34,7 @@ const amortizationTypeOptions: Option[] = [
 const Page = () => {
 	const form = useForm<LoansFormValues>({
 		resolver: zodResolver(loansSchema),
-		defaultValues: {
-			type: "emprestimo",
-			amount: "10000",
-			termMonths: "12",
-			downPayment: "0",
-			method: "price",
-			adminPercent: "0",
-			annualRate: "10",
-			fixedIofPct: "0,38",
-			dailyIofPct: "0,0082",
-			extraAmortization: "0",
+		defaultValues: { type: "emprestimo", amount: "10000", termMonths: "12", downPayment: "0", method: "price", adminPercent: "0", annualRate: "10", fixedIofPct: "0,38", dailyIofPct: "0,0082", extraAmortization: "0",
 		},
 	});
 
@@ -68,7 +59,7 @@ const Page = () => {
 		const type = values.type!;
 		const n = Math.max(1, Math.round(Number(values.termMonths))); // (months) garantido ≥ 1
 		const down = values.downPayment ? Number(values.downPayment) : 0;
-		const financed = Math.max(0, amount - (down || 0)); // valor - entrada.
+		const financed = round2(Math.max(0, amount - down)); // valor - entrada.
 		const extraAmortization = Number(values.extraAmortization);
 		const extraAmortizationType = values.extraAmortizationType;
 		const extraAmortizationMonth = values.extraAmortizationMonth;
@@ -81,38 +72,26 @@ const Page = () => {
 		const dailyIofPct = Number(values.dailyIofPct);
 		const fixedIof = financed * (fixedIofPct / 100);
 		const days = n * 30; // usar 30 dias por mês (simplificação)
-		const dailyIof = financed * (dailyIofPct / 100) * days;
+		const dailyIof = financed * (dailyIofPct / 100) * Math.min(days, 365);// limita o IOF a no máximo 1 ano de dias, que é o teto real usado pelo Banco Central.
 		let totalIof = fixedIof + dailyIof;
 		const iofCap = financed * 0.03; // teto de 3%
-		if (totalIof > iofCap) totalIof = iofCap;
+		let iofWasCapped = false;
+		if (totalIof > iofCap) {
+			totalIof = iofCap;
+			iofWasCapped = true;
+		};
 
 		const finalize = (rawSchedule: any[]) => {
 			const sNorm = normalizeSchedule(rawSchedule);
-			const totalPaidNoIof = sNorm.reduce((acc, cur) => acc + (Number(cur.payment) || 0), 0);
-			const totalInterest = round2(totalPaidNoIof - financed);
+			const totalPaidNoIof = round2(sNorm.reduce((acc, cur) => acc + (Number(cur.payment) || 0), 0));
+			const totalInterest = round2(totalPaidNoIof - financed); // juros sobre o que foi financiado
 			const totalPaidWithIof = round2(totalPaidNoIof + totalIof);
 			const totalInterestWithIof = round2(totalInterest + totalIof);
-
+			const avgInstallments = round2(totalPaidNoIof / n); // média das parcelas
+			const firstInstallment = sNorm[0]?.payment ?? avgInstallments; // parcela inicial estimada (primeira linha do schedule)
+			
 			setSchedule(sNorm);
-			setSummary({
-				method,
-				annualRate,
-				monthlyRate: r,
-				amount,
-				downPayment: down,
-				type,
-				monthly: sNorm[0]?.payment ?? 0,
-				extraAmortization,
-				extraAmortizationType,
-				extraAmortizationMonth,
-				fixedIofPct,
-				dailyIofPct,
-				fixedIof,
-				dailyIof,
-				totalIof,
-				totalPaidNoIof,
-				totalPaidWithIof,
-				totalInterest: totalInterestWithIof,
+			setSummary({ method, annualRate, monthlyRate: r, amount, downPayment: down, type,firstInstallment, avgInstallments, extraAmortization, extraAmortizationType, extraAmortizationMonth, fixedIofPct, dailyIofPct, fixedIof, dailyIof, totalIof, totalPaidNoIof, totalPaidWithIof, totalInterest, totalInterestWithIof,iofWasCapped
 			});
 		};
 
@@ -129,8 +108,12 @@ const Page = () => {
 				? generatePriceSchedule(financed, r, n)
 				: generateSacSchedule(financed, r, n);
 		
-		// implementar calculo da amortização extra
-		// finalizar para PRICE/SAC (sem amortização extra implementada)
+		// Amortização extra
+		if(extraAmortization > 0 && extraAmortizationType && extraAmortizationMonthIndex) {
+			baseSchedule = applyExtraAmortization(extraAmortization, extraAmortizationType,extraAmortizationMonthIndex, baseSchedule, method, r, financed, n);
+		}
+		
+		// finalizar para PRICE/SAC.
 		finalize(baseSchedule);
 		return;
 	};
@@ -278,6 +261,11 @@ const Page = () => {
 						{!summary && <div className="text-sm">Faça uma simulação para ver o resultado.</div>}
 						{summary && <LoansSummary summary={summary} creditOptions={creditOptions} amortizationTypeOptions={amortizationTypeOptions} />}
 						{schedule.length > 0 && <AmortizationTable schedule={schedule} />}
+						{summary && schedule && (
+							<div className="flex w-full justify-end mt-2">
+								<Button type="button" onClick={exportPdf}>Exportar PDF</Button>
+							</div>
+						)}
 					</div>
 				</div>
 			</section>

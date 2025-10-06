@@ -29,4 +29,4 @@ export const loansSchema = z.object({
     adminPercent: commonNumber.optional(), //para consórcio
     fixedIofPct: commonNumber,
     dailyIofPct: commonNumber,
-});
+}); 

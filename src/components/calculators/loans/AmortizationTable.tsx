@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { formatNumber } from "@/utils/formatters/formatNumber";
-import { exportPdf } from "@/utils/helpers/files/pdf";
 
 type Props = {
     schedule: any[];
@@ -13,9 +11,6 @@ const AmortizationTable = ({schedule}: Props) => {
     <div className="mt-4">
       <div className="flex justify-between items-center mb-2">
         <h4 className="font-semibold">Tabela de amortização ({schedule.length} meses)</h4>
-        <div className="flex">
-          <Button type="button" onClick={exportPdf}>Exportar PDF</Button>
-        </div>
       </div> 
       <div className="overflow-auto max-h-72 border rounded">
         <table className="w-full text-sm">
