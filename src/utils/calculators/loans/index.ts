@@ -1,5 +1,5 @@
 import { ExtraAmortizationType, MethodType } from "@/types/loans";
-import { round2 } from "../helpers/math";
+import { round2} from "../../helpers/math";
 
 export const toMonthlyRate = (annualPercent: number) => Math.max(0, annualPercent) / 100 / 12;
 
@@ -13,11 +13,21 @@ export function generatePriceSchedule(P: number, r:number, n:number) {
     let balance = P;
     const schedule: Array<any> = [];
     for(let i =1; i <= n; i++) {
-        const interest = balance * r;
-        const principal = payment - interest;
+        const interest = round2(balance * r);
+        const principal = round2(payment - interest);
         balance = Math.max(0, balance - principal);
-        schedule.push({month: i, payment: round(payment), principal: round(principal), interest: round(interest), balance: round(balance)});
+        schedule.push({month: i, payment: round2(payment), principal, interest, balance});
     }
+
+    // Ajuste do último principal para bater exatamente P
+    const totalPrincipal = schedule.reduce((sum, s) => sum + s.principal, 0);
+    const diff = round2(P - totalPrincipal);
+    if (diff !== 0) {
+        schedule[schedule.length - 1].principal += diff;
+        schedule[schedule.length - 1].payment += diff;
+        schedule[schedule.length - 1].balance = 0;
+    }
+    // Assim a soma dos principais pagos sempre bate exatamente com P e o saldo final é zero.
     return schedule;
 }
 
@@ -29,7 +39,7 @@ export function generateSacSchedule(P: number, r: number, n: number) {
         const interest = balance * r;
         const payment = principal + interest;
         balance = Math.max(0, balance - principal);
-        schedule.push({ month: i, payment: round(payment), principal: round(principal), interest: round(interest), balance: round(balance) });
+        schedule.push({ month: i, payment: round2(payment), principal: round2(principal), interest: round2(interest), balance: round2(balance) });
     }
     return schedule;
 }
@@ -43,18 +53,15 @@ export function generateConsorcioSchedule(P: number, n:number, adminPercent = 0)
     for(let i = 1; i<=n; i++) {
         const payment = principal + adminMonthly;
         balance = Math.max(0, balance - principal);
-        schedule.push({month: i, payment: round(payment), principal: round(principal), balance: round(balance)});
+        schedule.push({month: i, payment: round2(payment), principal: round2(principal), balance: round2(balance)});
     }
     return schedule;
-}
-
-export function round(v: number) {
-    return Math.round((v + Number.EPSILON) * 100) / 100;
 }
 
 export function applyExtraAmortization (value: number, type: ExtraAmortizationType, monthIndex: number, baseSchedule: any[], method: MethodType, r: number, financed: number, n: number) {
      // validação básica
     if (!Array.isArray(baseSchedule) || baseSchedule.length === 0) return baseSchedule;
+    if (monthIndex == null) return baseSchedule;
     if (isNaN(monthIndex) || monthIndex < 1 || monthIndex > baseSchedule.length) return baseSchedule;
     
     const newSchedule: any[] = [];
@@ -87,7 +94,7 @@ export function applyExtraAmortization (value: number, type: ExtraAmortizationTy
 
     if(type === "reduzir_prazo") {
         // Mantém o valor da parcela (PRICE) ou a amortização constante (SAC) e encurta o prazo
-        newSchedule.push(amortByTermReduction (newSchedule, balance, r, monthCounter, method, fixedPayment, financed, n));
+        amortByTermReduction (newSchedule, balance, r, monthCounter, method, fixedPayment, financed, n);
     } else {
         // reduzir_parcela -> mantém o prazo original (restante) e recalcula parcelas
         const remainingPeriods = n - monthIndex;

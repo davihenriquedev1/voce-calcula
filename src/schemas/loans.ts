@@ -12,16 +12,8 @@ export const loansSchema = z.object({
     type: z.enum(["emprestimo", "financiamento", "consorcio"]).default("emprestimo"),
     amount: commonNumber,
     termMonths: commonNumber,
-    downPayment: z.string().optional().transform((v) => {
-        if (!v) return 0;
-        const cleaned = String(v).replace(/[^\d,-]/g, "").replace(/\./g, "").replace(",", ".");
-        return parseFloat(cleaned);
-    }),
-    extraAmortization: z.string().optional().transform((v) => {
-        if (!v) return 0;
-        const cleaned = String(v).replace(/[^\d,-]/g, "").replace(/\./g, "").replace(",", ".");
-        return parseFloat(cleaned);
-    }),
+    downPayment: commonNumber.optional().transform(v => v ?? 0),
+    extraAmortization: commonNumber.optional().transform(v => v ?? 0),
     extraAmortizationMonth: z.string().optional(), // armazenará "YYYY-MM" ou "2025-10"
     extraAmortizationType: z.enum(["reduzir_prazo", "reduzir_parcela"]).optional(),
     method: z.enum(["price", "sac"]).default("price"), // apenas para financiamento e emprestimo

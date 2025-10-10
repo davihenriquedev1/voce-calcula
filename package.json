@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest --config jest.config.js",
+    "test:react": "jest --config jest.config.react.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -40,11 +42,16 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^18.2.38",
     "@types/react-dom": "^18.2.18",
+    "jest": "^30.2.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.4.5",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }

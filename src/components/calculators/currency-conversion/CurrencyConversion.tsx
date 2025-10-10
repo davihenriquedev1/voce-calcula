@@ -12,7 +12,7 @@ import { maskNumberInput } from "@/utils/masks/maskNumberInput";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import currencies from 'currency-codes';
 import { extraCurrencies } from "@/data/extraCurrencies";
-import { calculateExchangeRate } from "@/utils/calculators/exchangeRate";
+import { calculateExchangeRate } from "@/utils/calculators/exchange-rate";
 import { ExchangeRates } from "@/types/exchange-rates";
 import { formatNumber } from "@/utils/formatters/formatNumber";
 import { Option } from "@/types/Option";
