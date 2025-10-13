@@ -41,23 +41,23 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
 
     const handleMask = (e:ChangeEvent<HTMLInputElement>) => {
 
-        if (!e.target.value || (e.target.value === '0')) {
+        const raw = e.target.value;
+
+        if (raw === '' || raw === null || raw === undefined) {
             setValue(name, '');
             return;
         }
-
+        
         if(mask) {
-            const value = e.target.value;
-            const maskedValue = mask(value);
+            const maskedValue = mask(raw);
             setValue(name, maskedValue);
         } else {
-            setValue(name, e.target.value);
+            setValue(name, raw);
         }
     }
 
     const applyFormat = (value: string) => {
-        if (!value || value === "0") {
-            setValue(name, "");
+        if (!value || value === "") {
             return;
         }
 

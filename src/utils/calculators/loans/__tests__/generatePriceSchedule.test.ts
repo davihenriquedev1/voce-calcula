@@ -1,5 +1,5 @@
 
-import { round2 } from "@/utils/helpers/math";
+import { round2 } from "@/helpers/math";
 import { generatePriceSchedule, toMonthlyRate } from "..";
 
 describe("generatePriceSchedule", () => {

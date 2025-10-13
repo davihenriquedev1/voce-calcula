@@ -9,13 +9,14 @@ export type LoansSummary = {
     method:  MethodType; 
     amount: number; 
     downPayment: number; 
-    extraAmortization: number,
+    extraAmortization?: number,
     extraAmortizationType?: ExtraAmortizationType,
     extraAmortizationMonth?: string
     avgInstallments: number; 
     firstInstallment: number;
     annualRate: number; 
     monthlyRate: number; 
+    iofCeiling: number;
     fixedIofPct: number,
     dailyIofPct: number,
     fixedIof: number,
@@ -25,7 +26,11 @@ export type LoansSummary = {
     totalPaidNoIof: number; 
     totalPaidWithIof: number;
     totalInterest: number;
-    totalInterestWithIof: number
+    totalInterestWithIof: number;
+    startDate: string,
+    insurancePercent: number,
+    insuranceValue: number,
+    cet: number,
 };
 
 export type ExtraAmortizationType = "reduzir_prazo" | "reduzir_parcela"

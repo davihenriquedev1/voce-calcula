@@ -1,7 +1,13 @@
 export const maskNumberInput = (maxIntDgts?: number) => {
     
     return (value:string) => { 
-        if (!value) return "";
+        // garante que 0 é tratado como válido
+        if (value === null || value === undefined) return '';
+        
+        value = String(value);
+
+        // permite digitar "0" sem apagar
+        if (value.trim() === '') return '';
         
         // Remover todos os caracteres inválidos (só aceita dígitos e vírgulas).  
         let cleaned = value.replace(/[^0-9,]/g, "");

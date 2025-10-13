@@ -1,5 +1,5 @@
 import { ExtraAmortizationType, MethodType } from "@/types/loans";
-import { round2} from "../../helpers/math";
+import { round2} from "@/helpers/math";
 
 export const toMonthlyRate = (annualPercent: number) => Math.max(0, annualPercent) / 100 / 12;
 
