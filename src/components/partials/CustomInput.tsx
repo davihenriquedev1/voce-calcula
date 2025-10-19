@@ -20,6 +20,7 @@ type Props = {
     placeholder?: string,
     description?: string,
     type: string,
+    title?: string,
     mask?:(...args:any)=> string,
     formatParams?: {
         format: NumberFormat,
@@ -35,7 +36,7 @@ type Props = {
     linkedField?: string
 }
 
-export const CustomInput = ({maxLength, form, name, label, placeholder, description, type, mask, formatParams,linkedField}:Props) => {
+export const CustomInput = ({maxLength, form, name, label, placeholder, description, type, mask, formatParams,linkedField, title}:Props) => {
 
     const { control, setValue, watch } = form;
 
@@ -125,6 +126,7 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
                         }}
                         className="w-full"
                         maxLength={maxLength}
+                        title={title}
                     />
                 </FormControl>
                 <FormDescription>

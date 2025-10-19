@@ -299,7 +299,7 @@ const Page = () => {
 					</Form>
 				</div>
 				<div className="flex-1">
-					<div className="bg-softgray p-4 rounded border">
+					<div className="bg-gray p-4 rounded border">
 						<h3 className="text-xl font-bold mb-2">Resumo</h3>
 						{!summary && <div className="text-sm">Faça uma simulação para ver o resultado.</div>}
 						{summary && <LoansSummary summary={summary} creditOptions={creditOptions} amortizationTypeOptions={amortizationTypeOptions} />}

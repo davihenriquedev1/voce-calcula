@@ -3,7 +3,7 @@
 import { calculateInvestment } from "..";
 
 describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital)', () => {
-    test('K) Aplica imposto sobre ganho de capital (20%) quando taxOnStockGains = true', () => {
+    test('K) Aplica imposto sobre ganho de capital', () => {
         const res = calculateInvestment({
             type: 'stock',
             initialValue: 1000,
@@ -13,20 +13,19 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital)', 
             appreciationRate: 0.02, // 2%/mês para garantir ganho de capital
             dividendYield: 0,       // sem dividendos pra isolar ganho de capital
             simulateDaily: false,
-            taxOnStockGains: true,
-            stockTaxRate: 0.2,
+            taxOnStockGains: 0.2,
             roundResults: false
         });
 
         const capitalGain = res.grossYield - res.totalDividends;
         const expectedTax = capitalGain > 0 ? capitalGain * 0.2 : 0;
 
-        expect(res.totalDividends).toBe(0); // sanity: nenhum dividendo aqui
+        expect(res.totalDividends).toBe(0);
         expect(capitalGain).toBeGreaterThan(0);
         expect(res.incomeTax).toBeCloseTo(expectedTax, 2);
     });
 
-    test('L) Não aplica imposto sobre ganho de capital quando taxOnStockGains = false', () => {
+    test('L) Não aplica imposto sobre ganho de capital', () => {
         const res = calculateInvestment({
             type: 'stock',
             initialValue: 1000,
@@ -36,7 +35,7 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital)', 
             appreciationRate: 0.02,
             dividendYield: 0,
             simulateDaily: false,
-            taxOnStockGains: false,
+            taxOnStockGains: 0,
             roundResults: false
         });
 
@@ -55,8 +54,7 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital)', 
             dividendYield: 0,
             adminFee: 0.5,         // taxa alta para forçar perda
             simulateDaily: false,
-            taxOnStockGains: true,
-            stockTaxRate: 0.2,
+            taxOnStockGains: 0.2,
             roundResults: false
         });
 

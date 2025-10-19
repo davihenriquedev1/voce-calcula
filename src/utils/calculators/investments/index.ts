@@ -16,8 +16,7 @@ type InvestmentParams = {
     unitPrice?: number;
     appreciationRate?: number; // mensal decimal (ex: 0.008 = 0.8%/mês)
     adminFee?: number; // mensal percentual em decimal (ex: 0.01 = 1%/mês)
-    taxOnStockGains?: boolean; // aplicar IR sobre ganhos de ações
-    stockTaxRate?: number; // ex: 0.2 => 20% imposto sobre ganho (padrão 20%)
+    taxOnStockGains?: number; // aplicar IR sobre ganhos de ações
     dividendTaxRate?: number; // se quiser tributar dividendos (padrão 0)
     roundResults?: boolean; // arredondar para 2 casas
 };
@@ -33,7 +32,7 @@ export type InvestmentResult = {
     totalInvested: number;
 };
 
-export const calculateInvestment = ({type, initialValue, monthlyContribution = 0, term, termType, simulateDaily = false, interestRate, rateType, currentSelic, currentCdi, currentIPCA, dividendYield, unitPrice, appreciationRate, adminFee = 0, taxOnStockGains = false, stockTaxRate = 0.2, dividendTaxRate = 0, roundResults = true
+export const calculateInvestment = ({type, initialValue, monthlyContribution = 0, term, termType, simulateDaily = false, interestRate, rateType, currentSelic, currentCdi, currentIPCA, dividendYield, unitPrice, appreciationRate, adminFee = 0, taxOnStockGains = 0.2, dividendTaxRate = 0, roundResults = true
 }: InvestmentParams): InvestmentResult => {
     // === Definir termMonths e termDays internos ===
     let months = termType === "meses" ? term : term * 12; // se veio em mes mantém, se veio em anos transforma em meses
@@ -182,7 +181,7 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
     if ((type === 'stock' || type === 'fii') && taxOnStockGains) {
         const capitalGain = grossYield - totalDividends; // ganhos de valorização
         if (capitalGain > 0) {
-            incomeTax += capitalGain * (stockTaxRate || 0); // Aplica imposto (stockTaxRate), geralmente 20%, sobre o ganho de capital (excluindo dividendos que já foram separados)
+            incomeTax += capitalGain * (taxOnStockGains || 0); // Aplica imposto (stockTaxRate), geralmente 20%, sobre o ganho de capital (excluindo dividendos que já foram separados)
         }
     }
 
