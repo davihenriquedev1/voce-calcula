@@ -14,10 +14,10 @@ import { LoansFormValues, LoansSummary as LoansSummaryType } from "@/types/loans
 import { loansSchema } from "@/schemas/loans";
 import { applyExtraAmortization, generateConsorcioSchedule, generatePriceSchedule, generateSacSchedule, toMonthlyRate, } from "@/utils/calculators/loans";
 import { normalizeSchedule } from "@/helpers/loans/normalizeSchedule";
-import { round2 } from "@/helpers/math";
+import { round2 } from "@/utils/math";
 import { parseMonthIndex } from "@/helpers/date";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
-import { exportPdf } from "@/helpers/files/pdf";
+import { exportPdf } from "@/utils/files/pdf";
 import { calculateCET } from "@/utils/calculators/loans/cet";
 
 // Constantes estáticas

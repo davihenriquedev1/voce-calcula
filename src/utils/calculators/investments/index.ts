@@ -1,63 +1,60 @@
-import { round2 } from "@/helpers/math";
+import { annualPctToMonthlyDecimal } from "@/helpers/finance/annualPctToMonthlyDecimal";
+import { round2 } from "@/utils/math";
+import { InvestmentParams, InvestmentResult } from "@/types/investments";
 
-type InvestmentParams = {
-    type: 'cdb' | 'lci' | 'lca' | 'tesouro_selic' | 'tesouro_prefixado' | 'tesouro_ipca+' | 'fii' | 'stock';
-    initialValue: number;
-    monthlyContribution?: number;
-    term: number; // quantidade conforme termType
-    termType: 'meses' | 'anos';
-    simulateDaily?: boolean; // se true, simula dia a dia
-    interestRate?: number; // anual (%) ou percentual do CDI (ex: 100 = 100% do CDI)
-    rateType?: 'pre' | 'pos';
-    currentSelic?: number; // anual %
-    currentCdi?: number;
-    currentIPCA?: number; // anual %
-    dividendYield?: number; // anual % (dividendos)
-    unitPrice?: number;
-    appreciationRate?: number; // mensal decimal (ex: 0.008 = 0.8%/mês)
-    adminFee?: number; // mensal percentual em decimal (ex: 0.01 = 1%/mês)
-    taxOnStockGains?: number; // aplicar IR sobre ganhos de ações
-    dividendTaxRate?: number; // se quiser tributar dividendos (padrão 0)
-    roundResults?: boolean; // arredondar para 2 casas
-};
-export type InvestmentResult = {
-    grossYield: number;
-    incomeTax: number;
-    iof: number;
-    netYield: number;
-    finalValue: number;
-    annualReturnPct: number;
-    evolution: number[]; // evolução mês a mês ou dia a dia (conforme simulateDaily)
-    totalDividends: number;
-    totalInvested: number;
-};
-
-export const calculateInvestment = ({type, initialValue, monthlyContribution = 0, term, termType, simulateDaily = false, interestRate, rateType, currentSelic, currentCdi, currentIPCA, dividendYield, unitPrice, appreciationRate, adminFee = 0, taxOnStockGains = 0.2, dividendTaxRate = 0, roundResults = true
+export const calculateInvestment = ({type, initialValue, monthlyContribution = 0, term, termType, simulateDaily = false, interestRate, rateType, currentSelic, currentCdi, currentIPCA, dividendYield, unitPrice, appreciationRate, adminFee = 0, taxOnStockGains = 0.2, dividendTaxRate = 0, roundResults = true, contributionAtStart
 }: InvestmentParams): InvestmentResult => {
     // === Definir termMonths e termDays internos ===
     let months = termType === "meses" ? term : term * 12; // se veio em mes mantém, se veio em anos transforma em meses
     let days = Math.round(months * 30);
 
+    // substituir o early return atual por este
     if (months === 0 && !simulateDaily) {
         const tv = round2(initialValue);
-        return { grossYield: 0, incomeTax: 0, iof: 0, netYield: 0, finalValue: tv, annualReturnPct: 0, evolution: [tv], totalDividends: 0, totalInvested: tv };
+        return {
+            roundResults,
+            grossYield: 0,
+            incomeTax: 0,
+            iof: 0,
+            netYield: 0,
+            finalValue: tv,
+            annualReturnPct: 0,
+            evolution: [tv],
+            totalDividends: 0,
+            totalInvested: tv,
+            // metadata (mantém consistência com retorno normal)
+            contributionAtStart: !!contributionAtStart,
+            rateType,
+            interestRate,
+            usedIndexName: undefined,
+            usedIndexAnnual: undefined,
+            simulateDaily,
+            adminFee,
+            taxOnStockGains,
+            iofRateApplied: 0
+        };
     }
 
     // === Determinar taxa de rendimento mensal de acordo com o tipo de investimento ===
     let monthlyInc = 0; // decimal (ex: 0.01 = 1%/mês)
+
     if (type !== 'fii' && type !== 'stock') {
-        if ((type === 'cdb' || type === 'lci' || type === 'lca' || type === 'tesouro_prefixado') && rateType === 'pre' && interestRate !== undefined) {
-            // taxa pré-fixada tradicional
-            monthlyInc = (interestRate / 100) / 12;
-
-        } else if (type === 'cdb' && rateType === 'pos' && interestRate !== undefined && (currentCdi !== undefined || currentSelic !== undefined)) {
-            const indexRate = (typeof currentCdi === 'number') ? currentCdi : (currentSelic as number);
-            monthlyInc = ((interestRate / 100) * (indexRate / 100)) / 12;
-        } else if (type === 'tesouro_selic' && currentSelic !== undefined) {
-            monthlyInc = currentSelic / 12 / 100;
-
-        } else if (type === 'tesouro_ipca+' && interestRate !== undefined && currentIPCA !== undefined) {
-            monthlyInc = (interestRate + currentIPCA) / 12 / 100;
+        // Tipos que podem ter taxa pré-fixada
+        if (['cdb', 'lci', 'lca', 'tesouro_prefixado', 'debentures', 'debentures_incentivadas', 'cri', 'cra'].includes(type) && rateType === 'pre' && interestRate !== undefined) {
+            monthlyInc = annualPctToMonthlyDecimal(interestRate); // interestRate em %
+        }
+        // Tipos que podem ser pós-fixados ao índice (CDI/SELIC)
+        else if (['cdb', 'lci', 'lca', 'debentures', 'cri', 'cra'].includes(type) && rateType === 'pos' && interestRate !== undefined && (currentCdi !== undefined || currentSelic !== undefined)) {
+            const indexAnnual = typeof currentCdi === 'number' ? currentCdi : (currentSelic as number);
+            const indexMonthly = annualPctToMonthlyDecimal(indexAnnual); // indexAnnual em %
+            monthlyInc = indexMonthly * (interestRate / 100); // interestRate em % (ex: 100 => 1.0 * indexMonthly)
+        }
+        else if (type === 'tesouro_selic' && currentSelic !== undefined) {
+            monthlyInc = annualPctToMonthlyDecimal(currentSelic);
+        } 
+        else if (type === 'tesouro_ipca+' && interestRate !== undefined && currentIPCA !== undefined) {
+            const combinedAnnual = interestRate + currentIPCA; // soma em %
+            monthlyInc = annualPctToMonthlyDecimal(combinedAnnual);
         }
     }
 
@@ -71,7 +68,6 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
     // normalizar adminFee: garantir 0 <= adminFee < 1 para evitar comportamentos estranhos
     // garante que a taxa não seja maior que 99% nem menor que 0
     const safeAdminFee = Math.max(0, Math.min(adminFee || 0, 0.99));
-
     // ajuste da taxa administrativa por período
     const adminFeePerPeriod = (() => {
         if (!safeAdminFee) return 0;
@@ -87,10 +83,20 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
         return Math.pow(1 + monthlyInc, 1 / 30) - 1;
     })();// garantindo que, depois de 30 dias, o saldo acumulado seja equivalente à taxa mensal.
 
-    let balance = initialValue; // saldo atual do investimento. Começa com o valor inicial.
     const startPrice = (typeof unitPrice === 'number' && unitPrice > 0) ? unitPrice : 1;
-    let units = startPrice ? initialValue / startPrice : 0; // número de cotas/ações compradas inicialmente. Para renda fixa, será 0.
-    let currentPrice = startPrice; // preço da unidade (para FII ou ações). Para renda fixa, 0
+    // Inicializar units com o aporte inicial comprando cotas ao preço inicial (para renda variável)
+    let units = 0; // será usado/atualizado para renda variável
+    let currentPrice = startPrice; // preço da unidade (para FII ou ações)
+
+    // saldo inicial: para renda fixa inicia com initialValue, para variável converte initialValue em units
+    if (type === 'fii' || type === 'stock') {
+        // compra cotas com o valor inicial ao preço de startPrice
+        if (initialValue && initialValue > 0) {
+            units = initialValue / startPrice;
+        }
+    }
+    let balance = (type === 'fii' || type === 'stock') ? units * currentPrice : initialValue;
+
     let totalDividends = 0; // acumula os dividendos recebidos ao longo do tempo.
     const evolution: number[] = []; // array que vai armazenar o saldo ao final de cada período
     const localAppreciationRate = (typeof appreciationRate === 'number') ? appreciationRate : (type === 'fii' ? 0.008 : 0); // taxa de valorização do ativo. Se não fornecida, assume 0.8%/mês para FII, 0 para outros.
@@ -99,8 +105,15 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
     for (let i = 1; i <= periodCount; i++) {
         // Renda fixa: aplicar juros compostos + aporte mensal
         if (type !== 'fii' && type !== 'stock') {
+            if (contributionAtStart && contributionPerPeriod > 0) {
+                balance += contributionPerPeriod; // aporte no início
+            }
+
             balance *= (1 + periodInterest); // aplica juros compostos
-            balance += contributionPerPeriod; // adiciona aporte periódico
+
+            if (!contributionAtStart && contributionPerPeriod > 0) {
+                balance += contributionPerPeriod; // aporte no fim
+            }
         } 
         // Renda variável (FII ou ações)
         else {
@@ -111,30 +124,31 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
                 if (!useDaily) return localAppreciationRate;
                 return Math.pow(1 + localAppreciationRate, 1 / 30) - 1;
             })();
+
+             // if contribution at start: buy with currentPrice BEFORE appreciation this period
+            if (contributionAtStart && contributionPerPeriod > 0) {
+                units += contributionPerPeriod / currentPrice;
+            }
+            
             currentPrice *= 1 + apprPerPeriod; // Atualiza currentPrice.
 
-            // Calcula quantas cotas novas podem ser compradas com o aporte.
-            if (contributionPerPeriod > 0) {
-                units += contributionPerPeriod / currentPrice;        
+            if (!contributionAtStart && contributionPerPeriod > 0) {
+                // compra cotas ao preço atualizado (fim do período)
+                units += contributionPerPeriod / currentPrice;
             }
+
 
             balance = units * currentPrice; // atualiza o saldo atual do investimento.
 
             // dividendos: dividendYield é anual %, converter para período (mensal ou diário)
             if (dividendYield) {
-                const divPerPeriod = (() => {
-                    if (!useDaily) {
-                        return dividendYield / 12 / 100; // mensal decimal
-                    } else {
-                        return dividendYield / 365 / 100; // diário aproximado
-                    }
-                })();
+                const divPerPeriod = !useDaily ? dividendYield / 12 / 100 : dividendYield / 365 / 100;
                 // calcula dividendos brutos sobre o saldo atual.
-                const monthlyDiv = balance * divPerPeriod; 
+                const periodDivGross = balance * divPerPeriod; 
                 // aplicar imposto sobre dividendos se solicitado
-                const dividendTax = monthlyDiv * (dividendTaxRate || 0);
+                const dividendTax = periodDivGross * (dividendTaxRate || 0);
                 //Adiciona dividendos líquidos ao saldo e acumula em totalDividends
-                const netDividend = monthlyDiv - dividendTax;
+                const netDividend = periodDivGross - dividendTax;
                 balance += netDividend;
                 totalDividends += netDividend;
             }
@@ -149,39 +163,55 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
         evolution.push(balance);
     }
 
+    // === totais e impostos ===
+
     // soma o capital inicial + todos os aportes mensais (não considera juros/dividendos).
     const totalInvested = initialValue + monthlyContribution * months;
     // lucro bruto: quanto o investimento rendeu antes de impostos (saldo final - capital investido).
     const grossYield = balance - totalInvested;
 
-    // === impostos ===
+    // IR regressivo (CDB, Tesouro Prefixado/IPCA+)
     let incomeTax = 0;
     let iof = 0;
-    // IR regressivo (CDB, Tesouro Prefixado/IPCA+)
-    if (type === 'cdb' || type === 'tesouro_prefixado' || type === 'tesouro_ipca+') {
+
+    // tipos isentos por definição
+    const isExempt = ["lci", "lca", "cri", "cra", "debentures_incentivadas"].includes(type);
+
+    // IR regressivo padrão (CDB, Tesouro prefixado, Tesouro IPCA+, Debêntures normais)
+    if (!isExempt && (type === 'cdb' || type === 'tesouro_prefixado' || type === 'tesouro_ipca+' || type === 'debentures')) {
         let irRate = 0;
         if (days <= 180) irRate = 0.225;
         else if (days <= 360) irRate = 0.2;
         else if (days <= 720) irRate = 0.175;
         else irRate = 0.15;
-        // Só aplica IR se houver lucro positivo (grossYield > 0).
         incomeTax = grossYield > 0 ? grossYield * irRate : 0;
     }
-    // IOF baseado em dias
+
+    // IOF tabela oficial regressiva (percentual do rendimento)
+    const iofTablePercent = [
+        96, 93, 90, 86, 83, 80, 76, 73, 70, 66,
+        63, 60, 56, 53, 50, 46, 43, 40, 36, 33,
+        30, 26, 23, 20, 16, 13, 10, 6, 3, 0
+    ];
+    let iofRateApplied = 0;
     if ((type === 'cdb' || type.includes('tesouro')) && days < 30) {
-        // Exemplo simplificado: 0 a 30 dias decresce linearmente de 96% a 0%
-        iof = grossYield > 0 ? grossYield * Math.max(0, ((30 - days) / 30) * 0.96) : 0;
+        const d = Math.max(1, Math.min(30, days)); // 1..30
+        const pct = iofTablePercent[d - 1] ?? 0;
+        iofRateApplied = pct / 100;
+        iof = grossYield > 0 ? grossYield * iofRateApplied : 0;
     }
     // LCI/LCA isentos
     if (type === 'lci' || type === 'lca') {
         incomeTax = 0;
         iof = 0;
+        iofRateApplied = 0;
     }
+
     // IR sobre ganho de ações (opcional)
-    if ((type === 'stock' || type === 'fii') && taxOnStockGains) {
+    if ((type === 'stock' || type === 'fii') && typeof taxOnStockGains === 'number' && taxOnStockGains > 0) {
         const capitalGain = grossYield - totalDividends; // ganhos de valorização
         if (capitalGain > 0) {
-            incomeTax += capitalGain * (taxOnStockGains || 0); // Aplica imposto (stockTaxRate), geralmente 20%, sobre o ganho de capital (excluindo dividendos que já foram separados)
+            incomeTax += capitalGain * (taxOnStockGains || 0); // Aplica imposto, geralmente 20%, sobre o ganho de capital (excluindo dividendos que já foram separados)
         }
     }
 
@@ -192,21 +222,46 @@ export const calculateInvestment = ({type, initialValue, monthlyContribution = 0
     // === Calcular valor final e rentabilidade anual ===
     // saldo final do investimento (capital investido + lucro líquido).
     const finalValue = totalInvested + netYield;
-    // converte prazo para anos (mínimo 1 dia → 1/365 anos).
+    // converte prazo para anos 
     const years = Math.max(1 / 365, days / 365);
-    // calcula rentabilidade anualizada, usando fórmula de juros compostos
+    // rentabilidade anualizada, usando fórmula de juros compostos
     const annualReturnPct = totalInvested > 0 ? (Math.pow(finalValue / totalInvested, 1 / years) - 1) * 100 : 0;
 
     // === Retornar resultados ===
-    return {    
-        grossYield: round2(grossYield),
-        incomeTax: round2(incomeTax),
-        iof: round2(iof),
-        netYield: round2(netYield),
-        finalValue: round2(finalValue),
-        annualReturnPct: round2(annualReturnPct),
-        evolution: evolution.map(round2),
-        totalDividends: round2(totalDividends),
-        totalInvested: round2(totalInvested)
+    const maybeRound = (v: number) => roundResults ? round2(v) : v;
+
+    // metadata para UI: qual índice foi usado (quando aplicável)
+    let usedIndexName: string | undefined;
+    let usedIndexAnnual: number | undefined;
+    if ((type === 'cdb' || type === 'lci' || type === 'lca') && rateType === 'pos') {
+        usedIndexName = typeof currentCdi === 'number' ? 'CDI' : 'SELIC';
+        usedIndexAnnual = typeof currentCdi === 'number' ? currentCdi : currentSelic;
+    } else if (type === 'tesouro_selic') {
+        usedIndexName = 'SELIC';
+        usedIndexAnnual = currentSelic;
+    } else if (type === 'tesouro_ipca+') {
+        usedIndexName = 'IPCA';
+        usedIndexAnnual = currentIPCA;
+    }
+    return {
+        roundResults,
+        grossYield: maybeRound(grossYield),
+        incomeTax: maybeRound(incomeTax),
+        iof: maybeRound(iof),
+        netYield: maybeRound(netYield),
+        finalValue: maybeRound(finalValue),
+        annualReturnPct: maybeRound(annualReturnPct),
+        evolution: evolution.map(v => maybeRound(v)),
+        totalDividends: maybeRound(totalDividends),
+        totalInvested: maybeRound(totalInvested),
+        contributionAtStart,
+        rateType,
+        interestRate,
+        usedIndexName,
+        usedIndexAnnual,
+        simulateDaily,
+        adminFee,
+        taxOnStockGains,
+        iofRateApplied
     };
 };

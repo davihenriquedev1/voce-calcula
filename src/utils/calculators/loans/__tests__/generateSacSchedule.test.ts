@@ -1,4 +1,4 @@
-import { round2 } from "@/helpers/math";
+import { round2 } from "@/utils/math";
 import { generateSacSchedule, toMonthlyRate } from "..";
 
 describe("generateSacSchedule", ()=> {

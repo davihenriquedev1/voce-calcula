@@ -1,4 +1,3 @@
-// passar o mês da amortização pra index 
 export const parseMonthIndex = (ym?: string, startDate = new Date()) => {
     if(!ym) return null;
     const [y, m] = ym.split('-').map(Number);

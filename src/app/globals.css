@@ -44,6 +44,7 @@ h1, h2, h3, h4, h5, h6 {
     --section2:#0b343d;
     --softgray: #f5f5f5;
     --gray: #bbbbbb;
+    --contrast-gray: #eaeef1ce;
     --bgcalcgreen: url('/images/bg-calc-green.png');
     --bg-green-simbols: url('/images/bg-green-simbols-light.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-light.png');
@@ -89,6 +90,7 @@ h1, h2, h3, h4, h5, h6 {
     --section2: #001d0e;
     --softgray: #7a8078;
     --gray: #292929;
+    --contrast-gray: #111111;
     --bgcalcgreen: url('/images/bg-calc-green-dark.jpg');
     --bg-green-simbols: url('/images/bg-green-simbols-dark.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-dark.png');

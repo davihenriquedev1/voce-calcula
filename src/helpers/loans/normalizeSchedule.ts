@@ -1,4 +1,4 @@
-import { round2 } from "../math";
+import { round2 } from "../../utils/math";
 
 export const normalizeSchedule = (s: any[]) => {
     return s.map((row) => {
