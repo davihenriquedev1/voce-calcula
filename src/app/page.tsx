@@ -2,9 +2,10 @@
 
 import { Frame } from "@/components/partials/Frame";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 
 const Home = () => {
-	const {theme} = useTheme();
+	useTheme();
 	return (
 		<div className="flex flex-col w-full items-center justify-center">
 
@@ -21,7 +22,6 @@ const Home = () => {
 				</div>
 			</section>
 
-
 			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 ">
 				
 				<div className="flex w-full justify-center items-center ">
@@ -35,8 +35,7 @@ const Home = () => {
 					<Frame route="/currency-conversion" title="Calculadora de Conversão de Moedas" desc="Veja a conversão de Real pra Dólar e muito mais." bgColor="bg-softgray" bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/exchange-card.png"/>
 					<Frame route="/personal-finance" title="Calculadora de Finanças Pessoais" desc="Planeje suas finanças pessoais." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/personal-finance-card.png" />
 				</div>
-
-			</section >
+			</section>
 
 			<section className="flex flex-col w-full min-h-screen px-4 py-10 gap-8 md:px-10 md:py-14 bg-bgGreenSimbols  bg-cover ">
 				<div className="flex justify-center">
@@ -45,17 +44,17 @@ const Home = () => {
 				<div className="flex flex-col md:flex-row flex-1 gap-8 md:gap-10 text-white">
 					<div className="flex flex-col items-center justify-center flex-1 gap-3 bg-gradient-to-r from-black to-slate-950 rounded-sm p-2">
 						<h3 className="text-xl font-semibold text-center text-color-palette4">Tutorial em Vídeo</h3>
-						<img src="/images/tutorials-icon-nobg.png" alt="tutorial-icon" className="h-52 w-auto rounded-lg shadow-xl"/>
+						<Image width={200} height={200} src="/images/tutorials-icon-nobg.png" alt="tutorial-icon" className="rounded-lg shadow-xl"/>
 						<p className="text-center text-sm m-3 text-white/80 font-semibold">Assista a um tutorial explicativo sobre como usar as funcionalidades do site.</p>
 					</div>
 					<div className="flex flex-col items-center justify-center flex-1 gap-3 bg-gradient-to-r from-black to-slate-950 rounded-sm p-2">
 						<h3 className="text-xl font-semibold text-center text-color-palette4">Gráficos Interativos</h3>
-						<img src="/images/charts-icon-nobg.png" alt="grafics-icon" className="h-52 w-auto rounded-lg shadow-xl"/>
+						<Image width={200} height={200} src="/images/charts-icon-nobg.png" alt="grafics-icon" className="h-52 w-auto rounded-lg shadow-xl"/>
 						<p className="text-center text-sm m-3 text-white/80 font-semibold">Visualize os dados de forma clara e precisa através de gráficos interativos.</p>
 					</div>
 					<div className="flex flex-col items-center justify-center flex-1 gap-3 bg-gradient-to-r from-black to-slate-950 rounded-sm p-2">
-						<h3 className="text-xl font-semibold text-center text-color-palette4">Download em PDF</h3>
-						<img src="/images/pdf-icon-nobg.png" alt="pdf download icon" className="h-52 w-auto rounded-lg shadow-xl "/>
+						<h3 className="text-xl font-semibold text-center text-color-palette4">Download em PDF (Em breve)</h3>
+						<Image width={200} height={200} src="/images/pdf-icon-nobg.png" alt="pdf download icon" className="h-52 w-auto rounded-lg shadow-xl "/>
 						<p className="text-center text-sm m-3 text-white/80 font-semibold">Baixe relatórios completos em formato PDF para análise offline.</p>
 					</div>
 				</div>

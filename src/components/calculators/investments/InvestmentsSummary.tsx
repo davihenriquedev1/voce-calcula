@@ -10,7 +10,6 @@ type Props = {
 export default function InvestmentsSummary({ result }: Props) {
     if (!result) return null;
 
-    console.log(result.usedIndexAnnual)
     const totalNetReturnPct = result.totalInvested > 0 ? ((result.finalValue - result.totalInvested) / result.totalInvested) * 100 : 0;
     const effectiveIrPct = result.grossYield > 0 ? (result.incomeTax / result.grossYield) * 100 : 0;
     const iofPct = typeof result.iofRateApplied === "number" ? result.iofRateApplied * 100 : 0;
@@ -23,52 +22,34 @@ export default function InvestmentsSummary({ result }: Props) {
                     <div className="text-2xl font-bold">{formatNumber(result.finalValue, "currency", "brl")}</div>
                 </div>
                 <div className="p-3 bg-gray-50 rounded">
-                    <div className="text-sm">Rentabilidade líquida anual</div>
-                    <div className="text-2xl font-bold">{formatNumber(result.annualReturnPct, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 4, minFractionDigitsPercent: 2 })}</div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mt-2">
-                <div className="p-2 border rounded">
-                    <div className="text-xs">Rendimento bruto</div>
-                    <div className="font-semibold">{formatNumber(result.grossYield, "currency", "brl")}</div>
-                </div>
-                <div className="p-2 border rounded">
-                    <div className="text-xs">Imposto de Renda</div>
-                    <div className="font-semibold">{formatNumber(result.incomeTax, "currency", "brl")}</div>
-                </div>
-                <div className="p-2 border rounded">
-                    <div className="text-xs">IOF</div>
-                    <div className="font-semibold">{formatNumber(result.iof, "currency", "brl")}</div>
+                    <div className="text-sm">Total investido: <strong>{formatNumber(result.totalInvested, "currency", "brl")}</strong></div>
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mt-2">
                 <div className="p-2 border rounded">
-                    <div className="text-xs">Rentabilidade líquida total</div>
-                    <div className="font-semibold">{formatNumber(round2(totalNetReturnPct), "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 4, minFractionDigitsPercent: 2 })}</div>
+                    <div className="text-xs">Rendimento bruto</div>
+                    <div className="font-semibold">{formatNumber(result.grossYield, "currency", "brl")}</div>
+                </div>
+                <div className="p-2 border rounded">
+                    <div className="text-xs">Rendimento líquido</div>
+                    <div className="font-semibold">{formatNumber(result.netYield, "currency", "brl")}</div>
+                </div>
+                <div className="p-2 border rounded">
+                    <div className="text-xs">Imposto de Renda R$</div>
+                    <div className="font-semibold">{formatNumber(result.incomeTax, "currency", "brl")}</div>
                 </div>
                 <div className="p-2 border rounded">
                     <div className="text-xs">IR efetivo sobre rendimento</div>
                     <div className="font-semibold">{formatNumber(round2(effectiveIrPct), "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 4, minFractionDigitsPercent: 2 })}</div>
                 </div>
             </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            
+            <div className="grid grid-cols-2 gap-3 mt-2">
                 <div className="p-2 border rounded">
-                    <div className="text-xs">Aporte no início do período</div>
-                    <div className="font-semibold">{result.contributionAtStart ? "Sim" : "Não"}</div>
+                    <div className="text-xs">Rentabilidade líquida total</div>
+                    <div className="font-semibold">{formatNumber(round2(totalNetReturnPct), "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 4, minFractionDigitsPercent: 2 })}</div>
                 </div>
-                <div className="p-2 border rounded">
-                    <div className="text-xs">Simulação diária</div>
-                    <div className="font-semibold">{result.simulateDaily ? "Sim" : "Não"}</div>
-                </div>
-
-                <div className="p-2 border rounded">
-                    <div className="text-xs">Tipo de taxa</div>
-                    <div className="font-semibold">{result.rateType ? (result.rateType === "pre" ? "Pré-fixada (a.a.)" : "Pós-fixada (% do índice)") : "-"}</div>
-                </div>
-
                 <div className="p-2 border rounded">
                     <div className="text-xs">Taxa / % do índice</div>
                     <div className="font-semibold">
@@ -80,6 +61,20 @@ export default function InvestmentsSummary({ result }: Props) {
                         ) : '-'}
                     </div>
                 </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="p-2 border rounded">
+                    <div className="text-xs">Aporte no início do período</div>
+                    <div className="font-semibold">{result.contributionAtStart ? "Sim" : "Não"}</div>
+                </div>
+        
+                <div className="p-2 border rounded">
+                    <div className="text-xs">Tipo de taxa</div>
+                    <div className="font-semibold">{result.rateType ? (result.rateType === "pre" ? "Pré-fixada (a.a.)" : "Pós-fixada (% do índice)") : "-"}</div>
+                </div>
+
+        
                 <div className="p-2 border rounded">
                     <div className="text-xs">Índice utilizado</div>
                     <div className="font-semibold">
@@ -88,31 +83,48 @@ export default function InvestmentsSummary({ result }: Props) {
                         : "-"}
                     </div>
                 </div>
-                <div className="p-2 border rounded">
-                    <div className="text-xs">Taxa administrativa (mensal)</div>
-                    <div className="font-semibold">{formatNumber((result.adminFee ?? 0) * 100, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</div>
-                </div>
-
-                <div className="p-2 border rounded">
-                    <div className="text-xs">IR sobre ganho de capital (ações/FII)</div>
-                    <div className="font-semibold">{formatNumber((result.taxOnStockGains ?? 0) * 100, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</div>
-                </div>
-
+            
                 <div className="p-2 border rounded">
                     <div className="text-xs">IOF (tabela) aplicado</div>
                     <div className="font-semibold">{iofPct ? `${formatNumber(iofPct, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })} sobre rendimento` : "0%"}</div>
                 </div>
 
+                <div className="p-2 border rounded">
+                    <div className="text-xs">IOF</div>
+                    <div className="font-semibold">{formatNumber(result.iof, "currency", "brl")}</div>
+                </div>
+
+                <div className="p-2 border rounded">
+                    <div className="text-xs">Taxa administrativa (mensal)</div>
+                    <div className="font-semibold">{formatNumber((result.adminFee ?? 0) * 100, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</div>
+                </div>
             </div>
 
-            <div className="mt-4">
-                <h4 className="font-semibold mb-2">Dividendos</h4>
-                <div>Total de dividendos recebidos: <strong>{formatNumber(result.totalDividends, "currency", "brl")}</strong></div>
-                <div className="text-sm">Total investido: <strong>{formatNumber(result.totalInvested, "currency", "brl")}</strong></div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="p-2 border rounded">
+                    <div title="geralmente considerado em fii ou ações" className="text-xs">Imposto sobre rendimentos %</div>
+                    <div className="font-semibold">{formatNumber((result.taxOnStockGains ?? 0) * 100, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</div>
+                </div>
+                
+                <div className=" p-2 border rounded">
+                    <div className="font-semibold">Dividendos</div>
+                    <strong>{formatNumber(result.totalDividends, "currency", "brl")}</strong>
+                </div>
+                
             </div>
 
+            
             <div className="mt-6">
-                <h4 className="font-semibold mb-2">Evolução em {result.evolution.length} meses</h4>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    Saldo Bruto em {result.evolution.length} meses
+                    <span
+                        className="text-xs text-muted-foreground cursor-help"
+                        title="A evolução mostrada é o saldo bruto (antes de impostos). O 'Valor final estimado' no resumo já considera impostos (IR/IOF)."
+                        aria-label="Informação: evolução é bruto; resumo é líquido"
+                    >
+                        ℹ️
+                    </span>
+                </h4>
                 <div className="max-h-60 overflow-hidden border border-border h-full">
                     <div className="overflow-y-auto max-h-52">
                         <table className="w-full table-auto text-sm bg-section1 text-white">

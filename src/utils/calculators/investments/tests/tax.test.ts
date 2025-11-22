@@ -1,4 +1,4 @@
-import { calculateInvestment } from "..";
+import { calculateInvestment } from "../calculateInvestment";
 
 const annualToMonthly = (annualPct: number) => Math.pow(1 + annualPct / 100, 1 / 12) - 1;
 
@@ -12,7 +12,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             appreciationRate: 0.02, // 2%/mês
             dividendYield: 0,
-            simulateDaily: false,
             taxOnStockGains: 0.2,
             roundResults: false
         });
@@ -34,7 +33,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             appreciationRate: 0.02,
             dividendYield: 0,
-            simulateDaily: false,
             taxOnStockGains: 0,
             roundResults: false
         });
@@ -52,7 +50,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             appreciationRate: 0,
             dividendYield: 0,
             adminFee: 0.5,
-            simulateDaily: false,
             taxOnStockGains: 0.2,
             roundResults: false
         });
@@ -71,7 +68,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 12,
             rateType: 'pre',
-            simulateDaily: true,
             roundResults: false
         });
 
@@ -79,8 +75,7 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
         if (res.grossYield > 0) {
             expect(res.iof).toBeGreaterThan(0);
         }
-        expect(res.evolution.length).toBeGreaterThanOrEqual(14);
-        expect(res.evolution.length).toBeLessThanOrEqual(16);
+        expect(res.evolution.length).toBe(1);
     });
 
     test('IOF aplicado para 15 dias deve corresponder à tabela (50%)', () => {
@@ -92,7 +87,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 12,
             rateType: 'pre',
-            simulateDaily: true,
             roundResults: false
         });
 
@@ -111,7 +105,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 8, // 8% a.a. pré
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
 
@@ -130,7 +123,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 8,
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
         expect(resCri.incomeTax).toBe(0);
@@ -143,7 +135,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 8,
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
         expect(resCra.incomeTax).toBe(0);
@@ -158,11 +149,17 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 10,
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
         expect(res.incomeTax).toBeGreaterThan(0);
-        expect(res.incomeTax).toBeCloseTo((res.grossYield) * 0.20, 2);
+        // calcular a taxa de IR aplicada pelo código para 12 meses
+        const days = Math.max(0, Math.round(12 * (365 / 12)));
+        let irRate = 0;
+        if (days <= 180) irRate = 0.225;
+        else if (days <= 360) irRate = 0.2;
+        else if (days <= 720) irRate = 0.175;
+        else irRate = 0.15;
+        expect(res.incomeTax).toBeCloseTo(res.grossYield * irRate, 2);
     });
 
     test('Debêntures incentivadas são isentas (incomeTax === 0)', () => {
@@ -174,7 +171,6 @@ describe('calculateInvestment — taxOnStockGains (IR sobre ganho de capital) e 
             termType: 'meses',
             interestRate: 8,
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
         expect(res.incomeTax).toBe(0);

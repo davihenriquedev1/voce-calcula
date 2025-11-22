@@ -11,20 +11,16 @@ import { CustomSelect } from "@/components/partials/CustomSelect";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import currencies from 'currency-codes';
-import { extraCurrencies } from "@/data/extraCurrencies";
+import { extraCurrencies } from "@/data/currency-conversion/extraCurrencies";
 import { calculateExchangeRate } from "@/utils/calculators/exchange-rate";
 import { ExchangeRates } from "@/types/exchange-rates";
 import { formatNumber } from "@/utils/formatters/formatNumber";
 import { Option } from "@/types/Option";
 
-type Props = {
-	initialData?: any;
-};
-
 const formSchema = z.object({
 	value: z.string().min(1, 'preencha o valor').transform((value) => {
-		let cleaned = value.replace(/[^0-9,]/g, "");
-		let stringFloat = cleaned.replace(',', '.');
+		const cleaned = value.replace(/[^0-9,]/g, "");
+		const stringFloat = cleaned.replace(',', '.');
 		return parseFloat(stringFloat).toFixed(2);
 	}),
 	originCurrency: z.string({ required_error: 'selecione a moeda' }),
@@ -33,10 +29,10 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const CurrencyConversion = ({ initialData }: Props) => {
+const CurrencyConversion = () => {
 	const [result, setResult] = useState(0);
 	const [errorMessage, setErrorMessage] = useState('');
-	const { data, error, isLoading, isFetching } = useExchangeRates();
+	const { data, error } = useExchangeRates();
 
 	const [options, setOptions] = useState<Option[]>([]);
 

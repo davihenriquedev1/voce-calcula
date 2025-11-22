@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 // Menu items.
 const items = [
@@ -27,7 +28,7 @@ const items = [
 
 export function AppSidebar() {
 	const route = usePathname();
-    const { openMobile, setOpenMobile } = useSidebar();
+    const { setOpenMobile } = useSidebar();
 
     return (
         <Sidebar className="relative">
@@ -43,7 +44,7 @@ export function AppSidebar() {
 								<SidebarMenuButton asChild data-active={route === item.url}>
 									<Link href={item.url} className="flex items-center gap-2" onClick={() => setOpenMobile(false)}>
 										<div className="p-1 rounded-full bg-sidebar-ring ">
-											<img src={item.icon} alt={item.title} className="w-6" />
+											<Image width={24} height={24} src={item.icon} alt={item.title} className="w-6" />
 										</div>
 										<span className="tracking-wide font-semibold">
 											{item.title}

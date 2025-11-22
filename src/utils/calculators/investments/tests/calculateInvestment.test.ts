@@ -1,5 +1,5 @@
 // calculateInvestment.test.ts
-import { calculateInvestment } from "..";
+import { calculateInvestment } from "../calculateInvestment";
 
 const annualToMonthly = (annualPct: number) => Math.pow(1 + annualPct / 100, 1 / 12) - 1;
 
@@ -13,7 +13,6 @@ describe('calculateInvestment — testes essenciais', () => {
             termType: 'meses' as const,
             interestRate: 12,
             rateType: 'pre' as const,
-            simulateDaily: false,
             roundResults: false
         };
 
@@ -32,14 +31,18 @@ describe('calculateInvestment — testes essenciais', () => {
             termType: 'meses',
             interestRate: 12, // 12% a.a.
             rateType: 'pre',
-            simulateDaily: false,
             roundResults: false
         });
 
-        // usando conversão correta anual -> mensal (meses de 30 dias não altera aqui porque usamos meses)
         const monthlyInc = annualToMonthly(12);
         const grossExpected = 1000 * Math.pow(1 + monthlyInc, 12); // = 1000 * (1 + 0.12)
-        const expected = grossExpected - (grossExpected - 1000) * 0.20; // IR 20% para 12 meses
+        const days = Math.max(0, Math.round(12 * (365 / 12)));
+        let irRate = 0;
+        if (days <= 180) irRate = 0.225;
+        else if (days <= 360) irRate = 0.2;
+        else if (days <= 720) irRate = 0.175;
+        else irRate = 0.15;
+        const expected = grossExpected - (grossExpected - 1000) * irRate;
         expect(res.finalValue).toBeCloseTo(expected, 2);
         expect(res.grossYield).toBeCloseTo(grossExpected - 1000, 2);
         expect(res.evolution.length).toBe(12);
@@ -55,7 +58,6 @@ describe('calculateInvestment — testes essenciais', () => {
             interestRate: 100,
             rateType: 'pos',
             currentSelic: 7.25,
-            simulateDaily: false,
             roundResults: false
         });
         expect(res.usedIndexName).toBe('SELIC');
@@ -72,13 +74,20 @@ describe('calculateInvestment — testes essenciais', () => {
             interestRate: 100, // 100% do índice (CDI)
             rateType: 'pos',
             currentCdi: 10,    // 10% a.a. CDI
-            simulateDaily: false,
             roundResults: false
         });
 
         const monthlyIndex = annualToMonthly(10); // monthly index decimal
         const grossExpected = 1000 * Math.pow(1 + monthlyIndex, 12); // = 1000 * (1 + 0.10)
-        const expected = grossExpected - (grossExpected - 1000) * 0.20; // IR 20% para 12 meses
+        // calcular IR conforme a regra real do código (12 meses ≈ 365 dias → 17,5%)
+        const days = Math.max(0, Math.round(12 * (365 / 12)));
+        let irRate = 0;
+        if (days <= 180) irRate = 0.225;
+        else if (days <= 360) irRate = 0.2;
+        else if (days <= 720) irRate = 0.175;
+        else irRate = 0.15;
+
+        const expected = grossExpected - (grossExpected - 1000) * irRate;
         expect(res.finalValue).toBeCloseTo(expected, 2);
     });
 
@@ -90,13 +99,27 @@ describe('calculateInvestment — testes essenciais', () => {
             term: 12,
             termType: 'meses',
             currentSelic: 13.75, // 13.75% a.a.
-            simulateDaily: false,
             roundResults: false,
         });
 
+        // cálculo esperado (bruto → IR regressivo 12 meses = 20% → líquido)
         const monthlyInc = annualToMonthly(13.75);
-        const expectedGross = 1000 * Math.pow(1 + monthlyInc, 12); // = 1000 * (1 + 0.1375)
-        expect(res.finalValue).toBeCloseTo(expectedGross, 2);
+        const expectedGross = 1000 * Math.pow(1 + monthlyInc, 12); // saldo bruto
+        const grossYield = expectedGross - 1000;
+
+        // calcular IR conforme a regra do código para 12 meses
+        const days = Math.max(0, Math.round(12 * (365 / 12)));
+        let irRate = 0;
+        if (days <= 180) irRate = 0.225;
+        else if (days <= 360) irRate = 0.2;
+        else if (days <= 720) irRate = 0.175;
+        else irRate = 0.15;
+        const expectedIR = grossYield * irRate;
+        const expectedFinal = 1000 + grossYield - expectedIR;
+
+        expect(res.grossYield).toBeCloseTo(grossYield, 2);
+        expect(res.incomeTax).toBeCloseTo(expectedIR, 2);
+        expect(res.finalValue).toBeCloseTo(expectedFinal, 2);
         expect(res.evolution.length).toBe(12);
     });
 
@@ -109,14 +132,19 @@ describe('calculateInvestment — testes essenciais', () => {
             termType: 'meses',
             interestRate: 3,     // 3% real a.a.
             currentIPCA: 4,      // 4% IPCA a.a.
-            simulateDaily: false,
             roundResults: false
         });
 
         const combinedAnnual = 3 + 4; // 7% a.a.
         const monthlyInc = annualToMonthly(combinedAnnual);
         const grossExpected = 2000 * Math.pow(1 + monthlyInc, 12); // = 2000 * (1 + 0.07)
-        const expected = grossExpected - (grossExpected - 2000) * 0.20; // IR 20% para 12 meses
+        const days = Math.max(0, Math.round(12 * (365 / 12)));
+        let irRate = 0;
+        if (days <= 180) irRate = 0.225;
+        else if (days <= 360) irRate = 0.2;
+        else if (days <= 720) irRate = 0.175;
+        else irRate = 0.15;
+        const expected = grossExpected - (grossExpected - 2000) * irRate;
         expect(res.finalValue).toBeCloseTo(expected, 2);
     });
 
@@ -135,7 +163,6 @@ describe('calculateInvestment — testes essenciais', () => {
             appreciationRate: 0.008,
             dividendYield: 9.6,
             unitPrice: 100,
-            simulateDaily: false,
             roundResults: false
         });
         expect(res.totalDividends).toBeGreaterThan(0);
@@ -155,8 +182,8 @@ describe('calculateInvestment — testes essenciais', () => {
             roundResults: false
         };
 
-        const resMonthly = calculateInvestment({ ...params, simulateDaily: false });
-        const resDaily = calculateInvestment({ ...params, simulateDaily: true });
+        const resMonthly = calculateInvestment({ ...params});
+        const resDaily = calculateInvestment({ ...params});
 
         const relDiff = Math.abs(resDaily.finalValue - resMonthly.finalValue) / (resMonthly.finalValue || 1);
         expect(relDiff).toBeLessThan(0.002); // < 0.2%
@@ -172,7 +199,7 @@ describe('calculateInvestment — testes essenciais', () => {
                 termType: 'meses',
                 interestRate: 5,
                 rateType: 'pre',
-                simulateDaily: false,
+
                 adminFee: 0.5, // 50% mensal (alto)
                 roundResults: false
             });

@@ -17,7 +17,6 @@ import { normalizeSchedule } from "@/helpers/loans/normalizeSchedule";
 import { round2 } from "@/utils/math";
 import { parseMonthIndex } from "@/helpers/date";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
-import { exportPdf } from "@/utils/files/pdf";
 import { calculateCET } from "@/utils/calculators/loans/cet";
 
 // Constantes estáticas
@@ -40,10 +39,10 @@ const Page = () => {
     	criteriaMode: "all",
 	});
 
-	const { handleSubmit, setValue, watch, formState: { errors, isValid }  } = form;
+	const { handleSubmit, setValue, watch, formState: { isValid }  } = form;
 	const watched = watch();
 
-	const [schedule, setSchedule] = useState<any[]>([]); // array com cada parcela da tabela de amortização.
+	const [schedule, setSchedule] = useState<unknown[]>([]); // array com cada parcela da tabela de amortização.
 	const [summary, setSummary] = useState<LoansSummaryType | null>(null); // resumo
 
 	// Se o usuário escolher consorcio, força method = "price".
@@ -91,7 +90,7 @@ const Page = () => {
 			iofWasCapped = true;
 		};
 
-		const finalize = (rawSchedule: any[]) => {
+		const finalize = (rawSchedule: { payment: number }[]) => {
 			const sNorm = normalizeSchedule(rawSchedule);
 			const totalPaidNoIof = round2(sNorm.reduce((acc, cur) => acc + (Number(cur.payment) || 0), 0));
 			const totalInterest = round2(totalPaidNoIof - financed); // juros sobre o que foi financiado

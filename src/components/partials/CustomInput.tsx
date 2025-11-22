@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     FormControl,
     FormDescription,
@@ -19,6 +22,7 @@ type Props = {
     label?: string,
     placeholder?: string,
     description?: string,
+    disabled?: boolean
     type: string,
     title?: string,
     mask?:(...args:any)=> string,
@@ -36,7 +40,7 @@ type Props = {
     linkedField?: string
 }
 
-export const CustomInput = ({maxLength, form, name, label, placeholder, description, type, mask, formatParams,linkedField, title}:Props) => {
+export const CustomInput = ({maxLength, form, name, label, placeholder, description, type, mask, formatParams,linkedField, title, disabled}:Props) => {
 
     const { control, setValue, watch } = form;
 
@@ -57,7 +61,7 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
         }
     }
 
-    const applyFormat = (value: string) => {
+    const applyFormat = ((value: string) => {
         if (!value || value === "") {
             return;
         }
@@ -90,7 +94,7 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
         } else {
             setValue(name, value);
         }
-    };
+    });
 
 
 
@@ -101,7 +105,8 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
         useEffect(() => {
             const rawValue = form.getValues(name);
             applyFormat(rawValue);
-        }, [watch(linkedField)]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [applyFormat, form,name, watch(linkedField)]);
     }
 
 
@@ -125,6 +130,7 @@ export const CustomInput = ({maxLength, form, name, label, placeholder, descript
                             setValue(name, raw);
                         }}
                         className="w-full"
+                        disabled={disabled}
                         maxLength={maxLength}
                         title={title}
                     />

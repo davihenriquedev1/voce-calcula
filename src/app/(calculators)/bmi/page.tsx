@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CustomInput } from "@/components/partials/CustomInput";
 
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
-import { bmiCategories } from "@/data/bmiData";
+import { bmiCategories } from "@/data/bmi/bmiData";
 import { useEffect, useState } from "react";
 import { calculateBmi } from "@/utils/calculators/bmi";
 import { BmiCategory } from "@/types/bmi";
@@ -98,7 +98,7 @@ const Page = () => {
             </section>
             <section className="flex flex-col md:flex-row gap-12 justify-center mt-20">
                 <div className="tracking-wider">
-                    <h4 className="text-2xl font-bold text-foreground 3 mb-8">Mas calma, isso não quer dizer que você está <strong className="text-primary">"gordo(a)"</strong> ou <strong className="text-primary">"magro(a)"</strong></h4>
+                    <h4 className="text-2xl font-bold text-foreground 3 mb-8">Mas calma, isso não quer dizer que você está <strong className="text-primary">&#34;gordo(a)&#34;</strong> ou <strong className="text-primary">&#34;magro(a)&#34;</strong></h4>
                     <p className="text-sm md:text-base mb-4">
                         O <strong className="text-primary">IMC (Índice de Massa Corporal)</strong> é uma fórmula simples que relaciona peso e altura: IMC = peso ÷ altura². Ele foi criado como uma forma rápida de avaliar se o peso de uma pessoa está dentro de um intervalo considerado “saudável”. Apesar de ser útil para estudos populacionais, não é um parâmetro confiável para saber se alguém está “gordo” ou em boa forma física, porque <strong className="text-primary">não diferencia massa muscular, gordura ou água corporal</strong>.
                     </p>

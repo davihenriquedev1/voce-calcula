@@ -41,7 +41,6 @@ export type InvestmentParams = {
     monthlyContribution?: number;
     term: number; // quantidade conforme termType
     termType: 'meses' | 'anos';
-    simulateDaily?: boolean; // se true, simula dia a dia
     contributionAtStart?: boolean; // aporte no início do período
     interestRate?: number; // anual (%) ou percentual do CDI (ex: 100 = 100% do CDI)
     rateType?: RateFixedType;
@@ -50,12 +49,22 @@ export type InvestmentParams = {
     currentIPCA?: number; // anual %
     dividendYield?: number; // anual % (dividendos)
     unitPrice?: number;
+    reinvestDividends?: boolean;
     appreciationRate?: number; // mensal decimal (ex: 0.008 = 0.8%/mês)
     adminFee?: number; // mensal percentual em decimal (ex: 0.01 = 1%/mês)
     taxOnStockGains?: number; // aplicar IR sobre ganhos de ações
+    dividendFrequencyMonths?: number
+    transactionFee?: number
     dividendTaxRate?: number; // se quiser tributar dividendos (padrão 0)
     roundResults?: boolean; // arredondar para 2 casas
+    // optional: controla o spread aplicado ao converter Pós->Pré.
+    // pode ser número (pontos percentuais fixos) ou objeto por faixa de prazo (anos)
+    preConversionSpread?: number | { curto: number; medio: number; longo: number };
+
+    // optional: ajuste por risco do emissor (pontos percentuais a acrescentar ao spread)
+    issuerCreditSpread?: number;
 };
+
 export type InvestmentResult = {
     roundResults: boolean;
     grossYield: number;
@@ -66,6 +75,8 @@ export type InvestmentResult = {
     annualReturnPct: number;
     evolution: number[]; // evolução mês a mês ou dia a dia (conforme simulateDaily)
     totalDividends: number;
+    totalTransactionFees?: number; // novo
+    capitalGain?: number; // novo (valorização pura)
     totalInvested: number;
     /* metadata para UI */
     contributionAtStart?: boolean;
@@ -73,10 +84,18 @@ export type InvestmentResult = {
     interestRate?: number|undefined;
     usedIndexName?: string|undefined;
     usedIndexAnnual?: number|undefined;
-    simulateDaily?: boolean;
     adminFee?: number;
     taxOnStockGains?: number;
     iofRateApplied?: number; // decimal (ex: 0.96)
+    displayAnnualInterest?: number;
+};
+
+export type ComparisonItem = {
+    id: string;
+    label: string;
+    type: InvestmentType;
+    result: InvestmentResult;
+    isSelected?: boolean
 };
 
 export type InvestmentType = 'cdb' | 'lci' | 'lca' | 'tesouro_selic' | 'cri' | 'cra' | 'debentures' | 'debentures_incentivadas' | 'tesouro_prefixado' | 'tesouro_ipca+' | 'fii' | 'stock'

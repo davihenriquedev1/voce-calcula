@@ -1,6 +1,7 @@
 
 import Link from "next/link"
 import { Button } from "../ui/button"
+import Image from "next/image"
 
 type Props = {
     route:string,
@@ -26,16 +27,15 @@ export const Frame = ({route, title, desc, bg, bgColor, colorTitle, bgColorTitle
                     <p className={`text-sm mb-2 p-1 ${descColor ? descColor : 'text-card-foreground'}`}>{desc}</p>
                 </div>
                 <Button type="button" className="px-0 w-fit bg-transparent justify-start py-2 rounded font-bold hover:brightness-105 transition-all">
-                    <img src="/images/icons/icon-go-to-page.png" className="w-8"alt="" />
-                    <Link href={route?route:'/'} className={`${linkColor ? linkColor : 'text-foreground'}`} >
-                       Acessar
+                    <Link href={route?route:'/'} className={`flex gap-2 ${linkColor ? linkColor : 'text-foreground'}`} >
+                        <Image width={20} height={20} src="/images/icons/icon-go-to-page.png" className=""alt="" />
+                        Acessar
                     </Link>
                 </Button>
             </div>
             <div className="flex h-full justify-end items-center">
-                <img src={cardIcon} alt="" className={`w-24 md:w-36 ${cardIconTheme === 'light' || cardIconTheme === 'system' ? 'invert' : ''}`}/>
+                <Image width={144} height={144} src={cardIcon as string} alt="" className={` ${cardIconTheme === 'light' || cardIconTheme === 'system' ? 'invert' : ''}`}/>
             </div>
-            
 		</div>  
     )
 }

@@ -1,7 +1,8 @@
 import { formatNumber } from "@/utils/formatters/formatNumber";
 
 type Props = {
-    schedule: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schedule: any[];
 }
 const AmortizationTable = ({schedule}: Props) => {
 

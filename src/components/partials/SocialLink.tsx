@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link"
 
 type Props = {
@@ -10,7 +11,7 @@ export const SocialLink = ({name, image, route}:Props) => {
 
     return (
         <Link href={route}>
-            <img src={image} alt={name} className="w-8 dark:brightness-105"/>
+            <Image width={32} height={32} src={image} alt={name} className=" dark:brightness-105"/>
         </Link>
     )
 }

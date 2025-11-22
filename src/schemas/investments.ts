@@ -46,16 +46,36 @@ export const investmentsSchema = z
         dividendYield: stringNumber.optional(),
         unitPrice: stringNumber.optional(),
         appreciationRate: stringNumber.optional(),
+        reinvestDividends: z.boolean().optional().default(false),
+        dividendFrequencyMonths: z
+            .union([z.string(), z.number()])
+            .optional()
+            .transform(v => Number(v ?? 1)), // default 1 mês
+
+        transactionFee: stringNumber.optional(), // será convertido por stringNumberToNumber
 
         // taxas / flags
         adminFee: stringNumber.optional(),
-        simulateDaily: z.boolean().optional(),
         taxOnStockGains: stringNumber.optional(),
         dividendTaxRate: stringNumber.optional(),
         roundResults: z.boolean().optional(),
+
+        // controle de spread para conversão Pós->Pré (opcional)
+        // aceita "0,8" (string) ou objeto { short, medium, long } (strings também)
+        preConversionSpread: z.union([
+            stringNumber,
+            z.object({
+                curto: stringNumber,
+                medio: stringNumber,
+                longo: stringNumber,
+            })
+        ]).optional(),
+
+        /** ajuste por risco do emissor (pontos percentuais, ex: "0,35") */
+        issuerCreditSpread: stringNumber.optional(),
     })
     .superRefine((obj, ctx) => {
-
+        
         const p = {
             term: stringNumberToNumber(obj.term),
             initialValue: stringNumberToNumber(obj.initialValue),
@@ -67,9 +87,27 @@ export const investmentsSchema = z
             currentIPCA: stringNumberToNumber(obj.currentIPCA),
             dividendYield: stringNumberToNumber(obj.dividendYield),
             unitPrice: stringNumberToNumber(obj.unitPrice),
+            reinvestDividends: z.boolean().optional().default(false),
+            dividendFrequencyMonths: stringNumberToNumber(obj.dividendFrequencyMonths),
+            transactionFee: stringNumberToNumber(obj.transactionFee),
             appreciationRate: stringNumberToNumber(obj.appreciationRate),
             taxOnStockGains: stringNumberToNumber(obj.taxOnStockGains),
             dividendTaxRate: stringNumberToNumber(obj.dividendTaxRate),
+            preConversionSpread: (() => {
+                const raw = obj.preConversionSpread;
+                if (typeof raw === "undefined" || raw === null) return undefined;
+                if (typeof raw === "string") return stringNumberToNumber(raw);
+                if (typeof raw === "object") {
+                    return {
+                        curto: stringNumberToNumber(raw.curto),
+                        medio: stringNumberToNumber(raw.medio),
+                        longo: stringNumberToNumber(raw.longo),
+                    };
+                }
+                return undefined;
+            })(),
+
+            issuerCreditSpread: stringNumberToNumber(obj.issuerCreditSpread),
         };
 
         // ===== term validation (convertendo para meses) =====
@@ -160,13 +198,22 @@ export const investmentsSchema = z
                     message: "Dividend yield é obrigatório para simulação de investimento em FII/ações",
                 });
             }
-            if (!Number.isFinite(p.unitPrice ?? NaN)) {
+            // exigir unitPrice > 0
+            if (!Number.isFinite(p.unitPrice ?? NaN) || (p.unitPrice ?? 0) <= 0) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     path: ["unitPrice"],
-                    message: "Preço unitário é obrigatório para FII/ações",
+                    message: "Preço unitário é obrigatório e deve ser maior que 0 para FII/ações",
                 });
             }
+        }
+
+        if (p.transactionFee !== undefined && (!Number.isFinite(p.transactionFee) || p.transactionFee < 0 || p.transactionFee > 100)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["transactionFee"],
+                message: "transactionFee deve ser um número válido (ex: 0.2 = 0.2%).",
+            });
         }
 
         if (obj.type === "cdb" && obj.rateType === "pos") {
@@ -195,4 +242,41 @@ export const investmentsSchema = z
                 message: "dividendTaxRate deve ser entre 0 e 100%",
             });
         }
-    });
+
+        // validação de preConversionSpread
+        if (p.preConversionSpread !== undefined) {
+            if (typeof p.preConversionSpread === "number") {
+                if (!Number.isFinite(p.preConversionSpread) || p.preConversionSpread < 0 || p.preConversionSpread > 10) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        path: ["preConversionSpread"],
+                        message: "preConversionSpread deve ser um número entre 0 e 10 p.p.",
+                    });
+                }
+            } else if (typeof p.preConversionSpread === "object") {
+                const { curto, medio, longo } = p.preConversionSpread;
+                if (![curto, medio, longo].every(v => Number.isFinite(v) && v >= 0 && v <= 10)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        path: ["preConversionSpread"],
+                        message: "Valores de short/medium/long devem ser números entre 0 e 10 p.p.",
+                    });
+                }
+            } else {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["preConversionSpread"],
+                    message: "preConversionSpread inválido",
+                });
+            }
+        }
+
+        // validação issuerCreditSpread
+        if (p.issuerCreditSpread !== undefined && (!Number.isFinite(p.issuerCreditSpread) || p.issuerCreditSpread < 0 || p.issuerCreditSpread > 10)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["issuerCreditSpread"],
+                message: "issuerCreditSpread deve ser um número entre 0 e 10 p.p.",
+            });
+        }
+    }); 

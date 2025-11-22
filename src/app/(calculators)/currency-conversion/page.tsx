@@ -1,7 +1,5 @@
 import { dehydrate, QueryClient,HydrationBoundary } from '@tanstack/react-query';
 import CurrencyConversion from '@/components/calculators/currency-conversion/CurrencyConversion';
-import { Suspense } from 'react';
-import { LoadingBounce } from '@/components/partials/Loading';
 import { getExchangeRates } from '@/lib/exchangeRates';
 
 const Page = async () => {
@@ -29,11 +27,9 @@ const Page = async () => {
         mutations → histórico de mutações (geralmente vazio se não houve nenhuma)
     */
     return (
-        <Suspense fallback={<LoadingBounce/>}>
-            <HydrationBoundary state={dehydratedState}>
-                <CurrencyConversion />
-            </HydrationBoundary>
-        </Suspense>
+        <HydrationBoundary state={dehydratedState}>
+            <CurrencyConversion />
+        </HydrationBoundary>
     )
 
 }

@@ -5,6 +5,8 @@ import { Footer } from "@/components/footer/Footer";
 import { MainProvider } from "@/components/MainProvider";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Suspense } from "react";
+import { LoadingBounce } from "@/components/partials/Loading";
 
 export const metadata: Metadata = {
 	title: {
@@ -28,7 +30,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					{/* Conteúdo principal */}
 					<div className="flex flex-col flex-1">
 						<Header />
-						<main className="flex-1">{children}</main>
+						<main className="flex-1">
+							<Suspense fallback={<LoadingBounce/>}>
+								{children}
+							</Suspense>
+						</main>
 						<Footer />
 					</div>
 					</div>
