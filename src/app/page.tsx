@@ -28,12 +28,12 @@ const Home = () => {
 					<h2 className="font-extrabold tracking-wide text-center text-2xl sm:text-4xl md:text-6xl bg-greenScribbleTextBg  bg-cover bg-center">Múltiplas Calculadoras</h2>
 				</div>
 				<div className="grid grid-cols-2 h-full gap-3 md:grid-cols-3 md:gap-8">
-					<Frame route="/bmi" title="Calculadora de IMC" desc="Calcule seu Índice de Massa Corporal." bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/bmi-card.png" bgColor="bg-softgray"/>
-					<Frame route="/scientific" title="Calculadora Cíentífica" desc="Use nossa calculadora avançada." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/calc-card.png"/>
-					<Frame route="/investments" title="Calculadora de Investimentos" desc="Calcule seus rendimentos." bgColorTitle="bg-chart-5"  colorTitle="text-section2" bgColor="bg-softgray" cardIcon="/images/cards/investments-card.png"/>
-					<Frame route="/loans" title="Calculadora de Empréstimos" desc="Calcule o quanto você vai pagar." bgColorTitle="bg-popover"  colorTitle="text-section2" bgColor="bg-card-foreground" descColor="text-card" linkColor="text-card" cardIcon="/images/cards/emprestimo-card.png"/>
-					<Frame route="/currency-conversion" title="Calculadora de Conversão de Moedas" desc="Veja a conversão de Real pra Dólar e muito mais." bgColor="bg-softgray" bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/exchange-card.png"/>
-					<Frame route="/personal-finance" title="Calculadora de Finanças Pessoais" desc="Planeje suas finanças pessoais." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/personal-finance-card.png" />
+					<Frame route="/imc" title="Calculadora de IMC" desc="Calcule seu Índice de Massa Corporal." bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/bmi-card.png" bgColor="bg-softgray"/>
+					<Frame route="/calculadora-cientifica" title="Calculadora Cíentífica" desc="Use nossa calculadora avançada." bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/calc-card.png"/>
+					<Frame route="/investimentos" title="Calculadora de Investimentos" desc="Calcule seus rendimentos." bgColorTitle="bg-chart-5"  colorTitle="text-section2" bgColor="bg-softgray" cardIcon="/images/cards/investments-card.png"/>
+					<Frame route="/emprestimos" title="Calculadora de Empréstimos" desc="Calcule o quanto você vai pagar." bgColorTitle="bg-popover"  colorTitle="text-section2" bgColor="bg-card-foreground" descColor="text-card" linkColor="text-card" cardIcon="/images/cards/emprestimo-card.png"/>
+					<Frame route="/conversor-de-moedas" title="Calculadora de Conversão de Moedas" desc="Veja a conversão de Real pra Dólar e muito mais." bgColor="bg-softgray" bgColorTitle="bg-chart-5" colorTitle="text-section2" cardIcon="/images/cards/exchange-card.png"/>
+					<Frame route="/financas-pessoais" title="Calculadora de Finanças Pessoais" desc="Planeje suas finanças pessoais. [EM BREVE]" bgColorTitle="bg-white" colorTitle="text-section2" bgColor="bg-chart-5" cardIcon="/images/cards/personal-finance-card.png" />
 				</div>
 			</section>
 

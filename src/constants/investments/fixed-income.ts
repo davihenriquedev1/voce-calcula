@@ -1,7 +1,7 @@
 // src/constants/investments.ts
-import { InvestmentType } from "@/types/investments";
+import { FixedIncomeType } from "@/types/investments/fixed-income";
 
-export const FIXED_INVESTMENT_TYPES: InvestmentType[] = [
+export const FIXED_INCOME_TYPES = [
 	"cdb",
 	"lci",
 	"lca",
@@ -12,11 +12,10 @@ export const FIXED_INVESTMENT_TYPES: InvestmentType[] = [
 	"tesouro_selic",
 	"tesouro_prefixado",
 	"tesouro_ipca+",
+	"fund_di",
 ];
 
-export const VARIABLE_INVESTMENT_TYPES: InvestmentType[] = ["fii", "stock"];
-
-export const INVESTMENT_TYPE_LABELS: Record<string, string> = {
+export const FIXED_INCOME_LABELS: Record<string, string> = {
 	cdb: "CDB",
 	lci: "LCI",
 	lca: "LCA",
@@ -27,8 +26,7 @@ export const INVESTMENT_TYPE_LABELS: Record<string, string> = {
 	tesouro_selic: "Tesouro Selic",
 	tesouro_prefixado: "Tesouro Prefixado",
 	"tesouro_ipca+": "Tesouro IPCA+",
-	fii: "FII",
-	stock: "Ações",
+	fund_di: "Fundo DI"
 };
 
 export const investmentOptions = [
@@ -42,16 +40,9 @@ export const investmentOptions = [
 	{ label: "Tesouro Selic", value: "tesouro_selic" },
 	{ label: "Tesouro Prefixado", value: "tesouro_prefixado" },
 	{ label: "Tesouro IPCA+", value: "tesouro_ipca+" },
-	{ label: "FII", value: "fii" },
-	{ label: "Ações", value: "stock" },
+	{ label: "Fundo DI", value: "fund_di" },
+	
 ];
 
-export const ALL_INVESTMENT_TYPES = [...FIXED_INVESTMENT_TYPES, ...VARIABLE_INVESTMENT_TYPES];
-
-export const getInvestmentLabel = (t: InvestmentType | string) => INVESTMENT_TYPE_LABELS[t] ?? t;
-
-export const getBucketTypes = (t: InvestmentType | string): InvestmentType[] => {
-	if (FIXED_INVESTMENT_TYPES.includes(t as InvestmentType)) return FIXED_INVESTMENT_TYPES;
-	if (VARIABLE_INVESTMENT_TYPES.includes(t as InvestmentType)) return VARIABLE_INVESTMENT_TYPES;
-	return [];
-};
+export const getInvestmentLabel = (t: FixedIncomeType | string) => FIXED_INCOME_LABELS[t] ?? t;
+export const FIXED_INCOME_RATE_TYPES = ["pre","pos"] as const;

@@ -23,11 +23,13 @@ type Props = {
     label?:string,
     placeholder?:string
     options: Option[];
+    defaultValue: string;
 }
 
-export function CustomSelect({form, name, label, placeholder, options}:Props) {
+export const CustomSelect = React.forwardRef<HTMLButtonElement, Props>(
+({ form, name, label, placeholder, options, defaultValue }, ref) => {
 
-    const { control, setValue } = form;
+    const { control } = form;
 
     return (
        
@@ -38,13 +40,15 @@ export function CustomSelect({form, name, label, placeholder, options}:Props) {
                 <FormItem className="flex-1">
                     <FormLabel className="font-bold">{label}</FormLabel>
                     <FormControl>
-                        <Select onValueChange={(value)=> setValue(name, value)} {...field}>
-                            <SelectTrigger >
+                        <Select onValueChange={field.onChange} defaultValue={defaultValue}>
+                            <SelectTrigger ref={ref}>
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
                             <SelectContent>   
                                 <SelectGroup>
-                                    {options?.map((item, key) => <SelectItem value={item.value.toLowerCase()} key={key}>{item.label}</SelectItem>)}
+                                    {options?.map((item, key) => (
+                                        <SelectItem value={String(item.value)} key={key}>{item.label}</SelectItem>
+                                    ))}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -52,8 +56,9 @@ export function CustomSelect({form, name, label, placeholder, options}:Props) {
                     <FormMessage />
                 </FormItem>
             )}
-        />
-            
+        />      
         
     )
-}
+});
+
+CustomSelect.displayName = "CustomSelect";

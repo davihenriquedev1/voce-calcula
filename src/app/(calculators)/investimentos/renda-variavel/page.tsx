@@ -1,4 +1,5 @@
 "use client";
+/* 
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { CustomInput } from "@/components/partials/CustomInput";
 import { CustomSelect } from "@/components/partials/CustomSelect";
 import { maskNumberInput } from "@/utils/masks/maskNumberInput";
-import { investmentsSchema } from "@/schemas/investments";
-import { ComparisonItem, InvestmentParams, InvestmentResult, InvestmentsFormValues, InvestmentType } from "@/types/investments";
-import { calculateInvestment } from "@/utils/calculators/investments/calculateInvestment";
-import InvestmentsSummary from "@/components/calculators/investments/InvestmentsSummary";
+import { investmentsSchema } from "@/schemas/investments/fixed-income";
+import { ComparisonItem, InvestmentParams, InvestmentResult, InvestmentsFormValues, InvestmentType } from "@/types/investments/fixed-income";
+import { calculateInvestment } from "@/utils/calculators/investments/fixed-income/calculateFixedIncome";
+import InvestmentsSummary from "@/components/calculators/investments/fixed-income/ComparisonSummary";
 import { Form } from "@/components/ui/form";
 import stringNumberToNumber from "@/utils/parsers/stringNumberToNumber";
-import { ComparisonSummary } from "@/components/calculators/investments/ComparisonSummary";
-import { calculateBucketComparisons } from "@/utils/calculators/investments/calculateBucketComparisons";
+import { ComparisonSummary } from "@/components/calculators/investments/fixed-income/ComparisonSummary";
+import { calculateBucketComparisons } from "@/utils/calculators/investments/fixed-income/calculateBucketComparisons";
 import { investmentOptions } from "@/constants/investments";
 
 const investmentMeta: Record<string, {
@@ -22,20 +23,17 @@ const investmentMeta: Record<string, {
     defaultRateType?: 'pre' | 'pos';
     allowPosIndex?: boolean;
     forceExemptFromIR?: boolean;
-    showVariableFields?: boolean;
 }> = {
-    cdb: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, showVariableFields: false },
-    lci: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, showVariableFields: false },
-    lca: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, showVariableFields: false },
-    cri: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, showVariableFields: false },
-    cra: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, showVariableFields: false },
-    debentures: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, showVariableFields: false },
-    debentures_incentivadas: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, showVariableFields: false },
-    tesouro_selic: { allowRateType: false, defaultRateType: 'pos', allowPosIndex: true, showVariableFields: false },
-    tesouro_prefixado: { allowRateType:false, defaultRateType: 'pre', allowPosIndex: false, showVariableFields: false },
-    'tesouro_ipca+': { allowRateType: false, defaultRateType: 'pre', allowPosIndex: false, showVariableFields: false },
-    fii: { allowRateType: false, showVariableFields: true },
-    stock: { allowRateType: false, showVariableFields: true }
+    cdb: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true,},
+    lci: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, },
+    lca: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, },
+    cri: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, },
+    cra: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, },
+    debentures: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, },
+    debentures_incentivadas: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: false, forceExemptFromIR: true, },
+    tesouro_selic: { allowRateType: false, defaultRateType: 'pos', allowPosIndex: true, },
+    tesouro_prefixado: { allowRateType:false, defaultRateType: 'pre', allowPosIndex: false, },
+    'tesouro_ipca+': { allowRateType: false, defaultRateType: 'pre', allowPosIndex: false, },
 };
 
 type Result = {
@@ -229,7 +227,7 @@ export default function InvestmentCalculatorPage() {
                                     </label>
                                 </div>
                                 
-                                {/* --- Taxa (pré/pos) — sempre visível --- */}
+                             
                                 <CustomInput
                                     type="text"
                                     form={form}
@@ -279,7 +277,7 @@ export default function InvestmentCalculatorPage() {
                                     type="text" 
                                     mask={maskNumberInput()}
                                 />
-                                {/* --- Índices (SELIC, CDI, IPCA)  */}
+                              
                                 <CustomInput
                                     type="text"
                                     form={form}
@@ -306,7 +304,6 @@ export default function InvestmentCalculatorPage() {
                                     formatParams={percentFormat}
                                 />
 
-                                {/* Taxa administrativa e IR sobre ganho */}
                                 <CustomInput 
                                     type="text" 
                                     form={form} name="adminFee" 
@@ -315,7 +312,7 @@ export default function InvestmentCalculatorPage() {
                                     formatParams={percentFormat} 
                                 />
                                
-                                {/* --- Renda variável: sempre visíveis (unitPrice, appreciationRate, dividendYield) --- */}
+                              
                                 <CustomInput 
                                     type="text" form={form} 
                                     name="taxOnStockGains" 
@@ -362,7 +359,6 @@ export default function InvestmentCalculatorPage() {
                                     mask={maskNumberInput()}
                                     placeholder="1"
                                     disabled={!investmentMeta[watchedType]?.showVariableFields}
-
                                 />
                                 <CustomInput
                                     type="text"
@@ -372,7 +368,6 @@ export default function InvestmentCalculatorPage() {
                                     mask={maskNumberInput(3)}
                                     formatParams={percentFormat}
                                     disabled={!investmentMeta[watchedType]?.showVariableFields}
-
                                 />
                                 
                                 <label className="flex items-center gap-2 cursor-pointer ">
@@ -433,3 +428,6 @@ export default function InvestmentCalculatorPage() {
         </div>
     );
 }
+
+
+*/

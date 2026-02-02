@@ -1,5 +1,5 @@
-import { InputToken } from "@/app/(calculators)/scientific/page";
-import { NotationMode } from "@/app/(calculators)/scientific/page";
+import { InputToken } from "@/app/(calculators)/calculadora-cientifica/page";
+import { NotationMode } from "@/app/(calculators)/calculadora-cientifica/page";
 
 export function calculatorInputHandler(
   mode: NotationMode,
