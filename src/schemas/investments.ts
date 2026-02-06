@@ -1,9 +1,7 @@
 import stringNumberToNumber from "@/utils/parsers/stringNumberToNumber";
 import { z } from "zod";
 
-/**
- * Helper: aceita string mascarada ou number e transforma em number
-*/
+// Helper: aceita string mascarada ou number e transforma em number
 const numberFromString = () =>
     z.preprocess((v) => {
         let n = 0;
@@ -19,9 +17,7 @@ const numberFromString = () =>
         }
         )).optional();
 
-/**
- * Item da tabela de IR
-*/
+// Item da tabela de IR
 const incomeTaxBracket = z.object({
     maxDays: z.preprocess(
         (v) => (v === "" || v === undefined ? null : Number(v)),
@@ -30,7 +26,7 @@ const incomeTaxBracket = z.object({
     rate: numberFromString(),
 });
 
-export const fixedIncomeSchema = z
+export const investmentsSchema = z
     .object({
 
         // aporte inicial
@@ -42,7 +38,7 @@ export const fixedIncomeSchema = z
         // frequência dos aportes
         contributionFrequency: z.enum(["monthly", "annually", "one-time", "weekly"]).optional().default("monthly"),
 
-        // frequência dos aportes
+        // aporte sempre no início do período?
         contributionAtStart: z.boolean().optional().default(true),
 
         // prazo
@@ -100,7 +96,7 @@ export const fixedIncomeSchema = z
         issuerCreditSpread: numberFromString(),
     })
     .superRefine((obj, ctx) => {
-        // --- converte/normaliza para usar nas validações ---
+        // converte/normaliza pra usar nas validações
         const termRaw = obj.term as unknown;
         const termNum = typeof termRaw === "number" ? termRaw : Number(termRaw);
         const months = obj.termType === "years" ? Math.round((termNum ?? 0) * 12) : Math.round(termNum ?? 0);
@@ -227,7 +223,7 @@ export const fixedIncomeSchema = z
             }
         }
 
-        // validação issuerCreditSpread (nome usado no form)
+        // validação issuerCreditSpread
         if (obj.issuerCreditSpread !== undefined) {
             const v = Number(obj.issuerCreditSpread);
             if (!Number.isFinite(v) || v < 0 || v > 100) {
@@ -265,7 +261,7 @@ export const fixedIncomeSchema = z
                             message: "Somente a última faixa pode ser ilimitada",
                         });
                     }
-                    return; // tabela encerra aqui
+                    return;
                 }
 
                 // maxDays deve ser crescente

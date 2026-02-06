@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { formatNumber } from "@/utils/formatters/formatNumber";
-import { ComparisonItem, FixedIncomeResult } from "@/types/investments/fixed-income";
+import { ComparisonItem,InvestmentsResult } from "@/types/investments";
 import {
     BarChart,
     Bar,
@@ -18,7 +18,6 @@ type Props = {
 
 export default function ComparisonSummary({ items }: Props) {
     const [mounted, setMounted] = useState(false);
-    // add state to control which item shows evolution
     const [selectedTypeEvol, setSelectedTypeEvol] = useState<string | null>(items[0]?.id ?? null);
 
     useEffect(() => { setMounted(true); }, []);
@@ -48,7 +47,7 @@ export default function ComparisonSummary({ items }: Props) {
     });
 
     // para destacar melhor (maior finalValue) dentro do grupo
-    const bestInGroup = (list: ComparisonItem[], metric: (r: FixedIncomeResult) => number) => {
+    const bestInGroup = (list: ComparisonItem[], metric: (r: InvestmentsResult) => number) => {
         let best: ComparisonItem | null = null;
         let bestVal = -Infinity;
         for (const item of list) {
@@ -78,15 +77,12 @@ export default function ComparisonSummary({ items }: Props) {
     const getUsedAnnual = (item: ComparisonItem): number | undefined => {
         const r = item.result;
 
-        // se o cálculo já nos passou a taxa anual pronta, use-a
         if (typeof r.displayAnnualInterest === "number") return r.displayAnnualInterest;
 
-        // caso pós e tivermos o índice usado (ex: currentCdi/currentSelic salvo em usedIndexAnnual)
         if (r.rateType === "pos" && typeof r.interestRate === "number") {
             if (typeof r.usedIndexAnnual === "number") {
                 return r.usedIndexAnnual * (r.interestRate / 100);
             }
-            //sem índice disponível: não temos como converter para % a.a. corretamente
             return undefined;
         }
 
@@ -106,7 +102,7 @@ export default function ComparisonSummary({ items }: Props) {
                     {/* Chart (pai com altura fixa para o ResponsiveContainer) */}
                     <div
                         className="w-full h-64 md:h-80 text-stone-800"
-                        style={{ minWidth: 0, minHeight: 200 }} // evita colapso em layouts flex/hidden
+                        style={{ minWidth: 0, minHeight: 200 }}
                     >
                         {mounted ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -131,7 +127,6 @@ export default function ComparisonSummary({ items }: Props) {
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            // placeholder simples enquanto mede o container
                             <div className="w-full h-full flex items-center justify-center text-sm text-muted-foreground">
                                 Carregando gráfico...
                             </div>
@@ -215,7 +210,7 @@ export default function ComparisonSummary({ items }: Props) {
                         </div>
                     </div>
                     {/* Quick highlights */}
-                    <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 p-2">
                         <div className="p-3 bg-gradient-to-r from-background to-ring border rounded-lg shadow-sm">
                             <div className="text-xs text-muted-foreground">Maior Saldo Final</div>
                             <div className="font-semibold">{bestInGroup(items, (res) => res.finalValue)?.label ?? '-'}</div>
@@ -230,8 +225,11 @@ export default function ComparisonSummary({ items }: Props) {
                         </div>
                     </div>
                     {/* Evolution */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col p-2 mt-3">
                         <div className="w-full mb-3 ">
+                            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                Evolução do montante bruto. Escolha o investimento.
+                            </h4>
                             <select
                                 title="selecione o tipo"
                                 className="w-full p-2 border rounded"
@@ -248,9 +246,9 @@ export default function ComparisonSummary({ items }: Props) {
                         {items
                             .filter(item => item.id === selectedTypeEvol)
                             .map(item => (
-                                <div key={item.id} className="mt-6">
+                                <div key={item.id} className="mt-2">
                                     <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                        Evolução do montante bruto em {item.result.evolution.length} meses
+                                        Intervalo: {item.result.evolution.length} meses
                                         <span className="text-xs text-muted-foreground cursor-help" title="A evolução mostrada é o saldo bruto (antes de impostos). O 'Valor final estimado' no resumo já considera impostos (IR/IOF).">
                                             ℹ️
                                         </span>

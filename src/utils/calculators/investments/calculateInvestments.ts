@@ -1,8 +1,8 @@
 import { annualPctToMonthlyDecimal } from "@/helpers/finance/annualPctToMonthlyDecimal";
 import { round2 } from "@/utils/math";
-import { FixedIncomeParams, FixedIncomeResult, FixedIncomeType } from "@/types/investments/fixed-income";
+import { InvestmentsParams, InvestmentsResult, InvestmentsType } from "@/types/investments";
 
-export const calculateFixedIncome = ({type, initialContribution, frequentContribution = 0, term, termType, interestRate, rateType, currentSelic, currentCdi, currentIpca, adminFeePercent = 0, contributionAtStart}: FixedIncomeParams): FixedIncomeResult => {
+export const calculateInvestments = ({type, initialContribution, frequentContribution = 0, term, termType, interestRate, rateType, currentSelic, currentCdi, currentIpca, adminFeePercent = 0, contributionAtStart}: InvestmentsParams): InvestmentsResult => {
 
     const investTerm = typeof term === "number" ? term : 0;
 
@@ -13,7 +13,6 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
 
     const days = Math.max(0, Math.round(months * (365 / 12)));   
 
-    // substituir o early return atual por este
     if (months === 0) {
         const tv = round2(initialContribution ? initialContribution : 0);
         return {
@@ -104,10 +103,10 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
         evolution.push(balance);
     }
 
-    // soma o capital inicial + todos os aportes mensais (não considera juros/dividendos).
+    // soma o capital inicial + todos os aportes mensais (não considera juros/dividendos)
     const totalInvested = (initialContribution || 0) + (contributionPerPeriod || 0) * periodCount;
 
-    // lucro bruto: quanto o investimento rendeu antes de impostos (saldo final - capital investido).
+    // lucro bruto: quanto o investimento rendeu antes de impostos (saldo final - capital investido)
     const grossYield = balance - totalInvested;
 
     // IR regressivo (CDB, Tesouro Prefixado/IPCA+)
@@ -133,6 +132,7 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
         63, 60, 56, 53, 50, 46, 43, 40, 36, 33,
         30, 26, 23, 20, 16, 13, 10, 6, 3, 0
     ];
+
     let iofRateApplied = 0;
     if ((type === 'cdb') && days < 30) {
         const d = Math.max(1, Math.min(30, Math.floor(days))); // 1..30
@@ -140,6 +140,7 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
         iofRateApplied = pct / 100;
         iof = grossYield > 0 ? grossYield * iofRateApplied : 0;
     }
+
     // LCI/LCA isentos
     if (type === 'lci' || type === 'lca') {
         incomeTax = 0;
@@ -147,14 +148,14 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
         iofRateApplied = 0;
     }
 
-    // Subtrai todos os impostos do lucro bruto → lucro líquido.
+    // Subtrai todos os impostos do lucro bruto. lucro líquido
     const netYield = grossYield - incomeTax - iof;
 
-    // saldo final do investimento (capital investido + lucro líquido).
+    // saldo final do investimento (capital investido + lucro líquido)
     const finalValue = totalInvested + netYield;
 
     // converte prazo para anos 
-    const years = Math.max(1 / 365, months / 12);    // rentabilidade anualizada, usando fórmula de juros compostos
+    const years = Math.max(1 / 365, months / 12);
     const annualReturnPct = totalInvested > 0 ? (Math.pow(finalValue / totalInvested, 1 / years) - 1) * 100 : 0;
 
     const maybeRound = (v: number) => round2(v);
@@ -168,7 +169,7 @@ export const calculateFixedIncome = ({type, initialContribution, frequentContrib
     // para pós-fixados que dependem de um índice (CDI/SELIC), mapear o índice usado
     if (rateType === "pos") {
         // tipos típicos que usam CDI/SELIC como referência
-        const posIndexTypes: FixedIncomeType[] = ["cdb", "lci", "lca", "cri", "cra", "debentures", "debentures_incentivadas"];
+        const posIndexTypes: InvestmentsType[] = ["cdb", "lci", "lca", "cri", "cra", "debentures", "debentures_incentivadas"];
         if (posIndexTypes.includes(type)) {
             if (preferCdi) {
                 usedIndexName = "CDI";

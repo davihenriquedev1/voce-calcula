@@ -1,16 +1,16 @@
 import { z } from "zod";
-import { fixedIncomeSchema } from "@/schemas/investments/fixed-income";
-import { FIXED_INCOME_RATE_TYPES, FIXED_INCOME_TYPES } from "@/constants/investments/fixed-income";
+import { investmentsSchema } from "@/schemas/investments";
+import { INVESTMENTS_RATE_TYPES, INVESTMENTS_TYPES } from "@/constants/investments";
 
 // z.input descreve o que o schema aceita na entrada (strings mascaradas do form)
-export type FixedIncomeFormValues = z.input<typeof fixedIncomeSchema>;
+export type InvestmentsFormValues = z.input<typeof investmentsSchema>;
 
 // Tipagem de saída depois do parse (numbers)
-export type FixedIncomeParsedValues = z.infer<typeof fixedIncomeSchema>;
+export type InvestmentsParsedValues = z.infer<typeof investmentsSchema>;
 
-export type FixedIncomeParams = FixedIncomeParsedValues & {
-    type: FixedIncomeType;
-    rateType: FixedIncomeRateType;
+export type InvestmentsParams = InvestmentsParsedValues & {
+    type: InvestmentsType;
+    rateType: InvestmentsRateType;
     preConversionSpread?: number | { curto?: number; medio?: number; longo?: number };
     issuerCreditSpread?: number;
 };
@@ -20,7 +20,7 @@ export type IncomeTaxBracket = {
     rate: number;
 };
 
-export type FixedIncomeResult = {
+export type InvestmentsResult = {
     grossYield: number;
     incomeTax: number;
     iof: number;
@@ -32,7 +32,7 @@ export type FixedIncomeResult = {
     totalInvested: number;
 
     contributionAtStart?: boolean;
-    rateType?: FixedIncomeRateType;
+    rateType?: InvestmentsRateType;
     interestRate?: number | undefined;
     usedIndexName?: string | undefined;
     usedIndexAnnual?: number | undefined;
@@ -44,18 +44,18 @@ export type FixedIncomeResult = {
 export type ComparisonItem = {
     id: string;
     label: string;
-    type: FixedIncomeType;
-    result: FixedIncomeResult;
+    type: InvestmentsType;
+    result: InvestmentsResult;
     isSelected?: boolean;
 };
 
-export type FixedIncomeSummary = {
-    type: FixedIncomeType;
+export type InvestmentsSummary = {
+    type: InvestmentsType;
     initialContribution: number;
     frequentContribution: number;
     termMonths: number;
     interestRate?: number;
-    rateType?: FixedIncomeRateType;
+    rateType?: InvestmentsRateType;
     currentSelic?: number;
     currentIpca?: number;
     currentCdi?: number;
@@ -74,5 +74,5 @@ export type FixedIncomeSummary = {
     monthlyEvolution: number[]; // array de valores mês a mês para gráfico
 };
 
-export type FixedIncomeType = (typeof FIXED_INCOME_TYPES)[number];
-export type FixedIncomeRateType = (typeof FIXED_INCOME_RATE_TYPES)[number];
+export type InvestmentsType = (typeof INVESTMENTS_TYPES)[number];
+export type InvestmentsRateType = (typeof INVESTMENTS_RATE_TYPES)[number];

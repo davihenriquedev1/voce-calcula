@@ -1,10 +1,10 @@
-import { FixedIncomeParams } from "@/types/investments/fixed-income";
-import { calculateFixedIncome } from "../calculateFixedIncome";
+import { InvestmentsParams } from "@/types/investments";
+import { calculateInvestments } from "../calculateInvestments";
 
 const annualToMonthly = (annualPct: number) =>
 	Math.pow(1 + annualPct / 100, 1 / 12) - 1;
 
-const baseFixedIncomeParams: FixedIncomeParams = {
+const baseInvestmentsParams: InvestmentsParams = {
 	type: "cdb",
 
 	// Aportes
@@ -41,11 +41,11 @@ const baseFixedIncomeParams: FixedIncomeParams = {
 	],
 };
 
-describe("calculateFixedIncome — impostos e isenções", () => {
+describe("calculateInvestments — impostos e isenções", () => {
 
 	test("IOF < 30 dias — CDB 15 dias gera IOF conforme tabela (~50%)", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "cdb",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -63,8 +63,8 @@ describe("calculateFixedIncome — impostos e isenções", () => {
 	});
 
 	test("LCI 12 meses — isento de IR e IOF", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "lci",
 			initialContribution: 1500,
 			frequentContribution: 0,
@@ -84,8 +84,8 @@ describe("calculateFixedIncome — impostos e isenções", () => {
 
 	test("CRI / CRA são isentos de IR", () => {
 		for (const type of ["cri", "cra"] as const) {
-			const res = calculateFixedIncome({
-				...baseFixedIncomeParams,
+			const res = calculateInvestments({
+				...baseInvestmentsParams,
 				type,
 				initialContribution: 1000,
 				frequentContribution: 0,
@@ -99,8 +99,8 @@ describe("calculateFixedIncome — impostos e isenções", () => {
 	});
 
 	test("Debêntures (não incentivadas) pagam IR regressivo", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "debentures",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -117,8 +117,8 @@ describe("calculateFixedIncome — impostos e isenções", () => {
 	});
 
 	test("Debêntures incentivadas são isentas de IR", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "debentures_incentivadas",
 			initialContribution: 1000,
 			frequentContribution: 0,

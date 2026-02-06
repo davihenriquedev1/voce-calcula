@@ -1,11 +1,11 @@
-import { ComparisonItem, FixedIncomeParams, FixedIncomeRateType, FixedIncomeType } from "@/types/investments/fixed-income";
-import { calculateFixedIncome } from "./calculateFixedIncome";
-import { getInvestmentLabel } from "@/constants/investments/fixed-income";
+import { ComparisonItem, InvestmentsParams, InvestmentsRateType, InvestmentsType } from "@/types/investments";
+import { calculateInvestments } from "./calculateInvestments";
+import { getInvestmentLabel } from "@/constants/investments";
 import { annualPctToMonthlyDecimal } from "@/helpers/finance/annualPctToMonthlyDecimal";
 
-const investmentMeta: Record<FixedIncomeType, {
+const investmentMeta: Record<InvestmentsType, {
   allowRateType?: boolean;
-  defaultRateType?: FixedIncomeRateType;
+  defaultRateType?: InvestmentsRateType;
   allowPosIndex?: boolean; // aceita variação pós (CDI/SELIC)
   forceExemptFromIR?: boolean;
 }> = {
@@ -22,28 +22,27 @@ const investmentMeta: Record<FixedIncomeType, {
     fund_di: { allowRateType: true, defaultRateType: 'pos', allowPosIndex: true },
 };
 
-// TYPES list: pega todos os tipos que você suporta (garante fund_di também)
-const toCompareDefaults: FixedIncomeType[] = [
-    ...Object.keys(investmentMeta) as FixedIncomeType[],
+const toCompareDefaults: InvestmentsType[] = [
+    ...Object.keys(investmentMeta) as InvestmentsType[],
 ]
 
-type InterestRateResult = { interestRate?: number; rateType?: FixedIncomeRateType };
+type InterestRateResult = { interestRate?: number; rateType?: InvestmentsRateType };
 
 /**
  * ORQUESTRADORA: recebe params (sem type e rateType) e gera ComparisonItem[] comparando
  * automaticamente todos os tipos/variantes relevantes.
  */
-export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" | "rateType">) => {
+export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rateType">) => {
 
     const results: ComparisonItem[] = [];
     const pushedIds = new Set<string>();
 
-    const safePush = (id: string, label: string, type: FixedIncomeType, pParams: FixedIncomeParams) => {
+    const safePush = (id: string, label: string, type: InvestmentsType, pParams: InvestmentsParams) => {
         if (pushedIds.has(id)) return;
         try {
             
             const cloneParams = typeof structuredClone === 'function' ? structuredClone(pParams) : JSON.parse(JSON.stringify(pParams));
-            const r = calculateFixedIncome(cloneParams);
+            const r = calculateInvestments(cloneParams);
             
             if (r) {
                 results.push({id, label, type, result: r});
@@ -57,7 +56,7 @@ export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" |
 
     // Retorna interestRate (número) e rateType ('pre'|'pos'|'auto')
     // interestRate: para 'pre' = taxa anual em % (ex: 13.65), para 'pos' = percentual do índice (ex: 100)
-    const computeInterestRateForType = (baseParams: Partial<FixedIncomeParams>, type: FixedIncomeType, variant?: "pre" | "pos"):InterestRateResult => {
+    const computeInterestRateForType = (baseParams: Partial<InvestmentsParams>, type: InvestmentsType, variant?: "pre" | "pos"):InterestRateResult => {
         const base = typeof baseParams.interestRate === "number" ? baseParams.interestRate : undefined;
         const selic = typeof baseParams.currentSelic === "number" ? baseParams.currentSelic : undefined;
         const ipca = typeof baseParams.currentIpca === "number" ? baseParams.currentIpca : undefined;
@@ -80,7 +79,6 @@ export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" |
             return preAnnualPercent; // (ex: 13.65)
         };
 
-        // leitura/configuração do spread (vindo do front ou defaults)
         const spreadCfg = baseParams.preConversionSpread;
         const defaultSpread = { curto: 0.5, medio: 0.8, longo: 1.2 }; // p.p.
 
@@ -198,11 +196,11 @@ export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" |
 
     for (const type of toCompareDefaults) {
         const meta = investmentMeta[type as string] ?? {};
-        const baseClone: FixedIncomeParams = { ...(params as FixedIncomeParams), type } as FixedIncomeParams;
+        const baseClone: InvestmentsParams = { ...(params as InvestmentsParams), type } as InvestmentsParams;
 
         // tentar gerar variante PRÉ (se faz sentido / computeInterestRate retornar pre)
         const preComputed = computeInterestRateForType(params, type, "pre");
-        const preParams = { ...baseClone, rateType: "pre", interestRate: preComputed.interestRate ?? params.interestRate } as FixedIncomeParams;
+        const preParams = { ...baseClone, rateType: "pre", interestRate: preComputed.interestRate ?? params.interestRate } as InvestmentsParams;
 
         if (preComputed.rateType === "pre" && typeof preParams.interestRate === "number") {
             const id = `${type}_pre`;
@@ -218,7 +216,7 @@ export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" |
             const posComputed = computeInterestRateForType(params, type, "pos");
             // se computeInterestRate retornou algo válido para pos (interestRate ou rateType)
             if ((posComputed.rateType === "pos") && typeof posComputed.interestRate === "number") {
-                const posParams = { ...baseClone, rateType: "pos", interestRate: posComputed.interestRate ?? params.interestRate } as FixedIncomeParams;
+                const posParams = { ...baseClone, rateType: "pos", interestRate: posComputed.interestRate ?? params.interestRate } as InvestmentsParams;
                 const id = `${type}_pos`;
                 const label = `${getInvestmentLabel(type)} (Pós)`;
                 safePush(id, label, type, posParams);
@@ -228,10 +226,10 @@ export const orchestFixedComparisons = (params: Omit<FixedIncomeParams, "type" |
 
     // Se o bucket estiver vazio (tipo desconhecido), adicionar um fallback com alguns tipos úteis
     if (results.length === 0) {
-        const fallbackTypes: FixedIncomeType[] = ["cdb", "lci", "tesouro_selic", "tesouro_prefixado"];
+        const fallbackTypes: InvestmentsType[] = ["cdb", "lci", "tesouro_selic", "tesouro_prefixado"];
         for (const t of fallbackTypes) {
         const comp = computeInterestRateForType(params, t);
-        const p = { ...params, type: t, rateType: comp.rateType, interestRate: comp.interestRate } as FixedIncomeParams;
+        const p = { ...params, type: t, rateType: comp.rateType, interestRate: comp.interestRate } as InvestmentsParams;
         safePush(`fallback_${t}`, getInvestmentLabel(t), t, p);
         }
     }

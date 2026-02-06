@@ -23,7 +23,7 @@ type Props = {
     label?:string,
     placeholder?:string
     options: Option[];
-    defaultValue: string;
+    defaultValue?: string;
 }
 
 export const CustomSelect = React.forwardRef<HTMLButtonElement, Props>(

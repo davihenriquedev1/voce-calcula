@@ -1,10 +1,10 @@
-import { FixedIncomeParams } from "@/types/investments/fixed-income";
-import { calculateFixedIncome } from "../calculateFixedIncome";
+import { InvestmentsParams } from "@/types/investments";
+import { calculateInvestments } from "../calculateInvestments";
 
 const annualToMonthly = (annualPct: number) =>
 	Math.pow(1 + annualPct / 100, 1 / 12) - 1;
 
-const baseFixedIncomeParams: FixedIncomeParams = {
+const baseInvestmentsParams: InvestmentsParams = {
 	type: "cdb",
 
 	// Aportes
@@ -41,11 +41,11 @@ const baseFixedIncomeParams: FixedIncomeParams = {
 	],
 };
 
-describe("calculateFixedIncome — núcleo", () => {
+describe("calculateInvestments — núcleo", () => {
 
 	test("Aporte no início rende mais que no fim", () => {
 		const base = {
-			...baseFixedIncomeParams,
+			...baseInvestmentsParams,
 			type: "cdb" as const,
 			initialContribution: 0,
 			frequentContribution: 100,
@@ -55,15 +55,15 @@ describe("calculateFixedIncome — núcleo", () => {
 			rateType: "pre" as const
 		};
 
-		const end = calculateFixedIncome({ ...base, contributionAtStart: false });
-		const start = calculateFixedIncome({ ...base, contributionAtStart: true });
+		const end = calculateInvestments({ ...base, contributionAtStart: false });
+		const start = calculateInvestments({ ...base, contributionAtStart: true });
 
 		expect(start.finalValue).toBeGreaterThan(end.finalValue);
 	});
 
 	test("CDB pré 12 meses — IR aplicado corretamente", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "cdb",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -82,8 +82,8 @@ describe("calculateFixedIncome — núcleo", () => {
 	});
 
 	test("CDB pós usa CDI quando disponível", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "cdb",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -99,8 +99,8 @@ describe("calculateFixedIncome — núcleo", () => {
 	});
 
 	test("CDB pós usa SELIC como fallback", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "cdb",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -115,8 +115,8 @@ describe("calculateFixedIncome — núcleo", () => {
 	});
 
 	test("Tesouro Selic 12 meses", () => {
-		const res = calculateFixedIncome({	
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({	
+			...baseInvestmentsParams,
 			type: "tesouro_selic",
 			initialContribution: 1000,
 			frequentContribution: 0,
@@ -130,8 +130,8 @@ describe("calculateFixedIncome — núcleo", () => {
 	});
 
 	test("Tesouro IPCA+ soma IPCA + taxa real", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "tesouro_ipca+",
 			initialContribution: 2000,
 			frequentContribution: 0,
@@ -146,8 +146,8 @@ describe("calculateFixedIncome — núcleo", () => {
 	});
 
 	test("Edge case — term = 0 não quebra", () => {
-		const res = calculateFixedIncome({
-			...baseFixedIncomeParams,
+		const res = calculateInvestments({
+			...baseInvestmentsParams,
 			type: "cdb",
 			initialContribution: 0,
 			frequentContribution: 100,

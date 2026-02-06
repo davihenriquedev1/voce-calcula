@@ -1,7 +1,7 @@
 // src/constants/investments.ts
-import { FixedIncomeType } from "@/types/investments/fixed-income";
+import { InvestmentsType } from "@/types/investments";
 
-export const FIXED_INCOME_TYPES = [
+export const INVESTMENTS_TYPES = [
 	"cdb",
 	"lci",
 	"lca",
@@ -15,7 +15,7 @@ export const FIXED_INCOME_TYPES = [
 	"fund_di",
 ];
 
-export const FIXED_INCOME_LABELS: Record<string, string> = {
+export const INVESTMENTS_LABELS: Record<string, string> = {
 	cdb: "CDB",
 	lci: "LCI",
 	lca: "LCA",
@@ -29,7 +29,7 @@ export const FIXED_INCOME_LABELS: Record<string, string> = {
 	fund_di: "Fundo DI"
 };
 
-export const investmentOptions = [
+export const investmentsOptions = [
 	{ label: "CDB", value: "cdb" },
 	{ label: "LCI", value: "lci" },
 	{ label: "LCA", value: "lca" },
@@ -40,9 +40,8 @@ export const investmentOptions = [
 	{ label: "Tesouro Selic", value: "tesouro_selic" },
 	{ label: "Tesouro Prefixado", value: "tesouro_prefixado" },
 	{ label: "Tesouro IPCA+", value: "tesouro_ipca+" },
-	{ label: "Fundo DI", value: "fund_di" },
-	
+	{ label: "Fundo DI", value: "fund_di" }
 ];
 
-export const getInvestmentLabel = (t: FixedIncomeType | string) => FIXED_INCOME_LABELS[t] ?? t;
-export const FIXED_INCOME_RATE_TYPES = ["pre","pos"] as const;
+export const getInvestmentLabel = (t: InvestmentsType | string) => INVESTMENTS_LABELS[t] ?? t;
+export const INVESTMENTS_RATE_TYPES = ["pre","pos"] as const;

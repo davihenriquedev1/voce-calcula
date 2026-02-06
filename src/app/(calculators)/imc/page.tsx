@@ -44,7 +44,6 @@ const Page = () => {
         const weight = values.weight;
         const bmi = calculateBmi(height, weight);
         setResult(bmi);
-        form.reset({ height: 0, weight: 0 });
     }
 
     useEffect(() => {
