@@ -12,8 +12,6 @@ export async function GET() {
         cache: 'no-store',
     });
 
-    console.log(process.env.INTERNAL_API_KEY)
-
     if (!res.ok) {
         return NextResponse.json(
             { error: 'Failed to fetch exchange rates' },
