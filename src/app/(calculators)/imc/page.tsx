@@ -58,8 +58,8 @@ const Page = () => {
     }
 
     return (
-        <div className="p-2 md:p-4">
-            <h3 className="text-3xl font-bold text-foreground 3 mb-8">Calculadora de IMC</h3>
+        <div className="p-2 md:p-8">
+            <h1 className="text-3xl font-bold text-foreground  mb-6">Calculadora de IMC</h1>
             <section className="flex flex-col md:flex-row gap-12 justify-center mt-10">
 
                 <div className="flex justify-center flex-1 md:max-w-[200px]">

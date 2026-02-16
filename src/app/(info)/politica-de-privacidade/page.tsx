@@ -1,12 +1,12 @@
 const Page = () => {
     return (
-        <div className="flex justify-center px-6 py-12">
+        <div className="flex px-2 md:px-8 py-12">
             <div className="w-full max-w-4xl space-y-10">
                 <h1 className="text-4xl font-bold text-foreground">
                     Política de Privacidade e Termos de Uso
                 </h1>
                 <section className="space-y-3">
-                    <h2 className="text-2xl font-semibold text-foreground">
+                    <h2 className="text-3xl font-semibold text-foreground">
                         Política de Privacidade
                     </h2>
 

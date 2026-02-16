@@ -10,9 +10,6 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-
-type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 const NavMenuDrop = () => {
     const pathname = usePathname();
@@ -26,8 +23,8 @@ const NavMenuDrop = () => {
                 <DropdownMenuItem className={dropDownMenuLinkStyle({active: pathname === "/",})}>
                     <Link href="/" legacyBehavior passHref>Home</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className={dropDownMenuLinkStyle({active: pathname === "/about",})}>
-                    <Link href="/about" passHref>Sobre nós</Link>
+                <DropdownMenuItem className={dropDownMenuLinkStyle({active: pathname === "/sobre",})}>
+                    <Link href="/sobre" passHref>Sobre nós</Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

@@ -10,8 +10,8 @@ import { LoadingBounce } from "@/components/partials/Loading";
 
 export const metadata: Metadata = {
 	title: {
-		template: '%s | Você calcula',
-		default: 'Você calcula'
+		template: '%s | Você Calcula',
+		default: 'Você Calcula'
 	},
 	description: "Um site com diversas calculadoras úteis, incluindo calculadora IMC, de investimentos e científica. Acesse agora e facilite seus cálculos!",
 };

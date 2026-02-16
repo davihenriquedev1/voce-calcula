@@ -135,16 +135,17 @@ const Page = () => {
 	};
 
 	return (
-		<div className="p-2 md:p-4">
-			<h2 className="text-xl md:text-3xl font-bold mb-6 break-words ">
+		<div className="p-2 md:p-8">
+			<h1 className="text-3xl font-bold mb-6 break-words ">
 				Simulador de Empréstimo / Financiamento / Consórcio
-			</h2>
+			</h1>
 
-			<section className="flex flex-col sm:flex-row gap-8 ">
+			<section className="flex flex-col gap-8 ">
 				<div className="flex-1 max-w-full">
 					<Form {...form}>
 						<form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4 max-w-full">
-							<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 w-full">
+							<div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6
+							 gap-2 w-full">
 								<CustomSelect
 									form={form}
 									name="type"
@@ -177,8 +178,6 @@ const Page = () => {
 									mask={maskNumberInput()}
 									formatParams={{ format: "currency", currency: "brl" }}
 								/>
-							</div>
-							<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 w-full">
 								<CustomInput
 									type="date"
 									form={form}
@@ -189,10 +188,13 @@ const Page = () => {
 									type="text"
 									form={form}
 									name="insurancePercent"
-									label="Percentual do Seguro (%)"
+									label="Seguro (%)"
 									mask={maskNumberInput()}
 									formatParams={{ format: "percent", unit: "percent", options: { inputIsPercent: true } }}
 								/>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-2 w-full">
 								<CustomInput
 									type="text"
 									form={form}
@@ -201,14 +203,11 @@ const Page = () => {
 									mask={maskNumberInput()}
 									formatParams={{ format: "percent", unit: "percent", options: { inputIsPercent: true } }}
 								/>
-							</div>
-
-							<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 w-full">
 								<CustomInput
 									type="text"
 									form={form}
 									name="extraAmortization"
-									label="Valor da Amortização Extra"
+									label="Amortização Extra"
 									placeholder="0"
 									mask={maskNumberInput()}
 									formatParams={{ format: "currency", currency: "brl" }}
@@ -217,7 +216,7 @@ const Page = () => {
 									type="month"
 									form={form}
 									name="extraAmortizationMonth"
-									label="Mês da Amortização Extra"
+									label="Mês Amortização Extra"
 								/>
 								<CustomSelect
 									form={form}
@@ -230,7 +229,7 @@ const Page = () => {
 									type="text"
 									form={form}
 									name="iofCeiling"
-									label="Teto do IOF sobre o valor (%)"
+									label="Teto do IOF (%)"
 									mask={maskNumberInput()}
 									formatParams={{ format: "percent", unit: "percent", options: { inputIsPercent: true } }}
 								/>
@@ -251,6 +250,7 @@ const Page = () => {
 									formatParams={{ format: "percent", unit: "percent", options: { inputIsPercent: true } }}
 								/>
 							</div>
+							
 
 							<div className="flex flex-col justify-between items-start xs:flex-row xs:items-end gap-4">
 								{watched.type !== "consorcio" && (

@@ -27,10 +27,10 @@ const NavMenu = () => {
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link href="/about" legacyBehavior passHref>
+                    <Link href="/sobre" legacyBehavior passHref>
                         <NavigationMenuLink
                             className={navigationMenuLinkStyle({
-                            active: pathname === "/about",
+                            active: pathname === "/sobre",
                             })}
                         >                        
                             Sobre nós

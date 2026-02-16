@@ -114,8 +114,8 @@ export default function InvestmentCalculatorPage() {
     const percentFormat = { format: "percent" as const, options: { inputIsPercent: true as const, maxFracDgts: 2, minFracDgts: 2} };
 
     return (
-        <div className="p-4 md:p-6">
-            <h2 className="text-2xl font-bold mb-4">Simulador de Investimentos</h2>
+        <div className="p-2 md:p-8">
+            <h1 className="text-3xl font-bold mb-6">Simulador de Investimentos</h1>
 
             <div className="flex flex-col gap-6">
                 <div className="flex-1 p-8 rounded shadow">

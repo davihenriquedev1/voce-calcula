@@ -18,12 +18,12 @@ import Image from "next/image";
 
 // Menu items.
 const items = [
-    { title: "Calculadora Científica", url: "/calculadora-cientifica", icon: "/images/icons/calc-button-icon.png" },
     { title: "Conversor de Moedas", url: "/conversor-de-moedas", icon: "/images/icons/exchange-rate-button-icon.png" },
     { title: "Empréstimo/Financiamento", url: "/emprestimos", icon: "/images/icons/emprestimo-button-icon.png" },
-    { title: "Finanças pessoais", url: "/financas-pessoais", icon: "/images/icons/personal-finances-button-icon.png" },
+    { title: "Investimentos", url: "/investimentos", icon: "/images/icons/investments-button-icon.png" },
+    { title: "Taxa Metabólica Basal", url: "/taxa-basal", icon: "/images/icons/bmr-button-icon.png" },
     { title: "Índice de Massa Corpórea", url: "/imc", icon: "/images/icons/bmi-button-icon.png" },
-    { title: "Investimentos", url: "/investimentos", icon: "/images/icons/investments-button-icon.png" }
+    { title: "Calculadora Científica", url: "/calculadora-cientifica", icon: "/images/icons/calc-button-icon.png" },
 ]
 
 export function AppSidebar() {

@@ -29,9 +29,9 @@ const Page = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
 
     return (
-        <div className="flex justify-center px-4 py-12">
+        <div className="flex px-2 md:px-8 py-12">
             <div className="w-full max-w-3xl">
-                <h1 className="text-4xl font-bold text-foreground mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                     Perguntas frequentes
                 </h1>
 

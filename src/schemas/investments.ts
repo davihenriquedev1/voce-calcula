@@ -1,21 +1,5 @@
-import stringNumberToNumber from "@/utils/parsers/stringNumberToNumber";
+import { numberOrString } from "@/utils/parsers/numberOrString";
 import { z } from "zod";
-
-// Helper: aceita string mascarada ou number e transforma em number
-const numberFromString = () =>
-    z.preprocess((v) => {
-        let n = 0;
-        if (typeof v === "string") {
-            n = stringNumberToNumber(v);
-        } else if (typeof v === "number") {
-            n = v;
-        }
-        return n;
-    },
-        z.number().refine(n => typeof n === "number" && Number.isFinite(n), {
-            message: "Deve ser um número válido",
-        }
-        )).optional();
 
 // Item da tabela de IR
 const incomeTaxBracket = z.object({
@@ -23,17 +7,17 @@ const incomeTaxBracket = z.object({
         (v) => (v === "" || v === undefined ? null : Number(v)),
         z.number().nullable()
     ),
-    rate: numberFromString(),
+    rate: numberOrString(),
 });
 
 export const investmentsSchema = z
     .object({
 
         // aporte inicial
-        initialContribution: numberFromString(),
+        initialContribution: numberOrString(),
 
         // aporte regular
-        frequentContribution: numberFromString(),
+        frequentContribution: numberOrString(),
 
         // frequência dos aportes
         contributionFrequency: z.enum(["monthly", "annually", "one-time", "weekly"]).optional().default("monthly"),
@@ -42,33 +26,33 @@ export const investmentsSchema = z
         contributionAtStart: z.boolean().optional().default(true),
 
         // prazo
-        term: numberFromString().or(z.number()).refine(v => Number.isFinite(v as number), { message: "Prazo deve ser um número" }),
+        term: numberOrString().or(z.number()).refine(v => Number.isFinite(v as number), { message: "Prazo deve ser um número" }),
         termType: z.enum(["months", "years"]).default("months"),
 
         // taxas / índices (em porcentagem; ex: 10 -> 10%)
-        interestRate: numberFromString(),
+        interestRate: numberOrString(),
 
         // frequências que os juros são aplicados sobre o saldo.
         compoundingFrequency: z.enum(["daily", "monthly", "annually"]).optional().default("monthly"),
 
         // referências de mercado
-        currentSelic: numberFromString(),
-        currentCdi: numberFromString(),
-        currentIpca: numberFromString(),
-        currentFundDi: numberFromString(),
+        currentSelic: numberOrString(),
+        currentCdi: numberOrString(),
+        currentIpca: numberOrString(),
+        currentFundDi: numberOrString(),
 
-        cdiPercent: numberFromString(),
+        cdiPercent: numberOrString(),
 
         // fundos DI
-        fundDiPercent: numberFromString(),
+        fundDiPercent: numberOrString(),
 
         // fees (em percentuais)
-        transactionFeePercent: numberFromString(),
-        adminFeePercent: numberFromString(),
+        transactionFeePercent: numberOrString(),
+        adminFeePercent: numberOrString(),
 
         // incluir IOF
         includeIOF: z.boolean().optional().default(true),
-        iofPercent: numberFromString(),
+        iofPercent: numberOrString(),
 
         // tabela de IR
         incomeTaxTable: z
@@ -84,16 +68,16 @@ export const investmentsSchema = z
         // controle de spread para conversão Pós->Pré (opcional)
         // aceita número (ex: "0,8") ou objeto { curto, medio, longo } (strings ou numbers)
         preConversionSpread: z.union([
-            numberFromString(),
+            numberOrString(),
             z.object({
-                curto: numberFromString(),
-                medio: numberFromString(),
-                longo: numberFromString(),
+                curto: numberOrString(),
+                medio: numberOrString(),
+                longo: numberOrString(),
             })
         ]),
 
         // ajuste por risco do emissor
-        issuerCreditSpread: numberFromString(),
+        issuerCreditSpread: numberOrString(),
     })
     .superRefine((obj, ctx) => {
         // converte/normaliza pra usar nas validações
