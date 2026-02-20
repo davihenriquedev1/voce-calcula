@@ -1,9 +1,9 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+// const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
-    const [isMobile, setIsMobile] = React.useState<boolean | undefined>(true) // força como true
+    const [isMobile, /*setIsMobile*/] = React.useState<boolean | undefined>(true) // força como true, gambiarra pra não alterar o componente UI 
 
     // baseado no tamanho da tela:
     /*

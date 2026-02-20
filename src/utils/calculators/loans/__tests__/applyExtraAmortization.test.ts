@@ -1,11 +1,7 @@
 import { applyExtraAmortization, generatePriceSchedule, generateSacSchedule, toMonthlyRate } from "..";
 
 describe("applyExtraAmortization", ()=> {
-    const P = 10000;
-    const annualRate = 12;
-    const n = 24;
-    const r = toMonthlyRate(annualRate);
-    const base = generatePriceSchedule(P, r, n);
+
    
     test("reduzir_prazo (Price) deve diminuir número de parcelas mantendo pagamento fixo", () => {
         const P = 10000;

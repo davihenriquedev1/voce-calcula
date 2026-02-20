@@ -42,6 +42,7 @@ export const evaluateSafe = (expression:string): { ok: true; result: string } | 
     try {
         const raw = calculateExpression(expression);
         return {ok: true, result: formatResult(raw)};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
         const msg = (err && err.message) ? err.message : String(err);
         return {ok: false, error: msg};
@@ -80,8 +81,8 @@ function tokenize(expression: string) {
             (tk.type === "paren" && tk.value === "(") ||
             tk.type === "complex"
         );
-        if (prevAllowsImplicit && nextIsProductStarter && !(isOperator(prev) && (prev as any).value === "^")) {
-            tokens.push({ type: "operator", value: "*" } as any);
+        if (prevAllowsImplicit && nextIsProductStarter && !(isOperator(prev) && (prev as ExpToken).value === "^")) {
+            tokens.push({ type: "operator", value: "*" } as ExpToken);
         }
         tokens.push(tk);
     };
@@ -133,17 +134,17 @@ function tokenize(expression: string) {
 
         // operadores
         if(["+","-","÷","^","×","!"].includes(char)) {
-            let prev = tokens[tokens.length - 1];
+            const prev = tokens[tokens.length - 1];
             const isUnary = !prev || prev.type === "operator" || prev.type === "unary" || prev.type === "comma" || (prev.type === "paren" && prev.value === "(");   
 
             if (isUnary && (char === "+" || char === "-")) {
                 pushToken({ type: "unary", value: char === "-" ? "neg" : "pos" });
             }  else if (char === "×") {
-                pushToken({ type: "operator", value: "*" } as any);
+                pushToken({ type: "operator", value: "*" } as ExpToken);
             } else if (char === "÷") {
-                pushToken({ type: "operator", value: "/" } as any);
+                pushToken({ type: "operator", value: "/" } as ExpToken);
             } else {
-                pushToken({ type: "operator", value: char as any });
+                pushToken({ type: "operator", value: char } as ExpToken);
             }
             i++;
             continue;
@@ -192,19 +193,19 @@ function tokenize(expression: string) {
             ident = ident.toLowerCase();
 
             if (["cos","sin","tan","cosh","sinh","tanh","abs","factor","log","ln"].includes(ident)) {
-                pushToken({ type: "function", value: ident as any });
+                pushToken({ type: "function", value: ident  } as ExpToken);
                 continue;
             }
             if (["re","im","arg","conj"].includes(ident)) {
-                pushToken({ type: "complex", value: ident as any });
+                pushToken({ type: "complex", value: ident } as ExpToken);
                 continue;
             }
             if (ident === "mod") {
-                pushToken({ type: "operator", value: "mod" } as any);
+                pushToken({ type: "operator", value: "mod" } as ExpToken);
                 continue;
             }
             if (["e", "i"].includes(ident)) {
-                pushToken({ type: "constant", value: ident as any });
+                pushToken({ type: "constant", value: ident  } as ExpToken);
                 continue;
             }
             throw new Error(`Identificador desconhecido: ${ident}`);
@@ -212,13 +213,13 @@ function tokenize(expression: string) {
 
         // constantes
         if (char === "π") {
-            pushToken({ type: "constant", value: "pi" as any });
+            pushToken({ type: "constant", value: "pi" } as ExpToken);
             i++;
             continue;
         }
 
         if (char === "√") {
-            pushToken({ type: "function", value: "sqrt" });
+            pushToken({ type: "function", value: "sqrt" } as ExpToken);
             i++;
 
             if (i < expression.length) {
@@ -233,7 +234,7 @@ function tokenize(expression: string) {
                 } else if (/[\d.]/.test(expression[i])) {
                     let numStr = "";
                     while (i < expression.length && /[\d.]/.test(expression[i])) numStr += expression[i++];
-                    pushToken({ type: "number", value: parseFloat(numStr) });
+                    pushToken({ type: "number", value: parseFloat(numStr) } as ExpToken);
                 }
             }
             continue;
@@ -270,7 +271,7 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
                 break;  
 
             case "comma":
-                while (stack.length > 0 && (stack[stack.length - 1].type !== "paren" || (stack[stack.length - 1] as any).value !== "(")) {
+                while (stack.length > 0 && (stack[stack.length - 1].type !== "paren" || (stack[stack.length - 1] as ExpToken).value !== "(")) {
                     output.push(stack.pop()!);
                 }
                 if (stack.length === 0) throw new Error("Separador de argumentos fora de função");
@@ -278,14 +279,14 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
                 
             case "operator": 
             case "unary": {
-                const val = (token as any).value;
+                const val = (token as ExpToken).value;
                 while (
                     stack.length > 0 &&
                     (stack[stack.length - 1].type === "operator" || stack[stack.length - 1].type === "unary") &&
                     (
-                        (precedence[(stack[stack.length - 1] as any).value] ?? 0) > (precedence[val] ?? 0) ||
+                        (precedence[(stack[stack.length - 1] as ExpToken).value] ?? 0) > (precedence[val] ?? 0) ||
                         (
-                            (precedence[(stack[stack.length - 1] as any).value] ?? 0) === (precedence[val] ?? 0) &&
+                            (precedence[(stack[stack.length - 1] as ExpToken).value] ?? 0) === (precedence[val] ?? 0) &&
                             !rightAssociative[val]
                         )
                     )
@@ -306,7 +307,7 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
                 } else {
                     // desempilha até achar "("
                     if (stack.length === 0) throw new Error("Parêntese fechado sem ser aberto");
-                    while (stack.length > 0 && (stack[stack.length -1 ] as any).value !== "(") {
+                    while (stack.length > 0 && (stack[stack.length -1 ] as ExpToken).value !== "(") {
                         output.push(stack.pop()!);  
                     }
                     if (stack.length === 0) throw new Error("Parêntese não balanceado");

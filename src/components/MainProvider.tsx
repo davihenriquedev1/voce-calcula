@@ -6,7 +6,7 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "./theme-provider";
 import { ReactNode } from "react";
-import { SidebarProvider } from "./ui/sidebar";
+import { useState } from "react";
 
 type Props = {
     children:ReactNode
@@ -20,11 +20,13 @@ const queryClient = new QueryClient({
     },
 });
 
-const persister = createSyncStoragePersister({
-    storage: window.localStorage,
-});
-
 export const MainProvider = ({children}:Props) => {
+    const [persister] = useState(() =>
+        createSyncStoragePersister({
+            storage: window.localStorage,
+        })
+    );
+
     return (
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
            

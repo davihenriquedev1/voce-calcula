@@ -3,8 +3,8 @@ export const getCursorIndex = (element: HTMLElement): number => {
     if (!sel || !sel.focusNode) return 0;
 
     let index = 0;
-    let node = sel.focusNode;
-    let offset = sel.focusOffset;
+    const node = sel.focusNode;
+    const offset = sel.focusOffset;
 
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
     while (walker.nextNode()) {

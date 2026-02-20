@@ -1,4 +1,4 @@
-import { ExtraAmortizationType, MethodType } from "@/types/loans";
+import { ExtraAmortizationType, MethodType, Schedule } from "@/types/loans";
 import { round2} from "@/utils/math";
 
 export const toMonthlyRate = (annualPercent: number) => Math.max(0, annualPercent) / 100 / 12;
@@ -11,7 +11,7 @@ export function calcPricePayment(P:number, r:number, n:number) {
 export function generatePriceSchedule(P: number, r:number, n:number) {
     const payment = calcPricePayment(P, r, n);
     let balance = P;
-    const schedule: Array<any> = [];
+    const schedule: Schedule[] = [];
     for(let i =1; i <= n; i++) {
         const interest = round2(balance * r);
         const principal = round2(payment - interest);
@@ -34,7 +34,7 @@ export function generatePriceSchedule(P: number, r:number, n:number) {
 export function generateSacSchedule(P: number, r: number, n: number) {
     const principal = P / n;
     let balance = P;
-    const schedule: Array<any> = [];
+    const schedule: Schedule[] = [];
     for (let i = 1; i <= n; i++) {
         const interest = balance * r;
         const payment = principal + interest;
@@ -48,7 +48,7 @@ export function generateConsorcioSchedule(P: number, n:number, adminPercent = 0)
     // Modelo simplificado: parcela = (P / n) + (P * adminPercent / 100) / n
     const principal = P/n;
     const adminMonthly = (P * (adminPercent || 0) / 100) / n;
-    const schedule: Array<any> = [];
+    const schedule: Schedule[] = [];
     let balance = P;
     for(let i = 1; i<=n; i++) {
         const payment = principal + adminMonthly;
@@ -58,13 +58,13 @@ export function generateConsorcioSchedule(P: number, n:number, adminPercent = 0)
     return schedule;
 }
 
-export function applyExtraAmortization (value: number, type: ExtraAmortizationType, monthIndex: number, baseSchedule: any[], method: MethodType, r: number, financed: number, n: number) {
+export function applyExtraAmortization (value: number, type: ExtraAmortizationType, monthIndex: number, baseSchedule:  Schedule[], method: MethodType, r: number, financed: number, n: number) {
      // validação básica
     if (!Array.isArray(baseSchedule) || baseSchedule.length === 0) return baseSchedule;
     if (monthIndex == null) return baseSchedule;
     if (isNaN(monthIndex) || monthIndex < 1 || monthIndex > baseSchedule.length) return baseSchedule;
     
-    const newSchedule: any[] = [];
+    const newSchedule = [];
 
     // 1) copia os meses até m-1 (inalterados)
     for(let i=1; i < monthIndex; i++) {
@@ -88,8 +88,8 @@ export function applyExtraAmortization (value: number, type: ExtraAmortizationTy
     newSchedule.push(newEntryM);
 
     // 3) rebuild a partir do novo saldo
-    let balance = newBalanceAfterExtra;
-    let monthCounter = monthIndex + 1;
+    const balance = newBalanceAfterExtra;
+    const monthCounter = monthIndex + 1;
     const fixedPayment = round2(Number(baseSchedule[0]?.payment ?? 0)); // parcela original PRICE
 
     if(type === "reduzir_prazo") {
@@ -108,7 +108,7 @@ export function applyExtraAmortization (value: number, type: ExtraAmortizationTy
     return reindexed;
 }
 
-const amortByTermReduction = (newSchedule: any[], balance: number, r: number, monthCounter: number, method: MethodType, fixedPayment: number, financed: number, n: number, ) => {
+const amortByTermReduction = (newSchedule:  Schedule[], balance: number, r: number, monthCounter: number, method: MethodType, fixedPayment: number, financed: number, n: number, ) => {
     let safety = 0;
     while(balance > 0.005 && safety++ < 10000) {
         const interest = round2(balance * r);
@@ -133,7 +133,7 @@ const amortByTermReduction = (newSchedule: any[], balance: number, r: number, mo
     }
 };
 
-const amortByInstallmentReduction = (newSchedule: any[], method: MethodType, remainingPeriods: number, balance: number, r: number, mi: number,) => {
+const amortByInstallmentReduction = (newSchedule: Schedule[], method: MethodType, remainingPeriods: number, balance: number, r: number, mi: number,) => {
     if (method === "price") {
         const newPayment = calcPricePayment(balance, r, remainingPeriods);
         for (let j = 1; j <= remainingPeriods; j++) {

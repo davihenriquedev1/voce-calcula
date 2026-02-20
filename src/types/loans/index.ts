@@ -35,3 +35,11 @@ export type LoansSummary = {
 
 export type ExtraAmortizationType = "reduzir_prazo" | "reduzir_parcela"
 export type MethodType = "price" | "sac";
+
+export type Schedule = {
+    month: number;
+    payment: number;
+    principal: number;
+    interest?: number;
+    balance: number;
+}

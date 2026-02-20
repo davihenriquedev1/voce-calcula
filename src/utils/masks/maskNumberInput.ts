@@ -14,16 +14,16 @@ export const maskNumberInput = (maxIntDgts?: number) => {
 
         if(maxIntDgts && cleaned.length > maxIntDgts) {
             if((/^[0-9]+$/).test(cleaned)) {
-                let intPart = cleaned.slice(0, maxIntDgts);
-                let decPart = cleaned.slice(maxIntDgts);
+                const intPart = cleaned.slice(0, maxIntDgts);
+                const decPart = cleaned.slice(maxIntDgts);
                 cleaned = cleanParts(intPart, decPart);
             } else {
-                let [intPart, decPart] = cleaned.split(',');
+                const [intPart, decPart] = cleaned.split(',');
                 cleaned = cleanParts(intPart, decPart);
             }
         } else if(maxIntDgts === undefined) { 
             if (/[0-9]/.test(cleaned) && /,/.test(cleaned)) {
-                let [intPart, decPart] = cleaned.split(',');
+                const [intPart, decPart] = cleaned.split(',');
                 cleaned = cleanParts(intPart, decPart);
             }
         }
