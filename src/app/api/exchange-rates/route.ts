@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 export async function GET() {
+    const { API_URL, INTERNAL_API_KEY } = process.env;
 
-    const res = await fetch(`${process.env.API_URL}/api/exchange-rates`, {
+    if (!API_URL || !INTERNAL_API_KEY) {
+        return NextResponse.json(
+            { error: 'Server misconfiguration' },
+            { status: 500 }
+        );
+    }
+
+    const res = await fetch(`${API_URL}/api/exchange-rates`, {
         headers: {
-            'x-api-key': process.env.INTERNAL_API_KEY!,
+            'x-api-key': INTERNAL_API_KEY,
         },
         cache: 'no-store',
     });
