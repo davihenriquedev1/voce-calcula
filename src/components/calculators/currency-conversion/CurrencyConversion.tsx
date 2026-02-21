@@ -17,6 +17,7 @@ import { ExchangeRates } from "@/types/exchange-rates";
 import { formatNumber } from "@/utils/formatters/formatNumber";
 import { Option } from "@/types/Option";
 import { formatDate } from "@/utils/formatters/formatDate";
+import { LoadingBounce } from "@/components/partials/Loading";
 
 const formSchema = z.object({
 	value: z.string().min(1, 'preencha o valor').transform((value) => {
@@ -33,7 +34,7 @@ type FormValues = z.infer<typeof formSchema>;
 const CurrencyConversion = () => {
 	const [result, setResult] = useState(0);
 	const [errorMessage, setErrorMessage] = useState('');
-	const { data, error } = useExchangeRates();
+	const { data, error, isLoading } = useExchangeRates();
 
 	const [options, setOptions] = useState<Option[]>([]);
 	const [lastUpdate, setLastUpdate] = useState('');
@@ -66,10 +67,10 @@ const CurrencyConversion = () => {
 	const { handleSubmit, watch } = form;
 
 	function onSubmit(values: FormValues) {
-		if(data) {
+		if (data) {
 			const res = calculateExchangeRate(values.originCurrency, values.destinyCurrency, values.value, data.rates as ExchangeRates)
 			setResult(res);
-		} 
+		}
 	}
 
 	const handleReset = () => {
@@ -77,10 +78,19 @@ const CurrencyConversion = () => {
 		setResult(0);
 	};
 
+	if (isLoading) {
+		return (
+			<div className="flex justify-center items-center h-[400px]">
+				<LoadingBounce />
+			</div>
+		);
+	}
+
 	return (
 
 		<div className="p-2 md:p-8">
 			<h1 className="text-3xl font-bold text-foreground mb-8">Conversor de Moedas</h1>
+
 			<div className="italic">Última atualização: {lastUpdate}</div>
 			<div className="flex flex-col md:flex-row gap-12 justify-center mt-10">
 				<div className="flex flex-col items-center justify-center flex-1">
@@ -91,7 +101,9 @@ const CurrencyConversion = () => {
 							<CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino" />
 							<CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput()} formatParams={{ format: "currency", currency: watch('originCurrency'), unit: undefined }} linkedField="originCurrency" />
 							<div className="flex flex-col">
-								<span className="bg-chart-5 h-10 p-3 mt-2 text-foreground font-bold text-xl flex items-center rounded-md">{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}</span>
+								<span className="bg-chart-5 h-10 p-3 mt-2 text-foreground font-bold text-base flex items-center rounded-md">
+									{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}
+								</span>
 							</div>
 							<Button type="submit" className="w-full font-semibold">Converter</Button>
 							<Button type="reset" className="w-full font-semibold bg-secondary text-white hover:brightness-150" onClick={handleReset}>Resetar</Button>
@@ -102,6 +114,7 @@ const CurrencyConversion = () => {
 
 				</div>
 			</div>
+
 		</div>
 
 	);

@@ -37,9 +37,14 @@ export type ExtraAmortizationType = "reduzir_prazo" | "reduzir_parcela"
 export type MethodType = "price" | "sac";
 
 export type Schedule = {
-    month: number;
     payment: number;
+    balance: number;
     principal: number;
     interest?: number;
-    balance: number;
-}
+    admin?: number;
+    quota?: number;
+    monthly?: number;
+    totalPaid?: number;
+    totalInterest?: number;
+    [key: string]: unknown;
+};

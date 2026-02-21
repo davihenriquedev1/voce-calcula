@@ -1,3 +1,6 @@
+import { bmiSchema } from "@/schemas/bmi";
+import { z } from "zod";
+
 export type BmiCategory = {
     category: string;
     rangeText: string;
@@ -6,3 +9,5 @@ export type BmiCategory = {
     color:string;
     emoji:string;
 }
+
+export type BmiFormValues = z.infer<typeof bmiSchema>
