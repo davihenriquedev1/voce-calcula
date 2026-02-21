@@ -1,21 +1,20 @@
-import { InputToken } from "@/app/(calculators)/calculadora-cientifica/page";
-import { NotationMode } from "@/app/(calculators)/calculadora-cientifica/page";
+import { ScientificInputToken, ScientificNotationMode } from "@/types/scientific";
 
 export function calculatorInputHandler(
-  mode: NotationMode,
+  mode: ScientificNotationMode,
   newValue: string,
-  inputTokens: InputToken[],
+  inputTokens: ScientificInputToken[],
   cursorCharIndex: number
-): { tokens: InputToken[]; inserted: number } {
+): { tokens: ScientificInputToken[]; inserted: number } {
 
     // Conjunto de funções matemáticas reconhecidas (precisam de tratamento especial)
     const mathFunctionsAndMod = new Set (["mod","cos","sin","tan","cosh","sinh","tanh","arg","log","ln","re","im","conj","abs", "factor"]);
 
     // Função auxiliar para transformar o valor digitado em tokens
-    const makeTokensForValue = (val: string): InputToken[] => {
+    const makeTokensForValue = (val: string): ScientificInputToken[] => {
         // Se o valor digitado for uma função matemática
 		if (mathFunctionsAndMod.has(val.toLowerCase())) {
-			const tokens: InputToken[] = [];
+			const tokens: ScientificInputToken[] = [];
 
             // Se já existir algo antes, adiciona um espaço separado
 			if (inputTokens.length > 0) {
@@ -95,7 +94,7 @@ export function calculatorInputHandler(
     // Construção do novo array final
     // -----------------------------
 
-    const out: InputToken[] = [];
+    const out: ScientificInputToken[] = [];
 
     // Copia todos os tokens até o ponto onde vai inserir
     out.push(...inputTokens.slice(0, tokenIndex));
@@ -128,7 +127,7 @@ export function calculatorInputHandler(
     
     out.push(...inputTokens.slice(tokenIndex + 1)); // Adiciona o resto dos tokens
 
-    const merged: InputToken[] = [];
+    const merged: ScientificInputToken[] = [];
     for (const t of out) {
         // Mescla tokens adjacentes do mesmo tipo (ex.: sup + sup -> sup com value concatenado)
         const last = merged[merged.length - 1];
