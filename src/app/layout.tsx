@@ -5,6 +5,8 @@ import { Footer } from "@/components/footer/Footer";
 import { MainProvider } from "@/components/MainProvider";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
 	title: {
@@ -36,6 +38,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					</div>
 				</SidebarProvider>
 			</MainProvider>
+			<Analytics />
+			<SpeedInsights/>
 		</body>
 		</html>
 	);

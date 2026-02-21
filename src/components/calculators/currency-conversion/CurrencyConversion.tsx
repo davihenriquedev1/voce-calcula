@@ -2,7 +2,6 @@
 
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { CustomInput } from "@/components/partials/CustomInput";
@@ -18,18 +17,8 @@ import { formatNumber } from "@/utils/formatters/formatNumber";
 import { Option } from "@/types/Option";
 import { formatDate } from "@/utils/formatters/formatDate";
 import { LoadingBounce } from "@/components/partials/Loading";
-
-const formSchema = z.object({
-	value: z.string().min(1, 'preencha o valor').transform((value) => {
-		const cleaned = value.replace(/[^0-9,]/g, "");
-		const stringFloat = cleaned.replace(',', '.');
-		return parseFloat(stringFloat).toFixed(2);
-	}),
-	originCurrency: z.string({ required_error: 'selecione a moeda' }),
-	destinyCurrency: z.string({ required_error: 'selecione a moeda' })
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { currencyConversionSchema } from "@/schemas/currency-conversion";
+import { CurrencyConversionFormValues } from "@/types/currency-conversion";
 
 const CurrencyConversion = () => {
 	const [result, setResult] = useState(0);
@@ -59,14 +48,14 @@ const CurrencyConversion = () => {
 		}
 	}, [data, error]);
 
-	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
-		defaultValues: { value: '' }
+	const form = useForm<CurrencyConversionFormValues>({
+		resolver: zodResolver(currencyConversionSchema),
+		defaultValues: { value: '', originCurrency: '', destinyCurrency: ''  }
 	});
 
 	const { handleSubmit, watch } = form;
 
-	function onSubmit(values: FormValues) {
+	function onSubmit(values: CurrencyConversionFormValues) {
 		if (data) {
 			const res = calculateExchangeRate(values.originCurrency, values.destinyCurrency, values.value, data.rates as ExchangeRates)
 			setResult(res);
@@ -74,8 +63,8 @@ const CurrencyConversion = () => {
 	}
 
 	const handleReset = () => {
-		form.reset({ value: '' });
-		setResult(0);
+		form.reset();
+		setResult(0);	
 	};
 
 	if (isLoading) {
@@ -102,11 +91,13 @@ const CurrencyConversion = () => {
 							<CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput()} formatParams={{ format: "currency", currency: watch('originCurrency'), unit: undefined }} linkedField="originCurrency" />
 							<div className="flex flex-col">
 								<span className="bg-chart-5 h-10 p-3 mt-2 text-foreground font-bold text-base flex items-center rounded-md">
-									{formatNumber(result, "currency", watch('destinyCurrency'), undefined)}
+									{form.getValues().destinyCurrency && (
+										formatNumber(result, "currency", watch('destinyCurrency'), undefined)
+									)}
 								</span>
 							</div>
-							<Button type="submit" className="w-full font-semibold">Converter</Button>
 							<Button type="reset" className="w-full font-semibold bg-secondary text-white hover:brightness-150" onClick={handleReset}>Resetar</Button>
+							<Button type="submit" className="w-full font-semibold">Converter</Button>
 						</form>
 					</Form>
 				</div>

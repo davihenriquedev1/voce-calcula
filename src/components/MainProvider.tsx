@@ -1,11 +1,11 @@
 "use client";
 
 import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "./theme-provider";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useState } from "react";
 
 type Props = {
@@ -21,17 +21,15 @@ const queryClient = new QueryClient({
 });
 
 export const MainProvider = ({children}:Props) => {
-    const [persister] = useState(() => {
-        if (typeof window === "undefined") {
-            return undefined;
-        }
+    const [mounted, setMounted] = useState(false);
+    const [persister, setPersister] = useState<Persister>();
 
-        return createSyncStoragePersister({
-            storage: window.localStorage,
-        });
-    });
+    useEffect(() => {
+        setPersister(createSyncStoragePersister({ storage: window.localStorage }));
+        setMounted(true);
+    }, []);
 
-    if (!persister) {
+    if (!mounted || !persister) {
         return null; // evita quebrar no SSR
     }
 

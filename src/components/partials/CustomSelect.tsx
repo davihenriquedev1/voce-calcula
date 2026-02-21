@@ -40,11 +40,11 @@ export const CustomSelect = React.forwardRef<HTMLButtonElement, Props>(
                 <FormItem className="flex-1 w-full" >
                     <FormLabel className="font-bold">{label}</FormLabel>
                     <FormControl >
-                        <Select onValueChange={field.onChange} defaultValue={defaultValue} >
+                        <Select onValueChange={field.onChange} defaultValue={defaultValue} value={field.value ?? ""}>
                             <SelectTrigger ref={ref} >
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
-                            <SelectContent>   
+                            <SelectContent>     
                                 <SelectGroup>
                                     {options?.map((item, key) => (
                                         <SelectItem value={String(item.value)} key={key} >{item.label}</SelectItem>
