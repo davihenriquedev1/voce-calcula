@@ -21,11 +21,19 @@ const queryClient = new QueryClient({
 });
 
 export const MainProvider = ({children}:Props) => {
-    const [persister] = useState(() =>
-        createSyncStoragePersister({
+    const [persister] = useState(() => {
+        if (typeof window === "undefined") {
+            return undefined;
+        }
+
+        return createSyncStoragePersister({
             storage: window.localStorage,
-        })
-    );
+        });
+    });
+
+    if (!persister) {
+        return null; // evita quebrar no SSR
+    }
 
     return (
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
