@@ -55,7 +55,7 @@ const Investments = () => {
 
     });
 
-    const { register, handleSubmit, setValue, formState: { errors }} = form;
+    const { register, handleSubmit, setValue, formState: { errors } } = form;
 
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<Result | null>(null);
@@ -102,22 +102,22 @@ const Investments = () => {
         }
     };
 
-    const handleReset = ()=> {
+    const handleReset = () => {
         setValue("initialContribution", "1.000,00");
         setValue("frequentContribution", "0,00");
         setValue("term", "12");
         setValue("termType", "months");
         setResult(null);
-    }  
-    
+    }
+
     // máscaras e formatParams padrão
-    const percentFormat = { format: "percent" as const, options: { inputIsPercent: true as const, maxFracDgts: 2, minFracDgts: 2} };
-  return (
-    <>
-         <h1 className="text-3xl font-bold mb-6">Simulador de Investimentos</h1>
+    const percentFormat = { format: "percent" as const, options: { inputIsPercent: true as const, maxFracDgts: 2, minFracDgts: 2 } };
+    return (
+        <div>
+            <h1 className="text-3xl font-bold mb-6">Simulador de Investimentos</h1>
 
             <div className="flex flex-col gap-6">
-                <div className="flex-1 p-8 rounded shadow">
+                <div className="flex-1">
                     <Form {...form}>
                         <form onSubmit={handleSubmit(onSubmit, (errors) => { console.warn("Form validation errors:", errors); setResult({ error: "Erro de validação: ver console (campo obrigatório ausente ou inválido)." }); setLoading(false); })} className="">
                             <div className="grid grid-cols-1 xs:grid-cols-2 xl:grid-cols-3 gap-2 ">
@@ -139,7 +139,7 @@ const Investments = () => {
                                     formatParams={{ format: "currency", currency: "BRL" as string }}
                                     placeholder="0,00"
                                 />
-                                 <CustomSelect
+                                <CustomSelect
                                     form={form}
                                     name="contributionFrequency"
                                     label="Frequência dos aportes"
@@ -161,20 +161,20 @@ const Investments = () => {
                                         { value: "monthly", label: "Mensal" },
                                         { value: "annually", label: "Anual" },
                                     ]}
-                                /> 
-                                <CustomInput 
-                                    form={form} 
-                                    name="term" 
-                                    label="Prazo" 
-                                    type="text" 
+                                />
+                                <CustomInput
+                                    form={form}
+                                    name="term"
+                                    label="Prazo"
+                                    type="text"
                                     mask={maskNumberInput()}
                                 />
-                                <CustomSelect 
-                                    form={form} 
-                                    name="termType" 
-                                    label="Unidade do prazo" 
+                                <CustomSelect
+                                    form={form}
+                                    name="termType"
+                                    label="Unidade do prazo"
                                     defaultValue="months"
-                                    options={[{ value: "months", label: "Meses" }, { value: "years", label: "Anos" }]} 
+                                    options={[{ value: "months", label: "Meses" }, { value: "years", label: "Anos" }]}
                                 />
                                 <div className="mt-2 p-2 flex items-center ">
                                     <label className="flex items-center gap-2 cursor-pointer ">
@@ -182,7 +182,7 @@ const Investments = () => {
                                         <span className="text-xs">Aporte no início do período</span>
                                     </label>
                                 </div>
-                                
+
                                 <CustomInput
                                     type="text"
                                     form={form}
@@ -196,7 +196,7 @@ const Investments = () => {
                                 <CustomSelect
                                     form={form}
                                     name="preConversionSpread"
-                                    label="Spread pra pós/pré *"
+                                    label="Spread pós/pré *"
                                     defaultValue="0,5"
                                     options={[
                                         { value: "0,5", label: "Curto (0,5 p.p.)" },
@@ -205,11 +205,11 @@ const Investments = () => {
                                     ]}
                                 />
 
-                                <CustomInput 
-                                    form={form} 
-                                    name="issuerCreditSpread" 
-                                    label="Ajuste por risco" 
-                                    type="text" 
+                                <CustomInput
+                                    form={form}
+                                    name="issuerCreditSpread"
+                                    label="Ajuste por risco"
+                                    type="text"
                                     mask={maskNumberInput()}
                                 />
                                 {/* --- Índices (SELIC, CDI, IPCA)  */}
@@ -234,7 +234,7 @@ const Investments = () => {
                                     type="text"
                                     form={form}
                                     name="currentFundDi"
-                                    label="DI / Fundo-DI atual (%)"
+                                    label="Fundo-DI atual (%)"
                                     mask={maskNumberInput(3)}
                                     formatParams={percentFormat}
                                     placeholder="13.65"
@@ -248,7 +248,7 @@ const Investments = () => {
                                     mask={maskNumberInput(3)}
                                     formatParams={percentFormat}
                                 />
-                                
+
                                 <CustomInput
                                     type="text"
                                     form={form}
@@ -259,7 +259,7 @@ const Investments = () => {
                                     placeholder="100"
                                 />
 
-                               <CustomInput
+                                <CustomInput
                                     type="text"
                                     form={form}
                                     name="fundDiPercent"
@@ -269,13 +269,13 @@ const Investments = () => {
                                     placeholder="100"
                                 />
 
-                                <CustomInput 
-                                    type="text" 
-                                    form={form} 
-                                    name="adminFeePercent" 
-                                    label="Taxa admin (mensal %)" 
-                                    mask={maskNumberInput(2)} 
-                                    formatParams={percentFormat} 
+                                <CustomInput
+                                    type="text"
+                                    form={form}
+                                    name="adminFeePercent"
+                                    label="Taxa admin (mensal %)"
+                                    mask={maskNumberInput(2)}
+                                    formatParams={percentFormat}
                                 />
 
                                 <CustomInput
@@ -305,22 +305,23 @@ const Investments = () => {
 
                             </div>
                             <div className="text-xs text-muted-foreground mt-6 flex flex-col gap-4">
-                               
+
                                 <span>
                                     <sup>*</sup> O spread entre pré e pós é a diferença média de rentabilidade entre títulos prefixados (taxa fixa) e pós-fixados (atrelados ao CDI).
                                     Exemplo: se o CDB pós paga 100% do CDI e o Tesouro Prefixado rende 10% ao ano, esse “spread” mostra quanto o pré costuma pagar a mais (ou a menos) que o pós, refletindo expectativa de juros futuros.
                                 </span>
                             </div>
                             <div className="flex w-full justify-end gap-2 mt-4">
-                                <Button type="submit" className="font-semibold" disabled={loading}>
-                                    {loading ? "Calculando..." : "Calcular"}
-                                </Button>
+
                                 <Button
                                     type="button"
                                     className="bg-secondary text-white font-bold"
                                     onClick={handleReset}
                                 >
                                     Resetar
+                                </Button>
+                                <Button type="submit" className="font-semibold" disabled={loading}>
+                                    {loading ? "Simulando..." : "Simular"}
                                 </Button>
                             </div>
                         </form>
@@ -338,8 +339,8 @@ const Investments = () => {
                     </div>
                 </div>
             </div>
-    </>
-  )
+        </div>
+    )
 }
 
 export default Investments

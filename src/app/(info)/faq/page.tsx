@@ -3,7 +3,7 @@ import Faq from "@/components/info/Faq";
 const Page = () => {
 
     return (
-        <div className="flex px-2 md:px-8 py-12">
+        <div className="p-3 md:p-8 ">
             <Faq/>
         </div>
     );

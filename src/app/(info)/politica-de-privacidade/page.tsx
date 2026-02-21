@@ -1,6 +1,6 @@
 const Page = () => {
     return (
-        <div className="flex px-2 md:px-8 py-12">
+        <div className="flex p-3 md:p-8 ">
             <div className="w-full max-w-4xl space-y-10">
                 <h1 className="text-4xl font-bold text-foreground">
                     Política de Privacidade e Termos de Uso

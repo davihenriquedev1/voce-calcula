@@ -28,11 +28,12 @@ const Loans = () => {
         criteriaMode: "all",
     });
 
-    const { handleSubmit, setValue, watch, formState: { isValid } } = form;
+    const { handleSubmit, setValue, watch, formState: { isValid} } = form;
     const watched = watch();
 
     const [schedule, setSchedule] = useState<Schedule[]>([]); // array com cada parcela da tabela de amortização.
     const [summary, setSummary] = useState<LoansSummaryType | null>(null); // resumo
+    const [loading, setLoading] = useState(false);
 
     // Se o usuário escolher consorcio, força method = "price".
     useEffect(() => {
@@ -45,6 +46,7 @@ const Loans = () => {
     }, [watched.type, setValue]);
 
     const onSubmit = (values: LoansFormValues) => {
+        setLoading(true)
         setSchedule([]);
         setSummary(null);
         const amount = Number(values.amount);
@@ -116,6 +118,7 @@ const Loans = () => {
 
         // finalizar para PRICE/SAC.
         finalize(baseSchedule);
+        setLoading(false);
         return;
     };
 
@@ -126,7 +129,7 @@ const Loans = () => {
     };
 
     return (
-        <>
+        <div>
             <h1 className="text-3xl font-bold mb-6 break-words ">
                 Simulador de Empréstimo / Financiamento / Consórcio
             </h1>
@@ -277,11 +280,11 @@ const Loans = () => {
                                     />
                                 )}
                                 <div className="flex flex-col xs:flex-row gap-2 mt-4 w-full xs:justify-end">
-                                    <Button type="submit" className="font-semibold" disabled={!isValid}>
-                                        Simular
-                                    </Button>
                                     <Button type="button" onClick={handleReset} className="bg-secondary text-white font-bold">
                                         Resetar
+                                    </Button>
+                                    <Button type="submit" className="font-semibold" disabled={!isValid}>
+                                        {loading ? "Simulando..." : "Simular"}
                                     </Button>
                                 </div>
                             </div>
@@ -311,7 +314,7 @@ const Loans = () => {
                     instituição. Consórcio aqui é simulado de forma simplificada (parcela = quota + taxa administrativa rateada).
                 </p>
             </section>
-        </>
+        </div>
     )
 }
 

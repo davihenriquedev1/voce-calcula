@@ -11,8 +11,8 @@ const Header = () => {
     const screen = useScreen();
 
     return (
-        <header className="bg-transparent">
-            <div className="flex justify-between items-center p-2 md:px-8">
+        <header className="bg-transparent p-3 md:px-8">
+            <div className="flex justify-between items-center ">
                 <div className="flex items-center">
                     <AppSidebarTrigger/>
                     <Logo/>

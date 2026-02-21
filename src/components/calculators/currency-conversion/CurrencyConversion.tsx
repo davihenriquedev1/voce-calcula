@@ -77,7 +77,7 @@ const CurrencyConversion = () => {
 
 	return (
 
-		<div className="p-2 md:p-8">
+		<div>
 			<h1 className="text-3xl font-bold text-foreground mb-8">Conversor de Moedas</h1>
 
 			<div className="italic">Última atualização: {lastUpdate}</div>
@@ -85,7 +85,7 @@ const CurrencyConversion = () => {
 				<div className="flex flex-col items-center justify-center flex-1">
 					{errorMessage && <div className="text-sm text-destructive ">{errorMessage} :(</div>}
 					<Form {...form}>
-						<form onSubmit={handleSubmit(onSubmit)} className="gap-6 flex flex-col w-full  justify-center xs:grid xs:grid-cols-2">
+						<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full gap-2 justify-center xs:grid xs:grid-cols-2">
 							<CustomSelect form={form} name="originCurrency" options={options} placeholder="selecione" label="Moeda de Origem" />
 							<CustomSelect form={form} name="destinyCurrency" options={options} placeholder="selecione" label="Moeda Destino" />
 							<CustomInput form={form} type="text" name="value" description="Digite o valor a ser convertido" mask={maskNumberInput()} formatParams={{ format: "currency", currency: watch('originCurrency'), unit: undefined }} linkedField="originCurrency" />

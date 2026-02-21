@@ -9,20 +9,17 @@ const Home = () => {
 	return (
 		<div className="flex flex-col w-full items-center justify-center">
 
-			<section className="flex flex-col w-full py-10 justify-between md:flex-row gap-1 md:py-14 bg-bgcalcgreen bg-cover bg-right ">
-				<div className="flex justify-start h-full p-4 md:flex-1">
-					<div className="text-5xl font-bold sm:text-8xl md:p-5 text-secondary ">
-					<p>Calcule,</p>
-					<p className="text-primary">Simule,</p>
-					<p className="text-foreground">Resolva.</p>
+			<section className="flex flex-col w-full py-10 px-3 justify-between md:flex-row gap-1 md:py-14 md:px-8 bg-bgcalcgreen bg-cover bg-right ">
+				<div className="flex justify-start h-full">
+					<div className="text-5xl font-bold sm:text-8xl text-secondary ">
+						<p>Calcule,</p>
+						<p className="text-primary">Simule,</p>
+						<p className="text-foreground">Resolva.</p>
 					</div>
-				</div>
-				<div className="h-full flex justify-end items-end md:flex-1">
-					
 				</div>
 			</section>
 
-			<section className="flex flex-col w-full px-4 py-10 gap-8 md:px-10 md:py-14 ">
+			<section className="flex flex-col w-full px-3 py-10 gap-8 md:py-14 md:px-8">
 				
 				<div className="flex w-full justify-center items-center ">
 					<h2 className="font-extrabold tracking-wide text-center text-2xl sm:text-4xl md:text-6xl bg-greenScribbleTextBg  bg-cover bg-center">Múltiplas Calculadoras</h2>
@@ -37,7 +34,7 @@ const Home = () => {
 				</div>
 			</section>
 
-			<section className="flex flex-col w-full min-h-screen px-4 py-10 gap-8 md:px-10 md:py-14 bg-bgGreenSimbols  bg-cover ">
+			<section className="flex flex-col w-full min-h-screen px-3 py-10 gap-8 md:py-14 md:px-8 bg-bgGreenSimbols  bg-cover ">
 				<div className="flex justify-center">
 					<h2 className="font-extrabold tracking-wide text-center text-2xl sm:text-4xl md:text-6xl bg-background p-1 text-shadow-sm shadow-border">Funcionalidades Extras</h2>
 				</div>

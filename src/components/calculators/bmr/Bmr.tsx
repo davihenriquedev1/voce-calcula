@@ -51,7 +51,7 @@ const Bmr = () => {
     };
 
     return (
-        <>
+        <div>
             <h1 className="text-3xl font-bold text-foreground mb-6">
                 Calculadora de Taxa Metabólica Basal (BMR)
             </h1>
@@ -61,7 +61,7 @@ const Bmr = () => {
                     <Form {...form}>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className=" grid grid-cols-1 xs:grid-cols-2 gap-3 w-full"
+                            className=" grid grid-cols-1 xs:grid-cols-2 gap-2 w-full"
                         >
                             <CustomSelect
                                 name="sex"
@@ -163,7 +163,7 @@ const Bmr = () => {
                     atividade.
                 </p>
             </section>
-        </>
+        </div>
     );
 };
 

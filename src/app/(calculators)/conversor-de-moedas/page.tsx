@@ -28,10 +28,11 @@ const Page = async () => {
     */
     return (
         <HydrationBoundary state={dehydratedState}>
-            <CurrencyConversion />
+            <div className="p-3 md:p-8">
+                <CurrencyConversion />
+            </div>
         </HydrationBoundary>
     )
-
 }
 
 export default Page;

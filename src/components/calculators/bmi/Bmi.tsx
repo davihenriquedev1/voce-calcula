@@ -42,7 +42,7 @@ const Bmi = () => {
     }
 
     return (
-        <>
+        <div>
             <h1 className="text-3xl font-bold text-foreground  mb-6">Calculadora de IMC</h1>
             <section className="flex flex-col md:flex-row gap-12 justify-center mt-10">
 
@@ -94,7 +94,7 @@ const Bmi = () => {
                 </div>
 
             </section>
-        </>
+        </div>
     )
 }
 export default Bmi;
