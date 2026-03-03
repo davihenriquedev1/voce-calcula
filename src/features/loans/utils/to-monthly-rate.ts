@@ -1,0 +1,1 @@
+export const toMonthlyRate = (annualPercent: number) => Math.max(0, annualPercent) / 100 / 12;
