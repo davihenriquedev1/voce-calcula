@@ -1,7 +1,7 @@
 // jest.config.js
-const nextJest = require('next/jest');
-const { pathsToModuleNameMapper } = require('ts-jest/utils');
-const { compilerOptions } = require('./tsconfig');
+import nextJest from 'next/jest';
+import { pathsToModuleNameMapper } from 'ts-jest/utils';
+import { compilerOptions } from './tsconfig';
 
 const createJestConfig = nextJest({
   dir: './', // caminho do app Next.js
@@ -22,4 +22,4 @@ const customJestConfig = {
   ],
 };
 
-module.exports = createJestConfig(customJestConfig);
+export default createJestConfig(customJestConfig);

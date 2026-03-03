@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/header/Header";
-import { Footer } from "@/components/footer/Footer";
-import { MainProvider } from "@/components/MainProvider";
-import { AppSidebar } from "@/components/sidebar/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { Suspense } from "react";
-import { LoadingBounce } from "@/components/partials/Loading";
+import { MainProvider } from "@/providers/MainProvider";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/sidebar/AppSidebar";
+import Header from "@/components/layout/header/Header";
+import { LoadingBounce } from "@/components/ui/custom/Loading";
+import { Footer } from "@/components/layout/footer/Footer";
 
 export const metadata: Metadata = {
 	title: {
@@ -21,22 +21,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<html lang="en" suppressHydrationWarning>
 		<body className="antialiased bg-background text-foreground">
 			<MainProvider>
-			{/* Aqui o Provider envolve o layout inteiro */}
 				<SidebarProvider >
-					<div className="flex min-h-screen w-full">
-					{/* Sidebar */}
-					<AppSidebar />
+					<div className="flex w-full">
+						{/* Sidebar */}
+						<AppSidebar />
 
-					{/* Conteúdo principal */}
-					<div className="flex flex-col flex-1">
-						<Header />
-						<main className="flex-1">
-							<Suspense fallback={<LoadingBounce/>}>
-								{children}
-							</Suspense>
-						</main>
-						<Footer />
-					</div>
+						{/* Conteúdo principal */}
+						<div className="flex flex-col flex-1">
+							<Header />
+							<main className="flex-1">
+								<Suspense fallback={<LoadingBounce/>}>
+									{children}
+								</Suspense>
+							</main>
+							<Footer />
+						</div>
 					</div>
 				</SidebarProvider>
 			</MainProvider>

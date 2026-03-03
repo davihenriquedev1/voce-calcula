@@ -1,6 +1,6 @@
 import { dehydrate, QueryClient,HydrationBoundary } from '@tanstack/react-query';
-import CurrencyConversion from '@/components/calculators/currency-conversion/CurrencyConversion';
-import { getExchangeRates } from '@/lib/exchangeRates';
+import { getExchangeRates } from '@/features/currency-conversion/services/exchange-rates';
+import { CurrencyConversionPage } from '@/features/currency-conversion/CurrencyConversionPage';
 
 const Page = async () => {
 
@@ -13,22 +13,9 @@ const Page = async () => {
 
     const dehydratedState = dehydrate(queryClient);
     
-    /**
-        O dehydratedState é o estado serializado do cache do React Query, usado principalmente em Server-Side Rendering (SSR) ou Static-Site Generation (SSG) no Next.js.
-        Ele não é só os dados puros; contém informações de todas as queries que estavam no cache no momento da serialização, incluindo:
-        queries → array de todas as queries, cada uma com:
-            queryKey → a chave usada na query
-            queryHash → hash da query
-            state → que contém:
-                data → os dados reais da query
-                error → erro (se houver)
-                status → 'success' | 'error' | 'loading'
-                isFetching, isStale, etc.
-        mutations → histórico de mutações (geralmente vazio se não houve nenhuma)
-    */
     return (
         <HydrationBoundary state={dehydratedState}>
-            <CurrencyConversion />
+            <CurrencyConversionPage />
         </HydrationBoundary>
     )
 
