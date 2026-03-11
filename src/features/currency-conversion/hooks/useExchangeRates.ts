@@ -6,10 +6,9 @@ export const useExchangeRates = () => {
 	return useQuery<MetaExchangeRates>({
 		queryKey: ['exchange_rates'],
 		queryFn: getExchangeRates,
-		staleTime: 1000 * 60 * 20,
-		refetchInterval: 1000 * 60 * 20,
-		gcTime: 1000 * 60 * 30,
-		refetchOnMount: false,
+		staleTime: 1000 * 60 * 30,
+		refetchInterval: 1000 * 60 * 30,
+		gcTime: 1000 * 60 * 60,
 		refetchOnWindowFocus: false,
 	});
 };
