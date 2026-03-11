@@ -16,11 +16,11 @@ export const LoansPage = () => {
 				Simulador de Empréstimo / Financiamento / Consórcio
 			</h1>
 
-			<section className="flex flex-col gap-8 ">
-				<div className="flex-1 max-w-full">
+			<section className="flex flex-col gap-8 w-full">
+				<div className="max-w-full">
 					<LoansPageForm controller={controller}/>
 				</div>
-				<div className="flex-1">
+				<div className="w-full">
 					<div className="bg-contrastgray p-4 rounded border">
 						<h3 className="text-xl font-bold mb-2">Resumo</h3>
 						{!summary && <div className="text-sm">Faça uma simulação para ver o resultado.</div>}

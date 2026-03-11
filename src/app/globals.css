@@ -36,7 +36,7 @@ h6 {
     --secondary: #025951;
     --secondary-foreground: #000000;
     --muted: #02735E;
-    --muted-foreground: #80848A;
+    --muted-foreground: #686c72be;
     --accent: #038C3E;
     --accent-foreground: #000000;
     --destructive: #EF4444;
@@ -54,7 +54,7 @@ h6 {
     --section2: #0b343d;
     --softgray: #f5f5f5;
     --gray: #bbbbbb;
-    --contrast-gray: #eaeef1ce;
+    --contrast-gray: #ecedeece;
     --bgcalcgreen: url('/images/bg-calc-green.png');
     --bg-green-simbols: url('/images/bg-green-simbols-light.png');
     --green-scribble-text-bg: url('/images/green-scribble-text-bg-light.png');
@@ -67,10 +67,9 @@ h6 {
     --sidebar-border: #89FF2B;
     --sidebar-ring: #0CF25D;
     --dark-icon: invert(0);
-    --scrollbar-track: #6366704d;
-    --scrollbar-thumb: #646a8357;
-    --scrollbar-thumb-hover: #2d2f35;
-    /* cor ao passar mouse */
+    --scrollbar-track: #8aff2b7e;
+    --scrollbar-thumb: #8aff2bc5;
+    --scrollbar-thumb-hover: #89FF2B;
   }
 
   .dark {
@@ -85,7 +84,7 @@ h6 {
     --secondary: #038C3E;
     --secondary-foreground: #EDEFE0;
     --muted: #031f3b;
-    --muted-foreground: #EDEFE0;
+    --muted-foreground: #adb6bda4;
     --accent: #025951;
     --accent-foreground: #F7FCFC;
     --destructive: #EF4444;
@@ -115,13 +114,9 @@ h6 {
     --sidebar-border: #89FF2B;
     --sidebar-ring: #0CF25D;
     --dark-icon: invert(1);
-    --scrollbar-track: #080e22;
-    /* cor do fundo do track, igual bg-sidebar */
-    --scrollbar-thumb: #1e2230;
-    ;
-    /* cor do “dedo”, parecido com sidebar-border */
-    --scrollbar-thumb-hover: #424550;
-    /* cor ao passar mouse */
+    --scrollbar-track: #8aff2b41;
+    --scrollbar-thumb: #8aff2bc5;
+    --scrollbar-thumb-hover: #89FF2B;
   }
 
   body {

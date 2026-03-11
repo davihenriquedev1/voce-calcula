@@ -1,11 +1,11 @@
 "use client";
 
 import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "./theme";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 type Props = {
     children:ReactNode
@@ -14,21 +14,22 @@ type Props = {
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            gcTime: 1000 * 60 * 60 * 3, // 12 hours
+            gcTime: 1000 * 60 * 60 * 3,
         },
     },
 });
 
 export const MainProvider = ({children}:Props) => {
-    const [persister] = useState(() =>
-        typeof window !== "undefined"
-            ? createSyncStoragePersister({
-                storage: window.localStorage,
-                })
-            : undefined
-    );
+    const [mounted, setMounted] = useState(false);
+    const [persister, setPersister] = useState<Persister | undefined>(undefined);
 
-    if (!persister) return null;
+    useEffect(() => {
+        setMounted(true);
+
+        setPersister(createSyncStoragePersister({ storage: window.localStorage }));
+    }, []);
+
+    if (!mounted || !persister) return null;
         
     return (
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>

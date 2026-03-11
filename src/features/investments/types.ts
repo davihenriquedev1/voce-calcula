@@ -2,22 +2,17 @@ import { z } from "zod";
 import { investmentsSchema } from "./schema";
 import { INVESTMENTS_RATE_TYPES, INVESTMENTS_TYPES } from "./constants/types";
 
-// z.input descreve o que o schema aceita na entrada (strings mascaradas do form)
 export type InvestmentsFormValues = z.input<typeof investmentsSchema>;
 
-// Tipagem de saída depois do parse (numbers)
 export type InvestmentsParsedValues = z.infer<typeof investmentsSchema>;
 
 export type InvestmentsParams = InvestmentsParsedValues & {
     type: InvestmentsType;
     rateType: InvestmentsRateType;
+    baseIndexAnnual: number;
+    baseIndexName: string;
     preConversionSpread?: number | { curto?: number; medio?: number; longo?: number };
     issuerCreditSpread?: number;
-};
-
-export type IncomeTaxBracket = {
-    maxDays: number;
-    rate: number;
 };
 
 export type InvestmentsResult = {
@@ -27,7 +22,7 @@ export type InvestmentsResult = {
     netYield: number;
     finalValue: number;
     annualReturnPct: number;
-    evolution: number[]; // evolução mês a mês ou dia a dia (conforme simulateDaily)
+    evolution: number[];
     totalTransactionFees?: number;
     totalInvested: number;
 
@@ -60,18 +55,16 @@ export type InvestmentsSummary = {
     currentIpca?: number;
     currentCdi?: number;
     currentFundDi?: number;
-
-    // Taxas e impostos
+    
     incomeTax?: number;
     iof?: number;
     adminFeePercent?: number;
 
-    // Outputs
-    grossYield: number;         // rendimento bruto
-    netYield: number;           // rendimento líquido
-    finalValue: number;         // total investido + rendimento
-    annualReturnPct: number;    // rentabilidade anual
-    monthlyEvolution: number[]; // array de valores mês a mês para gráfico
+    grossYield: number;
+    netYield: number;
+    finalValue: number;
+    annualReturnPct: number;
+    monthlyEvolution: number[];
 };
 
 export type InvestmentsType = (typeof INVESTMENTS_TYPES)[number];

@@ -2,15 +2,15 @@ import { z } from "zod";
 import { scientificSchema } from "./schema";
 
 export type ExpToken =
-        | { type: "number"; value: number }                     // números normais
-        | { type: "operator"; value: "+" | "-" | "/" | "^" | "*" | "mod" | "!"} // operadores
-        | { type: "unary"; value: "neg" | "pos"} // operadores unários
+        | { type: "number"; value: number }
+        | { type: "operator"; value: "+" | "-" | "/" | "^" | "*" | "mod" | "!"}
+        | { type: "unary"; value: "neg" | "pos"}
         | { type: "percent" ; value: "%" } 
         | { type: "comma" ; value: "," } 
-        | { type: "function"; value: "cos" | "sin" | "tan" | "cosh" | "sinh" | "tanh" | "abs" | "factor" | "log" | "ln" | "sqrt"}                   // funções
-        | { type: "constant"; value: "pi" | "e" | "i" }          // constantes matemáticas
-        | { type: "complex"; value: "re" | "im" | "arg" | "conj" } // funções de número complexo
-        | { type: "paren"; value: "(" | ")" };                 // parênteses
+        | { type: "function"; value: "cos" | "sin" | "tan" | "cosh" | "sinh" | "tanh" | "abs" | "factor" | "log" | "ln" | "sqrt"}
+        | { type: "constant"; value: "pi" | "e" | "i" }
+        | { type: "complex"; value: "re" | "im" | "arg" | "conj" }
+        | { type: "paren"; value: "(" | ")" };
 
 export type Complex = { re: number; im: number };
 

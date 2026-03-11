@@ -108,7 +108,9 @@ export const CustomInput = ({ form, name, label, description, mask, formatParams
 
                 return (
                     <FormItem>
-                        <FormLabel className="font-bold">{label}</FormLabel>
+                        <div className="truncate" title={label}>
+                            <FormLabel className="font-bold">{label}</FormLabel>
+                        </div>
                         <FormControl>
                             <Input
                                 {...inputProps}

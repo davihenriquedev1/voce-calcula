@@ -2,9 +2,9 @@ import { z } from "zod";
 
 const commonNumber = z.string().min(0, {message: 'Preencha o campo'}).transform((value) => {
     const cleaned = String(value)
-        .replace(/[^\d,-]/g, "") // remove R$, espaços, letras etc
-        .replace(/\./g, "")      // remove separador de milhares
-        .replace(",", ".");      // vírgula -> ponto para parseFloat
+        .replace(/[^\d,-]/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".");
     return parseFloat(cleaned);
 });
 
@@ -15,21 +15,19 @@ export const loansSchema = z
         termMonths: commonNumber,
         downPayment: commonNumber.optional().transform(v => v ?? 0),
         extraAmortization: commonNumber.optional().transform(v => v ?? 0),
-        extraAmortizationMonth: z.string().optional(), // armazenará "YYYY-MM" ou "2025-10"
+        extraAmortizationMonth: z.string().optional(),
         extraAmortizationType: z.enum(["reduzir_prazo", "reduzir_parcela"]).optional(),
-        method: z.enum(["price", "sac"]).default("price"), // apenas para financiamento e emprestimo
+        method: z.enum(["price", "sac"]).default("price"),
         annualRate: commonNumber,
-        adminPercent: commonNumber.optional(), //para consórcio
+        adminPercent: commonNumber.optional(),
         fixedIofPct: commonNumber,
         dailyIofPct: commonNumber,
         iofCeiling: commonNumber,
 
-        // novos campos opcionais
-        startDate: z.string().optional(), // data de início do contrato
-        insurancePercent: commonNumber.optional(), // seguro opcional
+        startDate: z.string().optional(),
+        insurancePercent: commonNumber.optional(),
     })
     .superRefine((obj, ctx)=> {
-        // Prazo deve ser inteiro e ≥ 1
         if(isNaN(obj.termMonths) || obj.termMonths < 1) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
@@ -37,7 +35,6 @@ export const loansSchema = z
                 message: "Prazo em meses deve ser ≥1 "
             })
         }
-        // Entrada não pode ser maior que o valor
         if((obj.downPayment ?? 0) > (obj.amount ?? 0)) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
@@ -45,7 +42,6 @@ export const loansSchema = z
                 message: "Entrada não pode ser maior que o valor total"
             })
         }
-        // se tem valor na amortização extra, tem que configurar o tipo e o mês
         if((obj.extraAmortization ?? 0) > 0) {
             if(!obj.extraAmortizationMonth) {
                 ctx.addIssue({
@@ -63,7 +59,6 @@ export const loansSchema = z
             }
         }
 
-         // Consórcio exige taxa administrativa
         if (obj.type === "consorcio" && (obj.adminPercent === undefined || obj.adminPercent === null)) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,

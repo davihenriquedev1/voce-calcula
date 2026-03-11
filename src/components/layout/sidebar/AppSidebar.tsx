@@ -42,7 +42,7 @@ export function AppSidebar() {
                         {items.map((item) => (
                            <SidebarMenuItem key={item.title} className="p-1 ">
 								<SidebarMenuButton asChild data-active={route === item.url}>
-									<Link href={item.url} className="flex items-center gap-2" onClick={() => setOpenMobile(false)}>
+									<Link href={item.url} className="flex items-center gap-2" onClick={() => setOpenMobile(false)} prefetch={false}>
 										<div className="p-1 rounded-full bg-sidebar-ring ">
 											<Image width={24} height={24} src={item.icon} alt={item.title} className="w-6" />
 										</div>

@@ -13,7 +13,6 @@ export function generatePriceSchedule(P: number, r:number, n:number) {
         schedule.push({month: i, payment: round2(payment), principal, interest, balance});
     }
 
-    // Ajuste do último principal para bater exatamente P
     const totalPrincipal = schedule.reduce((sum, s) => sum + s.principal, 0);
     const diff = round2(P - totalPrincipal);
     if (diff !== 0) {
@@ -21,6 +20,5 @@ export function generatePriceSchedule(P: number, r:number, n:number) {
         schedule[schedule.length - 1].payment += diff;
         schedule[schedule.length - 1].balance = 0;
     }
-    // Assim a soma dos principais pagos sempre bate exatamente com P e o saldo final é zero.
     return schedule;
 }

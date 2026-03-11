@@ -1,12 +1,11 @@
 import * as React from "react"
 
-//const MOBILE_BREAKPOINT = 768
+// const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
-    const [isMobile ] = React.useState<boolean | undefined>(true) // força como true
+    const [isMobile ] = React.useState<boolean | undefined>(true)
 
-    // baseado no tamanho da tela:
-    /*
+    /* original code:
     React.useEffect(() => {
       const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
       const onChange = () => {

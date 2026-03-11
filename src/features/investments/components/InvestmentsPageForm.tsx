@@ -7,13 +7,13 @@ import { CustomSelect } from "@/components/ui/custom/CustomSelect";
 import { Button } from "@/components/ui/button";
 import { InvestmentsPageController } from "../controller";
 
-export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageController}) => {
-    const {form, percentFormat, handleSubmit, onSubmit, register, loading, handleReset } = controller;
+export const InvestmentsPageForm = ({ controller }: { controller: InvestmentsPageController }) => {
+    const { form, percentFormat, handleSubmit, onSubmit, register, loading, handleReset } = controller;
 
     return (
         <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="">
-                <div className="grid grid-cols-1 xs:grid-cols-2 xl:grid-cols-3 gap-2 ">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 ">
                     <CustomInput
                         type="text"
                         form={form}
@@ -27,33 +27,10 @@ export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageCo
                         type="text"
                         form={form}
                         name="frequentContribution"
-                        label="Aporte Regular"
+                        label="Aporte Mensal"
                         mask={maskNumberInput()}
                         formatParams={{ format: "currency", currency: "BRL" as string }}
                         placeholder="0,00"
-                    />
-                    <CustomSelect
-                        form={form}
-                        name="contributionFrequency"
-                        label="Frequência dos aportes"
-                        defaultValue="monthly"
-                        options={[
-                            { value: "monthly", label: "Mensal" },
-                            { value: "annually", label: "Anual" },
-                            { value: "one-time", label: "Único" },
-                            { value: "weekly", label: "Semanal" },
-                        ]}
-                    />
-                    <CustomSelect
-                        form={form}
-                        name="compoundingFrequency"
-                        label="Periodicidade dos juros"
-                        defaultValue="monthly"
-                        options={[
-                            { value: "daily", label: "Diária" },
-                            { value: "monthly", label: "Mensal" },
-                            { value: "annually", label: "Anual" },
-                        ]}
                     />
                     <CustomInput
                         form={form}
@@ -91,10 +68,11 @@ export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageCo
                         name="preConversionSpread"
                         label="Spread pra pós/pré *"
                         defaultValue="0,5"
+                        title="O spread representa a diferença média entre taxas prefixadas e pós-fixadas no mercado. Escolha um cenário para simular."
                         options={[
-                            { value: "0,5", label: "Curto (0,5 p.p.)" },
-                            { value: "0,8", label: "Médio (0,8 p.p.)" },
-                            { value: "1,2", label: "Longo (1,2 p.p.)" },
+                            { value: "0,5", label: "0,5 pp — Conservador" },
+                            { value: "0,8", label: "0,8 pp — Mercado médio" },
+                            { value: "1,2", label: "1,2 pp — Prêmio elevado" },
                         ]}
                     />
 
@@ -126,16 +104,6 @@ export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageCo
                     <CustomInput
                         type="text"
                         form={form}
-                        name="currentFundDi"
-                        label="DI / Fundo-DI atual (%)"
-                        mask={maskNumberInput(3)}
-                        formatParams={percentFormat}
-                        placeholder="13.65"
-                    />
-
-                    <CustomInput
-                        type="text"
-                        form={form}
                         name="currentIpca"
                         label="IPCA anual (%)"
                         mask={maskNumberInput(3)}
@@ -145,8 +113,18 @@ export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageCo
                     <CustomInput
                         type="text"
                         form={form}
-                        name="cdiPercent"
-                        label="Porcentagem do CDI (%)"
+                        name="rateAddToIpca"
+                        title="IPCA + x% ao ano"
+                        label="Taxa adicionada ao IPCA"
+                        mask={maskNumberInput(2)}
+                        formatParams={percentFormat}
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentCdb"
+                        label="% do CDI (CDB)"
                         mask={maskNumberInput(3)}
                         formatParams={percentFormat}
                         placeholder="100"
@@ -155,18 +133,77 @@ export const InvestmentsPageForm = ({controller}: {controller: InvestmentsPageCo
                     <CustomInput
                         type="text"
                         form={form}
-                        name="fundDiPercent"
-                        label="Porcentagem do Fundo DI (%)"
+                        name="cdiPercentLci"
+                        label="% do CDI (LCI)"
                         mask={maskNumberInput(3)}
                         formatParams={percentFormat}
                         placeholder="100"
                     />
 
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentLca"
+                        label="% do CDI (LCA)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentCri"
+                        label="% do CDI (CRI)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentCra"
+                        label="% do CDI (CRA)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentDebentures"
+                        label="% do CDI (Debêntures)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentDebIncent"
+                        label="% do CDI (Debênt. Incentiv.)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
+
+                    <CustomInput
+                        type="text"
+                        form={form}
+                        name="cdiPercentFundDi"
+                        label="% do CDI (Fundo DI)"
+                        mask={maskNumberInput(3)}
+                        formatParams={percentFormat}
+                        placeholder="100"
+                    />
                     <CustomInput
                         type="text"
                         form={form}
                         name="adminFeePercent"
-                        label="Taxa admin (mensal %)"
+                        label="Taxa admin anual"
                         mask={maskNumberInput(2)}
                         formatParams={percentFormat}
                     />

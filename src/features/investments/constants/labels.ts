@@ -7,7 +7,7 @@ export const INVESTMENTS_LABELS: Record<string, string> = {
 	cri: "CRI",
 	cra: "CRA",
 	debentures: "Debêntures",
-	debentures_incentivadas: "Debêntures Incentivadas (isentas)",
+	debentures_incentivadas: "Debêntures Incentivadas",
 	tesouro_selic: "Tesouro Selic",
 	tesouro_prefixado: "Tesouro Prefixado",
 	"tesouro_ipca+": "Tesouro IPCA+",

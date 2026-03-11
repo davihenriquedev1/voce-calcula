@@ -2,7 +2,6 @@ import { round2 } from "@/utils/math";
 import { LoansSchedule } from "../types";
 
 export function generateConsorcioSchedule(P: number, n:number, adminPercent = 0) {
-    // Modelo simplificado: parcela = (P / n) + (P * adminPercent / 100) / n
     const principal = P/n;
     const adminMonthly = (P * (adminPercent || 0) / 100) / n;
     const schedule: Array<LoansSchedule> = [];

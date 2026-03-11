@@ -25,10 +25,9 @@ export const useLoansPageController = () => {
 
     const watched = watch();
 
-    const [schedule, setSchedule] = useState<unknown[]>([]); // array com cada parcela da tabela de amortização.
-    const [summary, setSummary] = useState<LoansSummary | null>(null); // resumo
+    const [schedule, setSchedule] = useState<LoansSchedule[]>([]);
+    const [summary, setSummary] = useState<LoansSummary | null>(null);
 
-    // Se o usuário escolher consorcio, força method = "price".
     useEffect(() => {
         if (watched.type === "consorcio") {
             setValue("method", "price");
@@ -46,9 +45,9 @@ export const useLoansPageController = () => {
         const startDate = values.startDate ? values.startDate : '';
         const insurancePercent = values.insurancePercent ? Number(values.insurancePercent) : 0;
         const type = values.type!;
-        const n = Math.max(1, Math.round(Number(values.termMonths))); // (months) garantido ≥ 1
+        const n = Math.max(1, Math.round(Number(values.termMonths)));
         const down = values.downPayment ? Number(values.downPayment) : 0;
-        let financed = round2(Math.max(0, amount - down)); // valor - entrada.
+        let financed = round2(Math.max(0, amount - down));
         const insuranceValue = financed * (insurancePercent / 100);
         financed = financed + insuranceValue;
         const extraAmortization = Number(values.extraAmortization);
@@ -56,17 +55,16 @@ export const useLoansPageController = () => {
         const extraAmortizationMonth = values.extraAmortizationMonth;
         const extraAmortizationMonthIndex = parseMonthIndex(extraAmortizationMonth);
         const annualRate = Number(values.annualRate)!;
-        const r = toMonthlyRate(Number(values.annualRate)); // taxa mensal derivada da taxa anual
-
+        const r = toMonthlyRate(Number(values.annualRate));
         // IOF
         const iofCeiling = Number(values.iofCeiling);
         const fixedIofPct = Number(values.fixedIofPct);
         const dailyIofPct = Number(values.dailyIofPct);
         const fixedIof = financed * (fixedIofPct / 100);
-        const days = n * 30; // usar 30 dias por mês (simplificação)
-        const dailyIof = financed * (dailyIofPct / 100) * Math.min(days, 365);// limita o IOF a no máximo 1 ano de dias, que é o teto real usado pelo Banco Central.
+        const days = n * 30;
+        const dailyIof = financed * (dailyIofPct / 100) * Math.min(days, 365);
         let totalIof = fixedIof + dailyIof;
-        const iofCapped = financed * (iofCeiling / 100); // teto do IOF%
+        const iofCapped = financed * (iofCeiling / 100);
         let iofWasCapped = false;
         if (totalIof > iofCapped) {
             totalIof = iofCapped;
@@ -76,12 +74,12 @@ export const useLoansPageController = () => {
         const finalize = (rawSchedule: LoansSchedule[]) => {
             const sNorm = normalizeSchedule(rawSchedule);
             const totalPaidNoIof = round2(sNorm.reduce((acc, cur) => acc + (Number(cur.payment) || 0), 0));
-            const totalInterest = round2(totalPaidNoIof - financed); // juros sobre o que foi financiado
+            const totalInterest = round2(totalPaidNoIof - financed);
             const totalPaidWithIof = round2(totalPaidNoIof + totalIof);
             const totalInterestWithIof = round2(totalInterest + totalIof);
-            const avgInstallments = round2(totalPaidNoIof / n); // média das parcelas
-            const firstInstallment = sNorm[0]?.payment ?? avgInstallments; // parcela inicial estimada (primeira linha do schedule)
-            const cet = calculateCET(financed, rawSchedule); // baseSchedule para Price/SAC, s para consórcio
+            const avgInstallments = round2(totalPaidNoIof / n);
+            const firstInstallment = sNorm[0]?.payment ?? avgInstallments; 
+            const cet = calculateCET(financed, rawSchedule);
 
             setSchedule(sNorm);
             setSummary({
@@ -97,18 +95,15 @@ export const useLoansPageController = () => {
             return;
         }
 
-        // PRICE ou SAC: primeiro gera schedule base
         let baseSchedule =
             values.method === "price"
                 ? generatePriceSchedule(financed, r, n)
                 : generateSacSchedule(financed, r, n);
 
-        // Amortização extra
         if (extraAmortization > 0 && extraAmortizationType && extraAmortizationMonthIndex) {
             baseSchedule = applyExtraAmortization(extraAmortization, extraAmortizationType, extraAmortizationMonthIndex, baseSchedule, method, r, financed, n);
         }
 
-        // finalizar para PRICE/SAC.
         finalize(baseSchedule);
         return;
     };

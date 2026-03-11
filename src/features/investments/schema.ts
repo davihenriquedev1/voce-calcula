@@ -1,72 +1,30 @@
 import { numberOrString } from "@/utils/parse/number-or-string";
 import { z } from "zod";
 
-// Item da tabela de IR
-const incomeTaxBracket = z.object({
-    maxDays: z.preprocess(
-        (v) => (v === "" || v === undefined ? null : Number(v)),
-        z.number().nullable()
-    ),
-    rate: numberOrString(),
-});
-
 export const investmentsSchema = z
     .object({
-
-        // aporte inicial
-        initialContribution: numberOrString(),
-
-        // aporte regular
-        frequentContribution: numberOrString(),
-
-        // frequência dos aportes
-        contributionFrequency: z.enum(["monthly", "annually", "one-time", "weekly"]).optional().default("monthly"),
-
-        // aporte sempre no início do período?
+        initialContribution: numberOrString().optional(),
+        frequentContribution: numberOrString().optional(),
         contributionAtStart: z.boolean().optional().default(true),
-
-        // prazo
-        term: numberOrString().or(z.number()).refine(v => Number.isFinite(v as number), { message: "Prazo deve ser um número" }),
+        term: numberOrString(),
         termType: z.enum(["months", "years"]).default("months"),
-
-        // taxas / índices (em porcentagem; ex: 10 -> 10%)
         interestRate: numberOrString(),
-
-        // frequências que os juros são aplicados sobre o saldo.
-        compoundingFrequency: z.enum(["daily", "monthly", "annually"]).optional().default("monthly"),
-
-        // referências de mercado
         currentSelic: numberOrString(),
         currentCdi: numberOrString(),
         currentIpca: numberOrString(),
-        currentFundDi: numberOrString(),
-
-        cdiPercent: numberOrString(),
-
-        // fundos DI
-        fundDiPercent: numberOrString(),
-
-        // fees (em percentuais)
+        rateAddToIpca: numberOrString(),
+        cdiPercentCdb: numberOrString(),
+        cdiPercentLci: numberOrString(),
+        cdiPercentLca: numberOrString(),
+        cdiPercentCri: numberOrString(),
+        cdiPercentCra: numberOrString(),
+        cdiPercentDebentures: numberOrString(),
+        cdiPercentDebIncent: numberOrString(),
+        cdiPercentFundDi: numberOrString(),
         transactionFeePercent: numberOrString(),
         adminFeePercent: numberOrString(),
-
-        // incluir IOF
         includeIOF: z.boolean().optional().default(true),
         iofPercent: numberOrString(),
-
-        // tabela de IR
-        incomeTaxTable: z
-            .array(incomeTaxBracket)
-            .optional()
-            .default([
-                { maxDays: 180, rate: 22.5 },
-                { maxDays: 360, rate: 20 },
-                { maxDays: 720, rate: 17.5 },
-                { maxDays: null, rate: 15 },
-            ]),
-
-        // controle de spread para conversão Pós->Pré (opcional)
-        // aceita número (ex: "0,8") ou objeto { curto, medio, longo } (strings ou numbers)
         preConversionSpread: z.union([
             numberOrString(),
             z.object({
@@ -75,12 +33,10 @@ export const investmentsSchema = z
                 longo: numberOrString(),
             })
         ]),
-
-        // ajuste por risco do emissor
         issuerCreditSpread: numberOrString(),
     })
     .superRefine((obj, ctx) => {
-        // converte/normaliza pra usar nas validações
+
         const termRaw = obj.term as unknown;
         const termNum = typeof termRaw === "number" ? termRaw : Number(termRaw);
         const months = obj.termType === "years" ? Math.round((termNum ?? 0) * 12) : Math.round(termNum ?? 0);
@@ -116,7 +72,6 @@ export const investmentsSchema = z
             });
         }
 
-        // adminFeePercent e transactionFeePercent limites razoáveis (0..100)
         const admin = obj.adminFeePercent as number | undefined;
         if (admin !== undefined && (!Number.isFinite(admin) || admin < 0 || admin > 100)) {
             ctx.addIssue({
@@ -151,20 +106,19 @@ export const investmentsSchema = z
             });
         }
 
-        if (!Number.isFinite(Number(obj.currentFundDi ?? NaN))) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ["currentFundDi"],
-                message: "Di atual é obrigatório para calcular investimentos baseados nele",
-            });
-        }
-
-
         if (!Number.isFinite(Number(obj.currentIpca ?? NaN))) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 path: ["currentIpca"],
                 message: "IPCA atual (currentIpca) é obrigatório para calcular Tesouro IPCA+",
+            });
+        }
+
+        if (!Number.isFinite(Number(obj.rateAddToIpca ?? NaN))) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["rateAddToIpca"],
+                message: "Taxa anual adicionada ao IPCA é obrigatória para calcular Tesouro IPCA+",
             });
         }
 
@@ -176,7 +130,19 @@ export const investmentsSchema = z
             });
         }
 
-        // validação de preConversionSpread (aceita número ou objeto com curto/medio/longo)
+        const cdiFields = ["cdiPercentCdb", "cdiPercentLci", "cdiPercentLca", "cdiPercentCri","cdiPercentCra", "cdiPercentDebentures", "cdiPercentDebIncent", "cdiPercentFundDi"] as const;
+        cdiFields.forEach((field) => {
+            const value = obj[field];
+
+            if (value !== undefined && !Number.isFinite(Number(value))) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: [field],
+                    message: `${field} deve ser um número válido`,
+                });
+            }
+        });
+
         if (obj.preConversionSpread !== undefined && obj.preConversionSpread !== null) {
             const pcs = obj.preConversionSpread;
             if (typeof pcs === "number") {
@@ -207,7 +173,6 @@ export const investmentsSchema = z
             }
         }
 
-        // validação issuerCreditSpread
         if (obj.issuerCreditSpread !== undefined) {
             const v = Number(obj.issuerCreditSpread);
             if (!Number.isFinite(v) || v < 0 || v > 100) {
@@ -216,49 +181,6 @@ export const investmentsSchema = z
                     path: ["issuerCreditSpread"],
                     message: "issuerCreditSpread deve estar entre 0 e 100",
                 });
-            }
-        }
-
-        // validação da incomeTaxTable
-        if (obj.incomeTaxTable) {
-            let previousMaxDays = 0;
-
-            for (let i = 0; i < obj.incomeTaxTable.length; i++) {
-                const it = obj.incomeTaxTable[i];
-
-                // rate obrigatório
-                if (!Number.isFinite(it.rate)) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        path: ["incomeTaxTable", String(i), "rate"],
-                        message: "Taxa de IR inválida",
-                    });
-                    return;
-                }
-
-                // última faixa pode ser ilimitada
-                if (it.maxDays === null) {
-                    if (i !== obj.incomeTaxTable.length - 1) {
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            path: ["incomeTaxTable", String(i), "maxDays"],
-                            message: "Somente a última faixa pode ser ilimitada",
-                        });
-                    }
-                    return;
-                }
-
-                // maxDays deve ser crescente
-                if (it.maxDays <= previousMaxDays) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        path: ["incomeTaxTable", String(i), "maxDays"],
-                        message: "Faixa de dias inválida",
-                    });
-                    return;
-                }
-
-                previousMaxDays = it.maxDays;
             }
         }
 

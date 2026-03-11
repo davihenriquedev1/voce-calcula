@@ -186,7 +186,6 @@ export function tangentHiperb(x: number | Complex): Complex {
 }
 
 export function formatBigNumber(n: number | bigint, sigDigits = 4): string {
-  // bigint
     if (typeof n === "bigint") {
         const s = n.toString();
         if (s.length <= 12) return s;
@@ -195,7 +194,6 @@ export function formatBigNumber(n: number | bigint, sigDigits = 4): string {
         return `${mant}e+${exp}`;
     }
 
-    // number
     if (!Number.isFinite(n)) return String(n);
     const abs = Math.abs(n);
     if (Number.isInteger(n)) {

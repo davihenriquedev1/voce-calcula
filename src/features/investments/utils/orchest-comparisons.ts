@@ -4,21 +4,21 @@ import { annualPctToMonthlyDecimal } from "./annual-pct-to-monthly-decimal";
 import { getInvestmentLabel } from "../constants/labels";
 
 const investmentMeta: Record<InvestmentsType, {
-  allowRateType?: boolean;
-  defaultRateType?: InvestmentsRateType;
-  allowPosIndex?: boolean; // aceita variação pós (CDI/SELIC)
-  forceExemptFromIR?: boolean;
+    allowRateType?: boolean;
+    defaultRateType?: InvestmentsRateType;
+    allowPosIndex?: boolean;
+    forceExemptFromIR?: boolean;
 }> = {
-    cdb: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true },
-    lci: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true,  forceExemptFromIR: true },
-    lca: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true,  forceExemptFromIR: true },
-    cri: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true,  forceExemptFromIR: true },
-    cra: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true,  forceExemptFromIR: true },
-    debentures: { allowRateType: true,  defaultRateType: 'pre', allowPosIndex: true },
+    cdb: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true },
+    lci: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, forceExemptFromIR: true },
+    lca: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, forceExemptFromIR: true },
+    cri: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, forceExemptFromIR: true },
+    cra: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, forceExemptFromIR: true },
+    debentures: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true },
     debentures_incentivadas: { allowRateType: true, defaultRateType: 'pre', allowPosIndex: true, forceExemptFromIR: true },
     tesouro_selic: { allowRateType: false, defaultRateType: 'pos', allowPosIndex: true },
     tesouro_prefixado: { allowRateType: false, defaultRateType: 'pre', allowPosIndex: false },
-    'tesouro_ipca+': { allowRateType: false, defaultRateType: 'pre', allowPosIndex: false },
+    'tesouro_ipca+': { allowRateType: false, defaultRateType: 'ipca', allowPosIndex: false },
     fund_di: { allowRateType: true, defaultRateType: 'pos', allowPosIndex: true },
 };
 
@@ -28,11 +28,7 @@ const toCompareDefaults: InvestmentsType[] = [
 
 type InterestRateResult = { interestRate?: number; rateType?: InvestmentsRateType };
 
-/**
- * ORQUESTRADORA: recebe params (sem type e rateType) e gera ComparisonItem[] comparando
- * automaticamente todos os tipos/variantes relevantes.
- */
-export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rateType">) => {
+export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rateType" | "baseIndexAnnual" | "baseIndexName">) => {
 
     const results: ComparisonItem[] = [];
     const pushedIds = new Set<string>();
@@ -40,23 +36,20 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
     const safePush = (id: string, label: string, type: InvestmentsType, pParams: InvestmentsParams) => {
         if (pushedIds.has(id)) return;
         try {
-            
+
             const cloneParams = typeof structuredClone === 'function' ? structuredClone(pParams) : JSON.parse(JSON.stringify(pParams));
             const r = calculateInvestments(cloneParams);
-            
+
             if (r) {
-                results.push({id, label, type, result: r});
+                results.push({ id, label, type, result: r });
                 pushedIds.add(id);
             }
-            console.log(results)
         } catch (err) {
             console.warn("calculateBucketComparisons: failed for", id, { err, params: pParams });
         }
     };
 
-    // Retorna interestRate (número) e rateType ('pre'|'pos'|'auto')
-    // interestRate: para 'pre' = taxa anual em % (ex: 13.65), para 'pos' = percentual do índice (ex: 100)
-    const computeInterestRateForType = (baseParams: Partial<InvestmentsParams>, type: InvestmentsType, variant?: "pre" | "pos"):InterestRateResult => {
+    const computeInterestRateForType = (baseParams: Partial<InvestmentsParams>, type: InvestmentsType, variant?: "pre" | "pos"): InterestRateResult => {
         const base = typeof baseParams.interestRate === "number" ? baseParams.interestRate : undefined;
         const selic = typeof baseParams.currentSelic === "number" ? baseParams.currentSelic : undefined;
         const ipca = typeof baseParams.currentIpca === "number" ? baseParams.currentIpca : undefined;
@@ -65,7 +58,9 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
         const baseIsPre = baseParams.rateType === "pre";
         const baseIsPos = baseParams.rateType === "pos";
 
-        const indexAnnual = typeof cdi === "number" ? cdi : (typeof selic === "number" ? selic : undefined);
+        const indexAnnual = (typeof baseParams.baseIndexAnnual === "number")
+            ? baseParams.baseIndexAnnual
+            : (typeof cdi === "number" ? cdi : (typeof selic === "number" ? selic : undefined));
 
         const asPos = (pct?: number) => ({ interestRate: typeof pct === "number" ? pct : undefined, rateType: typeof pct === "number" ? "pos" as const : undefined });
 
@@ -93,7 +88,6 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
             return longo;
         };
 
-        // liquidez simples: pequeno premium crescente com prazo (em p.p.)
         const liquidityPremium = (y: number) => {
             if (y <= 1) return 0.1;
             if (y <= 3) return 0.25;
@@ -101,17 +95,14 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
             return 0.6;
         };
 
-        // issuer adjustment (vindo do front; ex: banco menor -> 0.5 p.p.)
         const issuerAdj = typeof baseParams.issuerCreditSpread === "number" ? baseParams.issuerCreditSpread : 0;
 
-        // helper final que retorna spread total (pontos percentuais) dado years
         const totalSpreadForYears = (y: number) => {
             const base = getBaseSpread(y);
             const liq = liquidityPremium(y);
             return Math.max(0, base + liq + issuerAdj);
         };
 
-        // extrair prazo (em anos) do baseParams se disponível (fallback = 1 ano)
         const rawTerm = typeof baseParams.term === "number" ? baseParams.term : (typeof baseParams.term === "string" ? Number(baseParams.term) : undefined);
         const rawTermType = baseParams.termType ?? "months";
         const years = (() => {
@@ -119,7 +110,6 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
             return rawTermType === "years" ? rawTerm : rawTerm / 12;
         })();
 
-        // CDB: permitir Pré vs Pós com conversão pos->pre usando posToPre + spread por prazo/liquidez/issuer
         if (type === "cdb") {
             if (variant === "pos") {
                 return asPos((typeof base === "number" && baseIsPos) ? base : (typeof indexAnnual === "number" ? 100 : undefined));
@@ -138,23 +128,26 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
                 const spread = totalSpreadForYears(years);
                 return asPre(typeof preFromPos === "number" ? Math.max(0, preFromPos - spread) : undefined);
             }
-            
+
             return asPre(undefined);
         }
 
-        // outros tipos
         switch (type) {
             case "tesouro_selic":
-                if (baseIsPre && typeof base === "number") return asPre(base);
-                if (typeof selic === "number") return asPre(selic);
-                return asPre(undefined);
+                if (typeof selic === "number") {
+                    return {
+                        interestRate: 100,
+                        rateType: "pos",
+                    };
+                }
+                return asPos(undefined);
 
             case "tesouro_prefixado":
-               
+
                 if (baseIsPre && typeof base === "number") return asPre(base);
                 if (baseIsPos && typeof base === "number") {
                     const preFromPos = posToPre(base);
-                  
+
                     const spread = Math.max(0, issuerAdj * 0.5); // leve ajuste
 
                     return asPre(typeof preFromPos === "number" ? Math.max(0, preFromPos - spread) : undefined);
@@ -196,43 +189,103 @@ export const orchestComparisons = (params: Omit<InvestmentsParams, "type" | "rat
 
     for (const type of toCompareDefaults) {
         const meta = investmentMeta[type as string] ?? {};
-        const baseClone: InvestmentsParams = { ...(params as InvestmentsParams), type } as InvestmentsParams;
+        const baseClone: InvestmentsParams = {
+            ...(params as InvestmentsParams),
+            type,
+            baseIndexAnnual: params.currentCdi,
+            baseIndexName: "CDI"
+        };
 
-        // tentar gerar variante PRÉ (se faz sentido / computeInterestRate retornar pre)
-        const preComputed = computeInterestRateForType(params, type, "pre");
+        if (
+            type === "cdb" ||
+            type === "lci" ||
+            type === "lca" ||
+            type === "cri" ||
+            type === "cra" ||
+            type === "debentures" ||
+            type === "debentures_incentivadas" ||
+            type === "fund_di"
+        ) {
+            baseClone.baseIndexAnnual = params.currentCdi;
+            baseClone.baseIndexName = "CDI";
+        }
+
+        if (type === "tesouro_selic") {
+            baseClone.baseIndexAnnual = params.currentSelic;
+            baseClone.baseIndexName = "SELIC";
+        }
+
+        if (type === "tesouro_ipca+") {
+            const ipcaParams: InvestmentsParams = {
+                ...baseClone,
+                rateType: "ipca",
+                interestRate: 100,
+                baseIndexAnnual: params.currentIpca,
+                baseIndexName: "IPCA",
+            };
+
+            const id = "tesouro_ipca+_híbrido";
+            const label = getInvestmentLabel(type);
+
+            safePush(id, label, type, ipcaParams);
+            continue;
+        }
+
+        const preComputed = computeInterestRateForType(baseClone, type, "pre");
         const preParams = { ...baseClone, rateType: "pre", interestRate: preComputed.interestRate ?? params.interestRate } as InvestmentsParams;
 
         if (preComputed.rateType === "pre" && typeof preParams.interestRate === "number") {
             const id = `${type}_pre`;
-            const label = `${getInvestmentLabel(type)} (Pré)`;
+            const label = type === "cdb" ? `${getInvestmentLabel(type)} (Pré)` : getInvestmentLabel(type);
             safePush(id, label, type, preParams);
         }
 
-        // gerar variante PÓS se o produto permitir pós ou se índice estiver disponível
         const indexAvailable = typeof params.currentCdi === "number" || typeof params.currentSelic === "number";
         const allowsPos = Boolean(meta.allowPosIndex) || indexAvailable;
 
         if (allowsPos) {
-            const posComputed = computeInterestRateForType(params, type, "pos");
-            // se computeInterestRate retornou algo válido para pos (interestRate ou rateType)
+            const posComputed = computeInterestRateForType(baseClone, type, "pos");
             if ((posComputed.rateType === "pos") && typeof posComputed.interestRate === "number") {
-                const posParams = { ...baseClone, rateType: "pos", interestRate: posComputed.interestRate ?? params.interestRate } as InvestmentsParams;
+                const percentMap: Partial<Record<InvestmentsType, number | undefined>> = {
+                    cdb: params.cdiPercentCdb,
+                    lci: params.cdiPercentLci,
+                    lca: params.cdiPercentLca,
+                    cri: params.cdiPercentCri,
+                    cra: params.cdiPercentCra,
+                    debentures: params.cdiPercentDebentures,
+                    debentures_incentivadas: params.cdiPercentDebIncent,
+                    fund_di: params.cdiPercentFundDi,
+                };
+
+                let interest = typeof percentMap[type] === "number"
+                    ? percentMap[type]
+                    : posComputed.interestRate;
+
+                if (typeof interest !== "number") {
+                    interest = 100;
+                }
+
+                const posParams = {
+                    ...baseClone,
+                    rateType: "pos",
+                    interestRate: interest
+                } as InvestmentsParams;
+
                 const id = `${type}_pos`;
-                const label = `${getInvestmentLabel(type)} (Pós)`;
+                const label = type === "cdb" ? `${getInvestmentLabel(type)} (Pós)` : getInvestmentLabel(type);
                 safePush(id, label, type, posParams);
             }
         }
     }
 
-    // Se o bucket estiver vazio (tipo desconhecido), adicionar um fallback com alguns tipos úteis
     if (results.length === 0) {
         const fallbackTypes: InvestmentsType[] = ["cdb", "lci", "tesouro_selic", "tesouro_prefixado"];
         for (const t of fallbackTypes) {
-        const comp = computeInterestRateForType(params, t);
-        const p = { ...params, type: t, rateType: comp.rateType, interestRate: comp.interestRate } as InvestmentsParams;
-        safePush(`fallback_${t}`, getInvestmentLabel(t), t, p);
+            const comp = computeInterestRateForType(params, t);
+            const p = { ...params, type: t, rateType: comp.rateType, interestRate: comp.interestRate } as InvestmentsParams;
+            safePush(`fallback_${t}`, getInvestmentLabel(t), t, p);
         }
     }
+    
     return results;
 };
-    

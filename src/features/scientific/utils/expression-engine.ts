@@ -8,7 +8,6 @@ const formatResult = (value: number | { re: number; im: number } | string): stri
     if (typeof value === "number") {
         if (Object.is(value, -0)) return "0";
         if (Math.abs(value) < 1e-12) return "0";
-        // usa formatBigNumber para inteiros grandes / floats
         if (Number.isInteger(value)) return formatBigNumber(value);
         return parseFloat(value.toFixed(12)).toString();
     }
@@ -41,11 +40,8 @@ export const evaluateSafe = (expression: string): { ok: true; result: string } |
 }
 
 function calculateExpression(expression: string): number | Complex | string {
-    // Tokenizar: transforma a string em unidades entendíveis.
     const tokens = tokenize(expression);
-    // Shunting Yard: garante que a precedência e associatividade sejam respeitadas
     const rpn = shuntingYard(tokens);
-    // Retorna a avaliação em RPN (que empilha e desempilha valores)
     return evalRPN(rpn);
 }
 
@@ -55,7 +51,7 @@ function tokenize(expression: string) {
 
     const isOperator = (t: ExpToken): t is { type: "operator"; value: "+" | "-" | "/" | "^" | "*" | "mod" | "!" } =>
         t.type === "operator";
-    // helper para inserir token respeitando multiplicação implícita
+
     const pushToken = (tk: ExpToken) => {
         const prev = tokens[tokens.length - 1];
 
@@ -78,14 +74,11 @@ function tokenize(expression: string) {
         tokens.push(tk);
     };
 
-    //  Percorrer a string do início ao fim
     while (i < expression.length) {
         const char = expression[i];
 
-        // Ignorar espaços 
         if (char === " ") { i++; continue; }
 
-        // Reconhecer números → pegar dígitos e ponto decimal
         if (/\d/.test(char) || char === ".") {
             let numStr = char;
             i++;
@@ -99,12 +92,11 @@ function tokenize(expression: string) {
                 numStr += expression[i++];
             }
 
-            // captura expoente completo somente se houver dígitos depois do e/E
             if (i < expression.length && (expression[i] === "e" || expression[i] === "E")) {
                 const rest = expression.slice(i);
                 const m = rest.match(/^[eE][+-]?\d+/);
                 if (m) {
-                    numStr += m[0];      // exemplo: "e-10"
+                    numStr += m[0];
                     i += m[0].length;
                 }
             }
@@ -116,14 +108,12 @@ function tokenize(expression: string) {
             continue;
         }
 
-        // Vírgula (argument separator)
         if (char === ",") {
             pushToken({ type: "comma", value: "," });
             i++;
             continue;
         }
 
-        // operadores
         if (["+", "-", "÷", "^", "×", "!"].includes(char)) {
             const prev = tokens[tokens.length - 1];
             const isUnary = !prev || prev.type === "operator" || prev.type === "unary" || prev.type === "comma" || (prev.type === "paren" && prev.value === "(");
@@ -147,10 +137,9 @@ function tokenize(expression: string) {
             continue;
         }
 
-        // parenteses
         if (char === "(") {
             let j = i + 1;
-            while (j < expression.length && expression[j] === " ") j++; // pula espaços
+            while (j < expression.length && expression[j] === " ") j++;
             const nextChar = expression[j];
             if (nextChar === undefined) throw new Error("Parêntese vazio '()' não permitido");
             if (["*", "/", "^", "×", "÷", "!", ","].includes(nextChar)) {
@@ -161,10 +150,8 @@ function tokenize(expression: string) {
             continue;
         }
         if (char === ")") {
-            // antes de empurrar ')', garante que exista algo útil entre parênteses:
             const prev = tokens[tokens.length - 1];
             if (!prev) throw new Error("Parêntese fechado sem conteúdo");
-            // se o token anterior for operador/unário/virgula ou um '(' aberto -> parêntese vazio ou inválido
             if (prev.type === "operator" || prev.type === "unary" || prev.type === "comma" || (prev.type === "paren" && prev.value === "(")) {
                 throw new Error("Parêntese fechado sem conteúdo válido ou com operador solto");
             }
@@ -174,7 +161,6 @@ function tokenize(expression: string) {
             continue;
         }
 
-        // Funções, complexos e mod
         if (/[a-zA-Z]/.test(char)) {
             let ident = char;
             i++;
@@ -202,7 +188,6 @@ function tokenize(expression: string) {
             throw new Error(`Identificador desconhecido: ${ident}`);
         }
 
-        // constantes
         if (char === "π") {
             pushToken({ type: "constant", value: "pi" } as ExpToken);
             i++;
@@ -214,9 +199,8 @@ function tokenize(expression: string) {
             i++;
 
             if (i < expression.length) {
-                // caso: √-8  ou √9
                 if (expression[i] === "-") {
-                    i++; // consome '-'
+                    i++;
                     let numStr = "-";
                     while (i < expression.length && /[\d.]/.test(expression[i])) numStr += expression[i++];
                     const parsed = parseFloat(numStr);
@@ -314,7 +298,6 @@ function shuntingYard(tokens: ExpToken[]): ExpToken[] {
         }
     }
 
-    // desempilha o resto
     while (stack.length > 0) {
         const top = stack.pop()!;
         if (top.type === "paren") throw new Error("Parêntese não fechado");
@@ -352,7 +335,7 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                     const a = stack.pop();
                     if (a === undefined) throw new Error("Argumento insuficiente para !");
                     const res = factorial(a);
-                    // Se factorial retornar string (resultado formatado/pesado), interrompe a avaliação e retorna string
+    
                     if (typeof res === "string") return res;
                     stack.push(res as Complex);
                     break;
@@ -369,7 +352,6 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                     case "/": stack.push(divide(a, b)); break;
                     case "mod": stack.push(mod(a, b)); break;
                     case "^": {
-                        // usa os valores já extraídos: a = base, b = exponent
                         stack.push(raise(a, b));
                         break;
                     }
@@ -422,13 +404,12 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                 }
 
                 if (token.value === "log") {
-                    // RPN: x base log  OR  x log (-> assume base 10)
-                    const maybeBase = stack.pop(); // top da stack, base (se tiver)
-                    const maybeX = stack.pop();    // then x    
+                    const maybeBase = stack.pop();
+                    const maybeX = stack.pop();
                     if (maybeX !== undefined && maybeBase !== undefined) {
-                        args.push(maybeX, maybeBase); // [x, base]
+                        args.push(maybeX, maybeBase);
                     } else if (maybeX !== undefined) {
-                        args.push(maybeX, 10);        // só x -> base 10
+                        args.push(maybeX, 10);
                     } else {
                         throw new Error("Argumentos insuficientes para função log");
                     }
@@ -438,7 +419,6 @@ function evalRPN(rpn: ExpToken[]): number | Complex | string {
                     const c = toComplex(a);
                     if (c.im !== 0 || !Number.isInteger(c.re))
                         throw new Error("Factor só definido para inteiros reais");
-                    // aqui já retorna string, sem empilhar
                     return factorizeInteger(c.re);
                 } else {
                     for (let k = 0; k < arity; k++) {

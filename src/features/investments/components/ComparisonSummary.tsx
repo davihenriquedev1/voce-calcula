@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ComparisonItem,InvestmentsResult } from "@/features/investments/types";
+import React, { useState, useEffect, useMemo } from "react";
+import { ComparisonItem, InvestmentsResult } from "@/features/investments/types";
 import {
     BarChart,
     Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    Legend,
     ResponsiveContainer,
     Cell,
+    LabelList,
+    YAxis,
+    XAxis,
 } from "recharts";
 import { formatNumber } from "@/utils/format/format-number";
 
@@ -18,19 +17,28 @@ type Props = {
     items: ComparisonItem[];
 };
 
+const CSS_CHART_COLORS = ["#02735E", "#10B981", "#0EA5A4", "#2563EB", "#6B7280"];
+
 export const ComparisonSummary = ({ items }: Props) => {
     const [mounted, setMounted] = useState(false);
     const [selectedTypeEvol, setSelectedTypeEvol] = useState<string | null>(items[0]?.id ?? null);
 
     useEffect(() => { setMounted(true); }, []);
 
-    useEffect(() => {
-        setSelectedTypeEvol(items[0]?.id ?? null);    
+    const sortedComparisons = useMemo(() => {
+        if (!items) return [];
+
+        return [...items].sort(
+            (a, b) => (b.result.annualReturnPct ?? 0) - (a.result.annualReturnPct ?? 0)
+        );
     }, [items]);
-        
+
+    useEffect(() => {
+        setSelectedTypeEvol(sortedComparisons[0]?.id ?? null);
+    }, [sortedComparisons]);
+
     if (!items || items.length === 0) return null;
 
-    // para montar dados pro chart (por bucket escolhemos comparar finalValue e totalInvested e netYield)
     const makeChartData = (list: ComparisonItem[]) =>
         list.map((item) => ({
             name: item.label,
@@ -39,8 +47,6 @@ export const ComparisonSummary = ({ items }: Props) => {
             netYield: Number(item.result.netYield ?? 0),
         }));
 
-    const CSS_CHART_COLORS = ["#02735E", "#10B981", "#0EA5A4", "#2563EB", "#6B7280"];
-
     const fmtCurrency = (v?: number) => formatNumber(v ?? 0, "currency", "BRL");
     const fmtPercent = (v?: number) => formatNumber(v ?? 0, "percent", "", "percent", {
         inputIsPercent: true,
@@ -48,7 +54,6 @@ export const ComparisonSummary = ({ items }: Props) => {
         maxFractionDigitsPercent: 2,
     });
 
-    // para destacar melhor (maior finalValue) dentro do grupo
     const bestInGroup = (list: ComparisonItem[], metric: (r: InvestmentsResult) => number) => {
         let best: ComparisonItem | null = null;
         let bestVal = -Infinity;
@@ -98,10 +103,9 @@ export const ComparisonSummary = ({ items }: Props) => {
     return (
 
         <div className="space-y-3">
-           
+
             <div className=" rounded-none rounded-b shadow bg-transparent space-y-3">
-                <div className="flex-col">
-                    {/* Chart (pai com altura fixa para o ResponsiveContainer) */}
+                <div className="flex flex-col">
                     <div
                         className="w-full h-64 md:h-80 text-stone-800"
                         style={{ minWidth: 0, minHeight: 200 }}
@@ -109,22 +113,35 @@ export const ComparisonSummary = ({ items }: Props) => {
                         {mounted ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
-                                    data={makeChartData(items)}
+                                    data={makeChartData(sortedComparisons)}
                                     layout="vertical"
                                     margin={{ top: 8, right: 12, left: 8, bottom: 8 }}
                                 >
-                                    <XAxis type="number" tickFormatter={(v) => fmtCurrency(v)} />
-                                    <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 12 }} />
-                                    <Legend verticalAlign="top" wrapperStyle={{ fontSize: "0.8rem", paddingBottom: 8 }} />
-                                    <Tooltip
-                                        cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                                        contentStyle={{ fontSize: "0.85rem" }}
-                                        formatter={(value: number) => fmtCurrency(value)}
-                                    />
-                                    <Bar dataKey="finalValue" name="Saldo Final" barSize={20}>
-                                        {items.map((it, idx) => (
-                                            <Cell key={it.id} fill={CSS_CHART_COLORS[idx % CSS_CHART_COLORS.length]} />
+                                    <XAxis type="number" hide />
+                                    <YAxis type="category" dataKey="name" hide />
+                                    <Bar dataKey="finalValue" barSize={28} radius={[2, 2, 2, 2]}>
+                                        {sortedComparisons.map((it, idx) => (
+                                            <Cell
+                                                key={it.id}
+                                                fill={CSS_CHART_COLORS[idx % CSS_CHART_COLORS.length]}
+                                            />
                                         ))}
+
+                                        <LabelList
+                                            dataKey="name"
+                                            position="insideLeft"
+                                            offset={12}
+                                            style={{ fill: "#fff", fontSize: 12, fontWeight: 500 }}
+                                        />
+
+                                        <LabelList
+                                            dataKey="finalValue"
+                                            position="insideRight"
+                                            formatter={(value) =>
+                                                typeof value === "number" ? fmtCurrency(value) : value
+                                            }
+                                            style={{ fill: "#FFF", fontSize: 12, fontWeight: 600 }}
+                                        />
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
@@ -134,76 +151,67 @@ export const ComparisonSummary = ({ items }: Props) => {
                             </div>
                         )}
                     </div>
-                    {/* Layout: chart + table (grid responsivo) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full overflow-x-auto">
-                        {/* Table summary */}
                         <div className="mt-8 w-full">
                             <table className="w-max min-w-full table-auto text-sm divide-y whitespace-nowrap ">
-                                <thead className="border border-chart">
-                                    <tr className="text-left border-b text-sm text-muted-foreground font-bold">
+                                <thead className="border border-chart bg-[#50fd0065]">
+                                    <tr className="text-left border-b text-xs sm:text-sm text-foreground font-bold">
                                         <th className="p-3 text-left border-x-2 border-x-chart">Tipo</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Tipo de fixação</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Saldo Bruto</th>
-                                        <th className="p-3 text-center border-x-2 border-x-chart bg-muted-foreground text-background">Saldo Líquido</th>
-                                        <th className="p-3 text-center border-x-2 border-x-chart">Aportes no início dos períodos</th>
-                                        <th className="p-3 text-center border-x-2 border-x-chart">Índice utilizado</th>
+                                        <th className="p-3 text-center border-x-2 border-x-chart">Saldo Líquido</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Investido</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Rendimento bruto</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Rendimento Líq.</th>
-                                        <th className="p-3 text-center border-x-2 border-x-chart">Rentab. Efetiva</th>
+                                        <th className="p-3 text-center border-x-2 border-x-chart">Rentabilidade anual bruta</th>
+                                        <th className="p-3 text-center border-x-2 border-x-chart">Índice utilizado</th>
+                                        <th className="p-3 text-center border-x-2 border-x-chart">Rentabilidade anual efetiva</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">Retorno total %</th>
-                                        <th className="p-3 text-center border-x-2 border-x-chart">Taxa usada (a.a.)</th>
+                                        <th className="p-3 text-center border-x-2 border-x-chart">Aportes no início dos períodos</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">IR %</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">IR cobrado R$</th>
                                         <th className="p-3 text-center border-x-2 border-x-chart">IOF %</th>
-                                        <th className="p-3 text-right border-x-2 border-x-chart">Taxa administrativa (mensal)</th>
+                                        <th className="p-3 text-right border-x-2 border-x-chart">Taxa administrativa</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {items.map((it) => {
+                                    {sortedComparisons.map((it) => {
                                         const r = it.result;
-                                        const isBest = bestInGroup(items, (res) => res.finalValue)?.id === it.id;
                                         const irRate = (r.grossYield > 0) ? (((r.incomeTax ?? 0) / r.grossYield) * 100) : 0;
-                                        // Saldo bruto = total investido + rendimento bruto (antes de IR/IOF)
                                         const grossFinal = (r.totalInvested ?? 0) + (r.grossYield ?? 0);
-                                        // Saldo líquido = finalValue (já considera impostos)
                                         const netFinal = r.finalValue ?? 0;
-                                        const totalNetReturnPct = (r.totalInvested ?? 0) > 0 ? (( (r.finalValue ?? 0) - (r.totalInvested ?? 0) ) / (r.totalInvested ?? 1)) * 100 : 0;
+                                        const totalNetReturnPct = (r.totalInvested ?? 0) > 0 ? (((r.finalValue ?? 0) - (r.totalInvested ?? 0)) / (r.totalInvested ?? 1)) * 100 : 0;
                                         const iofPct = typeof r.iofRateApplied === "number" ? r.iofRateApplied * 100 : 0;
                                         return (
-                                            <tr key={it.id} className={`transition-colors hover:bg-chart-4 border border-chart ${isBest ? 'bg-gray text-chart-1 font-semibold text-sm' : ''}`}>
+                                            <tr key={it.id} className='transition-colors hover:bg-chart-4 border border-chart text-xs sm:text-sm'>
                                                 <td className="p-2 font-medium text-left border-x-2 border-x-chart">{it.label}</td>
                                                 <td className="p-2 font-semibold text-left border-x-2 border-x-chart">{r.rateType ? (r.rateType === "pre" ? "Pré (a.a.)" : "Pós (% do índice)") : "-"}</td>
                                                 <td className="p-2 border-x-2 border-x-chart">{fmtCurrency(grossFinal)}</td>
-                                                <td className="p-2 text-chart-4 bg-muted-foreground border-x-2 border-x-chart hover:bg-chart-4 hover:text-chart-1">{fmtCurrency(netFinal)}</td>
-                                                <td className="p-2 font-semibold text-center border-x-2 border-x-chart">{r.contributionAtStart ? "Sim" : "Não"}</td>
-                                                <td className="p-2 font-semibold border-x-2 border-x-chart">
-                                                    {r.usedIndexName
-                                                        ? `${r.usedIndexName} (${typeof r.usedIndexAnnual === 'number' ? formatNumber(r.usedIndexAnnual, "percent", "", "percent", { inputIsPercent: true }) : '-'} a.a.)`
-                                                        : "-"}
-                                                </td>
+                                                <td className="p-2 text-chart-1 font-bold bg-gray border-x-2 border-x-chart hover:bg-chart-4 hover:text-chart-1">{fmtCurrency(netFinal)}</td>
                                                 <td className="p-2 border-x-2 border-x-chart">{fmtCurrency(r.totalInvested)}</td>
                                                 <td className="p-2 border-x-2 border-x-chart">{fmtCurrency(r.grossYield)}</td>
                                                 <td className="p-2 border-x-2 border-x-chart ">{fmtCurrency(r.netYield)}</td>
-                                                <td className="p-2 text-right border-x-2 border-x-chart">{(Number.isFinite(r.annualReturnPct) ? fmtPercent(r.annualReturnPct) : '-')}</td>
-                                                <td className="p-2 text-right border-x-2 border-x-chart">{fmtPercent(totalNetReturnPct)}</td>
                                                 <td className="p-2 text-right border-x-2 border-x-chart">
                                                     {(() => {
                                                         const annual = getUsedAnnual(it);
                                                         if (typeof annual === "number") {
                                                             return fmtPercent(annual);
                                                         }
-                                                        const r = it.result;
-                                                        if (r.rateType === "pos" && typeof r.interestRate === "number") {
-                                                            return `${r.interestRate.toFixed(2)}% do índice`;
-                                                        }
                                                         return "-";
                                                     })()}
                                                 </td>
+                                                <td className="p-2 font-semibold border-x-2 border-x-chart">
+                                                    {r.usedIndexName
+                                                        ? `${r.usedIndexName} (${typeof r.usedIndexAnnual === 'number' ? formatNumber(r.usedIndexAnnual, "percent", "", "percent", { inputIsPercent: true }) : '-'} a.a.)`
+                                                        : "-"}
+                                                </td>
+                                                <td className="p-2 text-right border-x-2 border-x-chart">{(Number.isFinite(r.annualReturnPct) ? fmtPercent(r.annualReturnPct) : '-')}</td>
+                                                <td className="p-2 text-right border-x-2 border-x-chart">{fmtPercent(totalNetReturnPct)}</td>
+                                                <td className="p-2 font-semibold text-center border-x-2 border-x-chart">{r.contributionAtStart ? "Sim" : "Não"}</td>
                                                 <td className="p-2 text-right border-x-2 border-x-chart">{fmtPercent(irRate)}</td>
                                                 <td className="p-2 border-x-2 border-x-chart">{fmtCurrency(r.incomeTax)}</td>
                                                 <td className="p-2 text-right border-x-2 border-x-chart">{fmtPercent(iofPct)}</td>
-                                                <td className="p-2 font-semibold text-right border-x-2 border-x-chart">{formatNumber((r.adminFeePercent ?? 0) * 100, "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</td>
+                                                <td className="p-2 font-semibold text-right border-x-2 border-x-chart">{formatNumber((r.adminFeePercent ?? 0), "percent", "", "percent", { inputIsPercent: true, maxFractionDigitsPercent: 2, minFractionDigitsPercent: 2 })}</td>
                                             </tr>
                                         );
                                     })}
@@ -211,22 +219,20 @@ export const ComparisonSummary = ({ items }: Props) => {
                             </table>
                         </div>
                     </div>
-                    {/* Quick highlights */}
                     <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 p-2">
-                        <div className="p-3 bg-gradient-to-r from-background to-ring border rounded-lg shadow-sm">
-                            <div className="text-xs text-muted-foreground">Maior Saldo Final</div>
-                            <div className="font-semibold">{bestInGroup(items, (res) => res.finalValue)?.label ?? '-'}</div>
+                        <div className="p-3 bg-gradient-to-r from-background to-chart-3 border rounded-lg shadow-sm">
+                            <div className="text-xs text-foreground">Maior Saldo Final</div>
+                            <div className="font-semibold">{bestInGroup(sortedComparisons, (res) => res.finalValue)?.label ?? '-'}</div>
                         </div>
-                        <div className="p-3 bg-gradient-to-r from-background to-ring border rounded-lg shadow-sm">
-                            <div className="text-xs text-muted-foreground">Maior Rentab. a.a.</div>
-                            <div className="font-semibold">{bestInGroup(items, (res) => res.annualReturnPct)?.label ?? '-'}</div>
+                        <div className="p-3 bg-gradient-to-r from-background to-chart-3 border rounded-lg shadow-sm">
+                            <div className="text-xs text-foreground">Maior Rentab. a.a.</div>
+                            <div className="font-semibold">{bestInGroup(sortedComparisons, (res) => res.annualReturnPct)?.label ?? '-'}</div>
                         </div>
-                        <div className="p-3 bg-gradient-to-r from-background to-ring border rounded-lg shadow-sm">
-                            <div className="text-xs text-muted-foreground">Menor IR efetivo</div>
-                            <div className="font-semibold">{minEffectiveIr(items)?.label ?? '-'}</div>
+                        <div className="p-3 bg-gradient-to-r from-background to-chart-3 border rounded-lg shadow-sm">
+                            <div className="text-xs text-foreground">Menor IR efetivo</div>
+                            <div className="font-semibold">{minEffectiveIr(sortedComparisons)?.label ?? '-'}</div>
                         </div>
                     </div>
-                    {/* Evolution */}
                     <div className="flex flex-col p-2 mt-3">
                         <div className="w-full mb-3 ">
                             <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -238,14 +244,14 @@ export const ComparisonSummary = ({ items }: Props) => {
                                 value={selectedTypeEvol ?? ""}
                                 onChange={(e) => handleSelectEvolution(e.target.value)}
                             >
-                                {items.map(item => (
+                                {sortedComparisons.map(item => (
                                     <option key={item.id} value={item.id}>
                                         {item.label}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        {items
+                        {sortedComparisons
                             .filter(item => item.id === selectedTypeEvol)
                             .map(item => (
                                 <div key={item.id} className="mt-2">

@@ -57,7 +57,7 @@ export const useCurrencyConversionPageController = () => {
     }
 
     const handleReset = () => {
-        form.reset({ value: '' });
+        form.reset();
         setResult(0);
     };
 

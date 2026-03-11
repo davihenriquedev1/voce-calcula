@@ -16,37 +16,35 @@ export const useInvestmentsPageController = () => {
         mode: "onTouched",
         criteriaMode: "all",
         defaultValues: {
-            initialContribution: 1000,
-            frequentContribution: 0,
-            contributionAtStart: true,
-            term: 12,
+            initialContribution: "R$ 1.000,00",
+            frequentContribution: "R$ 1.000,00",
+            term: "12",
             termType: "months",
-            interestRate: 10,
-            currentSelic: 13.75,
-            currentCdi: 13.65,
-            currentIpca: 4.5,
-            currentFundDi: 13.65,
-            cdiPercent: 100,
-            fundDiPercent: 100,
-            transactionFeePercent: 0,
-            adminFeePercent: 0.0,
-            preConversionSpread: 0.8,
-            issuerCreditSpread: 0.35,
-            compoundingFrequency: "monthly",
-            contributionFrequency: "monthly",
+            contributionAtStart: true,
+            interestRate: "10,00%",
+            preConversionSpread: "0,8",
+            issuerCreditSpread: "0,35",
+            currentSelic: "15,00%",
+            currentCdi: "14,90%",
+            currentIpca: "4,50%",
+            rateAddToIpca: "8,00%",
+            cdiPercentCdb: "100,00%",
+            cdiPercentLci: "95,00%",
+            cdiPercentLca: "92,00%",
+            cdiPercentCri: "105,00%",
+            cdiPercentCra: "105,00%",
+            cdiPercentDebentures: "110,00%",
+            cdiPercentDebIncent: "108,00%",
+            cdiPercentFundDi: "98,00%",
+            adminFeePercent: "0,00%",
+            transactionFeePercent:"0,00%",
+            iofPercent: "3,00%",
             includeIOF: true,
-            iofPercent: 3,
-            incomeTaxTable: [
-                { maxDays: 180, rate: 22.5 },
-                { maxDays: 360, rate: 20 },
-                { maxDays: 720, rate: 17.5 },
-                { maxDays: Infinity, rate: 15 }
-            ],
         }
 
     });
 
-    const { register, handleSubmit, setValue, formState: { errors } } = form;
+    const { register, handleSubmit, formState: { errors } } = form;
 
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<Result | null>(null);
@@ -59,32 +57,7 @@ export const useInvestmentsPageController = () => {
 
         try {
             const parsed = investmentsSchema.parse(values);
-
-            const params = {
-                initialContribution: parsed.initialContribution,
-                frequentContribution: parsed.frequentContribution ?? 0,
-                term: parsed.term,
-                termType: parsed.termType,
-                contributionAtStart: parsed.contributionAtStart,
-                interestRate: parsed.interestRate,
-                currentSelic: parsed.currentSelic,
-                currentCdi: parsed.currentCdi,
-                currentIpca: parsed.currentIpca,
-                currentFundDi: parsed.currentFundDi,
-                cdiPercent: parsed.cdiPercent,
-                fundDiPercent: parsed.fundDiPercent,
-                transactionFeePercent: parsed.transactionFeePercent,
-                adminFeePercent: parsed.adminFeePercent,
-                preConversionSpread: parsed.preConversionSpread,
-                issuerCreditSpread: parsed.issuerCreditSpread,
-                compoundingFrequency: parsed.compoundingFrequency,
-                contributionFrequency: parsed.contributionFrequency,
-                includeIOF: parsed.includeIOF,
-                iofPercent: parsed.iofPercent,
-                incomeTaxTable: parsed.incomeTaxTable,
-            };
-
-            const comparisons = orchestComparisons(params);
+            const comparisons = orchestComparisons(parsed);
             setResult({ results: comparisons });
         } catch (err) {
             setResult({ error: (err as Error).message });
@@ -94,10 +67,7 @@ export const useInvestmentsPageController = () => {
     };
 
     const handleReset = () => {
-        setValue("initialContribution", "1.000,00");
-        setValue("frequentContribution", "0,00");
-        setValue("term", "12");
-        setValue("termType", "months");
+        form.reset();
         setResult(null);
     }
 

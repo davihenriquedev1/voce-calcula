@@ -27,9 +27,6 @@ export const useScientificPageController = () => {
 
 	const { handleSubmit } = form;
 
-	// -------------
-	// Form actions
-	// -------------
 	function onSubmit(value: ScientificFormValue) {
 		const expressionTokens = value.expression;
 		let expressionStr = "";
@@ -43,7 +40,7 @@ export const useScientificPageController = () => {
 					j++;
 				}
 				expressionStr += (t.type === "sup") ? `^(${combined})` : `_(${combined})`;
-				i = j - 1; // pular os que já juntei
+				i = j - 1;
 			} else {
 				expressionStr += t.value;
 			}
@@ -69,19 +66,16 @@ export const useScientificPageController = () => {
 			expression: '', dataResult: {
 				ok: false, result: '', error: ''
 			}
-		}); // Zera o resultado atual
-		form.reset({ expression: [] }); // Reseta o form do React Hook Form 
-		setInputValue([]); // Limpa os tokens digitados
-		setCursorIndex(0); // Reposiciona o cursor no início
+		});
+		form.reset({ expression: [] });
+		setInputValue([]);
+		setCursorIndex(0);
 		setCalcError('');
 		if (inputRef.current) {
 			moveCursor(inputRef.current, 0);
-		}// manda o cursor pro começo do input
+		}
 	}
 
-	// -------------
-	// Input handlers
-	// -------------
 	const handleClickInput = (offset = 0) => {
 		const charIndex = inputValue.reduce((s, t) => s + (t.value.length || 0), 0) + offset;
 		setCursorIndex(charIndex);
@@ -89,38 +83,36 @@ export const useScientificPageController = () => {
 	}
 
 	const handleEraser = () => {
-		if (cursorIndex <= 0) return; // Se o cursor já estiver na posição inicial, não faz nada
+		if (cursorIndex <= 0) return;
 
-		pushHistory(); // Salva o estado atual dos tokens no histórico (cópia) antes de apagar
+		pushHistory();
 
 		setInputValue((prev) => {
-			const charToRemove = cursorIndex - 1; // índice absoluto do caractere a remover
-			let acc = 0; // acumulador pra percorrer os tokens
-			const newTokens = [...prev]; // cópia dos tokens atuais
+			const charToRemove = cursorIndex - 1;
+			let acc = 0;
+			const newTokens = [...prev];
 
-			// Percorre os tokens até encontrar o que contém o caractere a ser removido
 			for (let i = 0; i < newTokens.length; i++) {
 				const t = newTokens[i];
 				const len = t.value.length;
 
-				if (acc + len > charToRemove) { // Se o caractere está dentro deste token
-					const insideIndex = charToRemove - acc; // posição dentro do token
-					const newVal = t.value.slice(0, insideIndex) + t.value.slice(insideIndex + 1); // Remove o caractere da string do token
+				if (acc + len > charToRemove) {
+					const insideIndex = charToRemove - acc;
+					const newVal = t.value.slice(0, insideIndex) + t.value.slice(insideIndex + 1);
 
 					if (newVal.length > 0) {
-						newTokens[i] = { ...t, value: newVal }; // Atualiza o token se ainda restar conteúdo
+						newTokens[i] = { ...t, value: newVal };
 					} else {
-						newTokens.splice(i, 1);  // Remove o token inteiro se ficar vazio
+						newTokens.splice(i, 1);
 					}
-					break; // já encontrou e removeu, sai do loop
+					break;
 				}
-				acc += len; // acumula o tamanho do token e passa pro próximo
+				acc += len;
 			}
 
-			return newTokens; // retorna o novo array de tokens atualizado
+			return newTokens;
 		});
 
-		// Move o cursor uma posição pra trás (já que apagou um caractere)
 		setCursorIndex((prev) => Math.max(0, prev - 1))
 	}
 
@@ -148,26 +140,22 @@ export const useScientificPageController = () => {
 		notationModeCallback(e, e.key);
 	}
 
-	// calcula índice absoluto de caracteres até o token clicado e move o cursor
 	const handleTokenClick = (event: MouseEvent, tokenIndex: number, offset = 0) => {
 		event.preventDefault();
 		event.stopPropagation();
 
 		const target = event.currentTarget as HTMLElement;
-		const rect = target.getBoundingClientRect(); // mede a largura real
-		const clickX = event.clientX - rect.left; // posição do evento clique
+		const rect = target.getBoundingClientRect();
+		const clickX = event.clientX - rect.left;
 
-		// const tokenValue = inputValue[tokenIndex]?.value ?? "";
-		const tokenLength = inputValue[tokenIndex].value.length;  // tamanho do valor do token
+		const tokenLength = inputValue[tokenIndex].value.length;
 
-		// soma de caracteres até o token clicado
 		const baseIndex = inputValue
 			.slice(0, tokenIndex)
 			.reduce((s, t) => s + (t.value.length || 0), 0) + offset;
 
-		// calcular posição aproximada dentro do token com proporção
 		const proportion = rect.width > 0 ? Math.max(0, Math.min(1, clickX / rect.width)) : 0;
-		const insideChar = Math.round(proportion * tokenLength); // 0..tokenLength
+		const insideChar = Math.round(proportion * tokenLength);
 
 		const charIndex = baseIndex + insideChar;
 		setCursorIndex(charIndex);
@@ -180,12 +168,12 @@ export const useScientificPageController = () => {
 
 	const handleUndo = () => {
 		if (history.length === 0) return;
-		const historyCopy = [...history];  // Faz uma cópia do histórico atual
-		if (historyCopy.length === 0) return; // Se não houver histórico, não faz nada
-		const last = historyCopy.pop()!; // Remove o último estado do histórico e obtém ele ("!" garante que não é undefined)
-		setInputValue(last.tokens.map(t => ({ ...t }))); // Atualiza o estado do input e do cursor
+		const historyCopy = [...history];
+		if (historyCopy.length === 0) return;
+		const last = historyCopy.pop()!;
+		setInputValue(last.tokens.map(t => ({ ...t })));
 		setCursorIndex(last.cursor);
-		setHistory(historyCopy);  // Atualiza o histórico sem o último estado
+		setHistory(historyCopy);
 	}
 
 	const handleModeControl = (mode: ScientificNotationMode) => {
@@ -203,8 +191,8 @@ export const useScientificPageController = () => {
 				setNotationMode('sup');
 			}
 			inputRef.current?.focus();
-		} else if (mode === 'scientific') { // se a notação científica estiver ativa
-			pushHistory(); // salva snapshot antes de inserir ×10
+		} else if (mode === 'scientific') {
+			pushHistory();
 			const currentCursorIndex = getCursorIndex(inputRef.current!);
 			let result = calculatorInputHandler("normal", "×", inputValue, currentCursorIndex);
 			let updatedTokens = result.tokens;
@@ -215,19 +203,18 @@ export const useScientificPageController = () => {
 			updatedCursor = updatedCursor + result.inserted;
 
 			setInputValue(updatedTokens);
-			setCursorIndex(updatedCursor); // agora ficará *depois* do "10"
+			setCursorIndex(updatedCursor);
 			setNotationMode("sup");
 		}
 	}
 
 	const insertNegativeExponent1 = () => {
-        inputRef.current?.focus();  // foca o input
+        inputRef.current?.focus();
         
-        // cria token direto como sup
         const rawIndex = getCursorIndex(inputRef.current!);
         const { tokens, inserted } = calculatorInputHandler("sup", "-1", inputValue, rawIndex);
         
-        pushHistory(); // salva snapshot
+        pushHistory();
         setInputValue(tokens);
         setCursorIndex(rawIndex + inserted);
     };
@@ -235,17 +222,17 @@ export const useScientificPageController = () => {
 	const notationModeCallback = (event: React.KeyboardEvent | React.MouseEvent<HTMLButtonElement>, newValue: string) => {
 		event.preventDefault();
 		const mathFunctions = ["mod", "cos", "sin", "tan", "cosh", "sinh", "tanh", "arg", "log", "ln", "re", "im", "conj", "abs", "factor"];
-		const validCharRegex = /^[0-9i!÷%^()+{}\[\]<>πe,.\u221A×?~\-\s+]+$/; // aceita um ou mais caracteres
+		const validCharRegex = /^[0-9i!÷%^()+{}\[\]<>πe,.\u221A×?~\-\s+]+$/;
 		if (!(validCharRegex.test(newValue) || mathFunctions.includes(newValue.toLowerCase()))) return;
 
-		const rawIndex = getCursorIndex(inputRef.current!);// posição real do cursor
-		const totalChars = inputValue.reduce((s, t) => s + (t.value?.length || 0), 0); // calcula quantos caracteres existem atualmente em inputValue
-		const currentCursorIndex = Math.min(rawIndex, totalChars); // garante que o cursor não ultrapasse o total de caracteres
+		const rawIndex = getCursorIndex(inputRef.current!);
+		const totalChars = inputValue.reduce((s, t) => s + (t.value?.length || 0), 0);
+		const currentCursorIndex = Math.min(rawIndex, totalChars);
 
-		const { tokens, inserted } = calculatorInputHandler(notationMode, newValue, inputValue, currentCursorIndex); // Chama a função que insere o novo valor respeitando o tipo de notação
-		pushHistory();// Salva o estado atual no histórico antes da alteração
+		const { tokens, inserted } = calculatorInputHandler(notationMode, newValue, inputValue, currentCursorIndex);
+		pushHistory();
 		setInputValue(tokens);
-		setCursorIndex(currentCursorIndex + inserted); // Ajusta o cursor para a posição correta depois da inserção
+		setCursorIndex(currentCursorIndex + inserted);
 	};
 
 	const pushHistory = (tokens = inputValue, cursor = cursorIndex) => {
@@ -259,7 +246,6 @@ export const useScientificPageController = () => {
 
 	
 	useEffect(() => {
-		// Verifica se o div referenciado existe. Sem isso, tentar manipular o DOM daria erro.
 		if (inputRef.current) {
 			const totalChars = inputValue.reduce((s, t) => s + (t.value?.length || 0), 0);
 			const safeIndex = Math.min(cursorIndex, totalChars);

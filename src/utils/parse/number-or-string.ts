@@ -1,18 +1,16 @@
 import { z } from "zod";
 import stringNumberToNumber from "./string-number-to-number";
 
-// Helper: aceita string mascarada ou number e transforma em number
 export const numberOrString = () =>
     z.preprocess((v) => {
-        let n = 0;
         if (typeof v === "string") {
-            n = stringNumberToNumber(v);
+            return stringNumberToNumber(v);
         } else if (typeof v === "number") {
-            n = v;
+            return Number.isFinite(v) ? v : undefined;
         }
-        return n;
+        return undefined;
     },
-        z.number().refine(n => typeof n === "number" && Number.isFinite(n), {
-            message: "Deve ser um número válido",
-        }
-        )).optional();
+        z.number({
+            invalid_type_error: "Deve ser um número válido"
+        })
+    );

@@ -8,14 +8,11 @@ export const amortByTermReduction = (newSchedule: LoansSchedule[], balance: numb
         let principal: number;
         if(method === "price") {
             principal = round2(fixedPayment - interest);
-            // último pagamento pode ser menor que a parcela fixa
             if (principal <= 0) {
-                // caso raro: juros >= parcela fixa, evita loop infinito
-                principal = Math.min(balance, round2(balance)); // quita com o que restar
+                principal = Math.min(balance, round2(balance));
             }
             if (principal > balance) principal = balance;
         } else {
-            // SAC: amortização constante = P / n (usa o principal original como referência)
             const principalConst = round2(financed / n);
             principal = round2(Math.min(principalConst, balance));
         }

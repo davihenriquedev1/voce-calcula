@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Suspense } from "react";
 import { MainProvider } from "@/providers/MainProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar/AppSidebar";
 import Header from "@/components/layout/header/Header";
-import { LoadingBounce } from "@/components/ui/custom/Loading";
 import { Footer } from "@/components/layout/footer/Footer";
+import PageTransition from "@/components/layout/PageTransition";
 
 export const metadata: Metadata = {
 	title: {
@@ -29,10 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 						{/* Conteúdo principal */}
 						<div className="flex flex-col flex-1">
 							<Header />
-							<main className="flex-1">
-								<Suspense fallback={<LoadingBounce/>}>
+							<main className="flex-1 animate-in fade-in duration-300">
+								<PageTransition>
 									{children}
-								</Suspense>
+								</PageTransition>
 							</main>
 							<Footer />
 						</div>

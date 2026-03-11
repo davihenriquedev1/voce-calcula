@@ -1,7 +1,7 @@
 export const moveCursor = (inputElement: HTMLElement, index: number) => {
 
-    const rangeTextRep = document.createRange(); // instância de um objeto Range que é usado para representar uma seleção de texto no documento
-    const selection = window.getSelection(); // obtém a seleção atual (que pode conter um cursor de texto) 
+    const rangeTextRep = document.createRange();
+    const selection = window.getSelection(); 
 
     if (!selection) return;
 

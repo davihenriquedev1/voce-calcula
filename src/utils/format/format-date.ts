@@ -14,7 +14,7 @@ export const formatDate = (dateInput: string | Date, options?: FormatDateOptions
         if (options?.format === "monthYear") {
             const [year, month] = dateInput.split("-").map(Number);
             if (!year || !month) return "";
-            date = new Date(year, month - 1, 1); // sempre dia 1
+            date = new Date(year, month - 1, 1);
         } else {
             const [year, month, day] = dateInput.split("-").map(Number);
             if (!year || !month || !day) return "";
@@ -26,7 +26,6 @@ export const formatDate = (dateInput: string | Date, options?: FormatDateOptions
 
     const locale = options?.locale ?? "pt-BR";
 
-    // Predefinições de formatos
     let defaultOptions: Intl.DateTimeFormatOptions;
     switch (options?.format) {
         case "short":

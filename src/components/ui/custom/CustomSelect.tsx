@@ -24,10 +24,11 @@ type Props = {
     placeholder?:string
     options: Option[];
     defaultValue?: string;
+    title?: string
 }
 
 export const CustomSelect = React.forwardRef<HTMLButtonElement, Props>(
-({ form, name, label, placeholder, options, defaultValue }, ref) => {
+({ form, name, label, placeholder, options, title}, ref) => {
 
     const { control } = form;
 
@@ -37,10 +38,10 @@ export const CustomSelect = React.forwardRef<HTMLButtonElement, Props>(
             control={control}
             name={name}
             render={({ field }) => (
-                <FormItem className="flex-1 w-full" >
+                <FormItem className="flex-1 w-full" title={title}>
                     <FormLabel className="font-bold">{label}</FormLabel>
                     <FormControl >
-                        <Select onValueChange={field.onChange} defaultValue={defaultValue} >
+                        <Select value={field.value ?? ""} onValueChange={field.onChange}>
                             <SelectTrigger ref={ref} className="text-start" >
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
