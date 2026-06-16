@@ -11,7 +11,7 @@ describe("calcPricePayment", ()=> {
         const result = calcPricePayment(amount, monthlyRate, termMonths);
 
         // Fórmula esperada: PMT = P * i / (1 - (1 + i)^-n)
-        const i = 0.12 / 12;
+        const i = Math.pow(1 + 0.12, 1 / 12) - 1;
         const expected = amount * (i / (1 - Math.pow(1 + i, -termMonths)));
 
         expect(result).toBeCloseTo(expected, 2);
