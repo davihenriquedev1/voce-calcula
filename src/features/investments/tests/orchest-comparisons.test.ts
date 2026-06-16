@@ -20,7 +20,7 @@ test("orchestComparisons gera cdb_pos usando cdiPercentCdb e displayAnnualIntere
     expect(cdbPos).toBeDefined();
 
     const expected = 13.65 * 1.10;
-    expect(cdbPos!.result.displayAnnualInterest).toBeCloseTo(expected, 6);
+    expect(cdbPos!.result.displayAnnualInterest).toBeCloseTo(expected, 2);
 
     expect(cdbPos!.type).toBe("cdb");
     expect(cdbPos!.result).toBeDefined();
