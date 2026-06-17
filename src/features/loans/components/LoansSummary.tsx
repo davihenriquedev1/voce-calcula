@@ -23,7 +23,7 @@ const LoansSummary = ({summary, creditOptions, amortizationTypeOptions}: Props)=
 				</div>
 				<div>
 					<div className="text-sm">Vencimento</div>
-					<div className="font-bold text-2xl">{summary.startDate? 'dia ' + new Date(summary.startDate).getDate() + 1 : '--'}</div>
+					<div className="font-bold text-2xl">{summary.startDate? 'dia ' + (new Date(summary.startDate).getDate() + 1) : '--'}</div>
 				</div>
 				<div>
 					<div className="text-sm">Entrada</div>
@@ -67,7 +67,7 @@ const LoansSummary = ({summary, creditOptions, amortizationTypeOptions}: Props)=
 				</div>
 				<div>
 					<div className="text-sm">Juros Mensais</div>
-					<div className="font-bold text-2xl">{formatNumber(summary.monthlyRate, "percent",  undefined, "percent")}</div>
+					<div className="font-bold text-2xl">{formatNumber(summary.monthlyRate, "percent",  undefined, "percent", {inputIsPercent: true, maxFractionDigitsPercent: 4, minFractionDigitsPercent: 4})}</div>
 				</div>
 				<div>
 					<div className="text-sm">Juros Base Total</div>
