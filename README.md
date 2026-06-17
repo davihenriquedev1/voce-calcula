@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Você Calcula 🧮
 
-## Getting Started
+Hub de calculadoras utilitárias construído com React e Next.js, focado em organização de código, experiência de usuário e práticas modernas de desenvolvimento front-end.
 
-First, run the development server:
+---
+
+## Preview
+
+![Preview do projeto](./public/preview.png)
+
+---
+
+## Sobre o projeto
+
+O **Você Calcula** é uma aplicação web que reúne diferentes ferramentas de cálculo do dia a dia, como finanças, saúde e matemática.
+
+O projeto foi criado com foco em prática de desenvolvimento front-end moderno, incluindo componentização, consumo de APIs, validação de dados e organização por módulos (*feature-based architecture*).
+
+A ideia é simular um produto real, com escalabilidade e manutenção em mente.
+
+Obs.: Este repositório é do FRONT-END da aplicação. Para ver o BACK-END acesse o repositório [voce-calcula-backend](https://github.com/davihenriquedev1/voce-calcula-backend/)
+
+---
+
+## Funcionalidades
+
+- **Saúde**
+  - Calculadora de IMC
+  - Calculadora de TMB (Taxa Metabólica Basal)
+
+- **Finanças**
+  - Conversor de moedas (API externa)
+  - Simulador de investimentos
+  - Calculadora de empréstimos com tabela de amortização
+
+- **Matemática**
+  - Calculadora científica
+
+- **Interface**
+  - Tema claro/escuro
+  - Animações de interface
+
+---
+
+## Tecnologias
+
+![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Radix UI](https://img.shields.io/badge/Radix_UI-000000?style=for-the-badge&logo=radix-ui&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-EF008F?style=for-the-badge&logo=framer&logoColor=white)
+
+![React Hook Form](https://img.shields.io/badge/React_Hook_Form-EC5990?style=for-the-badge)
+![Zod](https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge)
+
+![React Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-FF6B6B?style=for-the-badge)
+
+![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)
+![Testing Library](https://img.shields.io/badge/Testing_Library-E33332?style=for-the-badge&logo=testinglibrary&logoColor=white)
+
+---
+
+## Como rodar o projeto
+
+```bash
+git clone https://github.com/davihenriquedev1/voce-calcula.git
+
+cd voce-calcula
+npm install
+````
+
+Crie um arquivo `.env` baseado no `.env.example` (caso necessário).
+
+Depois rode o projeto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A aplicação ficará disponível em:
+[localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estrutura do projeto
 
-## Learn More
+O projeto segue uma organização baseada em features, separando responsabilidades por domínio:
 
-To learn more about Next.js, take a look at the following resources:
+```
+/src
+  /app           # Rotas (Next.js App Router)
+  /components    # Componentes reutilizáveis
+  /features      # Módulos da aplicação (bmi, loans, etc.)
+  /hooks         # Hooks personalizados
+  /providers     # Contextos globais
+  /utils         # Funções auxiliares
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Melhorias futuras
 
-## Deploy on Vercel
+* Melhorias de performance em tabelas grandes
+* Aumento da cobertura de testes
+* Adicionar mais páginas de calculadoras diversas
+* Melhorias de acessibilidade
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+![Vercel](https://img.shields.io/badge/deploy-vercel-black?style=for-the-badge&logo=vercel)
+
+Acesse o site:
+[voce-calcula.vercel.app](https://voce-calcula.vercel.app)
