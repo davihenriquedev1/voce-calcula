@@ -2,7 +2,6 @@
 
 import { NavLink } from "../../ui/custom/NavLink"
 
-
 export const UsefulLinks = () => {
     return (
         <div className="flex flex-col flex-1 text-center md:text-end">
@@ -10,7 +9,6 @@ export const UsefulLinks = () => {
             <nav>
                 <ul className="flex flex-col gap-2 text-center xs:text-start md:items-end opacity-70">
                     <NavLink route="/sobre" text="Sobre"/>
-                    <NavLink route="/contato" text="Contate-nos"/>
                     <NavLink route="/faq" text="FAQ"/>
                     <NavLink route="/politica-de-privacidade" text="Termos e privacidade"/>
                 </ul>
