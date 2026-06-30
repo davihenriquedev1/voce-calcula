@@ -61,7 +61,18 @@ export const useCurrencyConversionPageController = () => {
         setResult(0);
     };
 
-    return { form, errorMessage, handleReset, handleSubmit, onSubmit, watch, result, options, lastUpdate }
+    const handleSwap = () => {
+        const origin = form.getValues('originCurrency');
+        const destiny = form.getValues('destinyCurrency');
+
+        form.setValue('originCurrency', destiny);
+        form.setValue('destinyCurrency', origin);
+
+        form.setValue('value', '0');
+        setResult(0);
+    };
+
+    return { form, errorMessage, handleReset, handleSubmit, onSubmit, watch, result, options, lastUpdate, handleSwap }
 }
 
 export type CurrencyConversionController = ReturnType<typeof useCurrencyConversionPageController>;

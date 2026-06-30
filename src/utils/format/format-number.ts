@@ -1,6 +1,16 @@
 import { NumberFormat } from "@/types/number-format";
 import { Unit } from "@/types/unit";
 
+const getFractionDigits = (value: number) => {
+    const abs = Math.abs(value);
+
+    if (abs >= 1 || abs === 0) return 2;
+    if (abs >= 0.01) return 4;
+    if (abs >= 0.0001) return 6;
+    if (abs >= 0.000001) return 10;
+    return 12;
+};
+
 export const formatNumber = (value: number | string, format: NumberFormat = 'decimal', currency: string = 'brl', unit?: Unit, options?: {inputIsPercent: boolean, minFractionDigitsPercent?: number, maxFractionDigitsPercent?: number })=> {
     if (typeof value === "string") {
         let cleaned = String(value).replace(/[^\d,.-]/g, "");
@@ -15,12 +25,16 @@ export const formatNumber = (value: number | string, format: NumberFormat = 'dec
         value = 0;
     }
 
+    const fractionDigits = getFractionDigits(value);
+
     switch(format) {
         case "currency":
+        
             return new Intl.NumberFormat("pt-BR", {
                 style: "currency",
                 currency,
-                minimumFractionDigits: 2, maximumFractionDigits: 2  
+                minimumFractionDigits: fractionDigits, 
+                maximumFractionDigits: fractionDigits
             }).format(value);
         case "percent":
             const inputIsPercent = options?.inputIsPercent ?? false;
@@ -50,14 +64,14 @@ export const formatNumber = (value: number | string, format: NumberFormat = 'dec
             return  new Intl.NumberFormat("pt-BR", {
                 style: "unit",
                 unit: unit ?? "meter",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
             }).format(value);
         default:
             return  new Intl.NumberFormat("pt-BR", {
                 style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
             }).format(value);
     }
 }
